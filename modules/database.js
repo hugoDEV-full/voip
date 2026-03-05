@@ -1,5 +1,7 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
+const DatabaseSetup = require('./databaseSetup');
+const { QuickUserRegistration } = require('./userRegistration');
 
 // Database configuration
 const dbConfig = {
@@ -15,23 +17,46 @@ const dbConfig = {
 };
 
 let pool;
+let isInitialized = false;
 
-// Initialize database connection
+// Initialize database connection and setup
 async function initDatabase() {
+  if (isInitialized) {
+    return true;
+  }
+
   try {
+    console.log('🔧 Initializing database with automatic setup...');
+    
+    // First, run the automatic setup
+    const dbSetup = new DatabaseSetup(dbConfig);
+    const setupResult = await dbSetup.initializeDatabase();
+    
+    if (!setupResult.success) {
+      console.error('❌ Database setup failed:', setupResult.error);
+      return false;
+    }
+    
+    // Create connection pool
     pool = mysql.createPool(dbConfig);
     
     // Test connection
     const connection = await pool.getConnection();
-    console.log('✅ MySQL connected successfully');
+    console.log('✅ MySQL connection pool created successfully');
     connection.release();
     
-    // Create tables if they don't exist
-    await createTables();
+    // Quick register default users (in case setup missed them)
+    const userReg = new QuickUserRegistration(dbConfig);
+    await userReg.registerDefaultUsersQuick();
     
+    // Verify setup
+    await verifyDatabaseSetup();
+    
+    isInitialized = true;
     return true;
+    
   } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
+    console.error('❌ Database initialization failed:', error.message);
     
     // Fallback to in-memory storage for demo
     if (process.env.NODE_ENV === 'production') {
@@ -42,7 +67,43 @@ async function initDatabase() {
   }
 }
 
-// Create database tables
+// Verify database setup
+async function verifyDatabaseSetup() {
+  try {
+    const connection = await pool.getConnection();
+    
+    // Check tables
+    const [tables] = await connection.execute('SHOW TABLES');
+    const tableNames = tables.map(t => Object.values(t)[0]);
+    
+    console.log('📋 Database tables:', tableNames.join(', '));
+    
+    // Check users
+    const [users] = await connection.execute('SELECT COUNT(*) as count FROM users');
+    console.log(`👥 Users in database: ${users[0].count}`);
+    
+    // Show users
+    const [userList] = await connection.execute(
+      'SELECT username, role, created_at FROM users ORDER BY created_at'
+    );
+    
+    if (userList.length > 0) {
+      console.log('📋 Registered users:');
+      userList.forEach(user => {
+        console.log(`  👤 ${user.username} (${user.role})`);
+      });
+    }
+    
+    connection.release();
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Database verification failed:', error.message);
+    return false;
+  }
+}
+
+// Create database tables (fallback method)
 async function createTables() {
   const createUsersTable = `
     CREATE TABLE IF NOT EXISTS users (
@@ -56,7 +117,8 @@ async function createTables() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       last_login TIMESTAMP NULL,
       INDEX idx_username (username),
-      INDEX idx_role (role)
+      INDEX idx_role (role),
+      INDEX idx_active (active)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `;
   
@@ -77,42 +139,21 @@ async function createTables() {
   `;
   
   try {
+    if (!pool) {
+      throw new Error('Database pool not initialized');
+    }
+    
     await pool.execute(createUsersTable);
     await pool.execute(createSessionsTable);
     console.log('✅ Database tables ready');
     
-    // Create default users if table is empty
-    await createDefaultUsers();
+    // Register default users
+    const userReg = new QuickUserRegistration(dbConfig);
+    await userReg.registerDefaultUsersQuick();
+    
   } catch (error) {
     console.error('❌ Error creating tables:', error.message);
     throw error;
-  }
-}
-
-// Create default users
-async function createDefaultUsers() {
-  try {
-    const [rows] = await pool.execute('SELECT COUNT(*) as count FROM users');
-    
-    if (rows[0].count === 0) {
-      const defaultUsers = [
-        { username: 'admin', password: 'admin123', email: 'admin@voip.com', role: 'admin' },
-        { username: 'voip', password: 'monitor2024', email: 'voip@voip.com', role: 'operator' },
-        { username: 'demo', password: 'demo123', email: 'demo@voip.com', role: 'viewer' }
-      ];
-      
-      for (const user of defaultUsers) {
-        const passwordHash = await bcrypt.hash(user.password, 12);
-        await pool.execute(
-          'INSERT INTO users (username, password_hash, email, role) VALUES (?, ?, ?, ?)',
-          [user.username, passwordHash, user.email, user.role]
-        );
-      }
-      
-      console.log('✅ Default users created');
-    }
-  } catch (error) {
-    console.error('❌ Error creating default users:', error.message);
   }
 }
 
@@ -120,6 +161,10 @@ async function createDefaultUsers() {
 class UserDatabase {
   static async authenticateUser(username, password) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       const [rows] = await pool.execute(
         'SELECT id, username, password_hash, email, role, active FROM users WHERE username = ? AND active = TRUE',
         [username]
@@ -154,6 +199,10 @@ class UserDatabase {
   
   static async createUser(userData) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       const { username, password, email, role = 'viewer' } = userData;
       
       // Check if user already exists
@@ -186,6 +235,10 @@ class UserDatabase {
   
   static async getUserById(userId) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       const [rows] = await pool.execute(
         'SELECT id, username, email, role, active, created_at, last_login FROM users WHERE id = ? AND active = TRUE',
         [userId]
@@ -200,6 +253,10 @@ class UserDatabase {
   
   static async updateUserLastLogin(userId) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       await pool.execute(
         'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
         [userId]
@@ -216,6 +273,10 @@ class UserDatabase {
 class SessionDatabase {
   static async createSession(userId, tokenHash, expiresAt, ipAddress = null, userAgent = null) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       const [result] = await pool.execute(
         'INSERT INTO user_sessions (user_id, token_hash, expires_at, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
         [userId, tokenHash, expiresAt, ipAddress, userAgent]
@@ -230,6 +291,10 @@ class SessionDatabase {
   
   static async validateSession(tokenHash) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       // Clean expired sessions first
       await pool.execute('DELETE FROM user_sessions WHERE expires_at < NOW()');
       
@@ -262,6 +327,10 @@ class SessionDatabase {
   
   static async deleteSession(tokenHash) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       const [result] = await pool.execute(
         'DELETE FROM user_sessions WHERE token_hash = ?',
         [tokenHash]
@@ -276,6 +345,10 @@ class SessionDatabase {
   
   static async deleteAllUserSessions(userId) {
     try {
+      if (!pool) {
+        throw new Error('Database not initialized');
+      }
+      
       const [result] = await pool.execute(
         'DELETE FROM user_sessions WHERE user_id = ?',
         [userId]
@@ -294,11 +367,17 @@ function getPool() {
   return pool;
 }
 
+// Check if database is initialized
+function isDatabaseInitialized() {
+  return isInitialized;
+}
+
 // Close database connection
 async function closeDatabase() {
   if (pool) {
     await pool.end();
     console.log('Database connection closed');
+    isInitialized = false;
   }
 }
 
@@ -307,5 +386,8 @@ module.exports = {
   UserDatabase,
   SessionDatabase,
   getPool,
-  closeDatabase
+  closeDatabase,
+  isDatabaseInitialized,
+  createTables,
+  verifyDatabaseSetup
 };

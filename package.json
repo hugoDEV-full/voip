@@ -5,7 +5,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "deploy": "node scripts/deploy.js && node server.js",
+    "setup-db": "node scripts/deploy.js"
   },
   "engines": {
     "node": ">=18.0.0"
