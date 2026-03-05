@@ -432,12 +432,33 @@ function getUserSession() {
 }
 
 // Display user info
-function displayUserInfo() {
-  const session = getUserSession();
-  if (session && session.username) {
-    const userDisplay = document.getElementById('userDisplay');
-    if (userDisplay) {
-      userDisplay.textContent = session.username;
+async function displayUserInfo() {
+  try {
+    const response = await fetch('/auth/me');
+    const data = await response.json();
+    
+    if (data.success && data.user) {
+      const userDisplay = document.getElementById('userDisplay');
+      if (userDisplay) {
+        userDisplay.textContent = data.user.username;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching user info:', error);
+    // Fallback: try to get from session (shouldn't happen with proper auth)
+    const session = localStorage.getItem('voipSession') || sessionStorage.getItem('voipSession');
+    if (session) {
+      try {
+        const sessionData = JSON.parse(session);
+        if (sessionData.username) {
+          const userDisplay = document.getElementById('userDisplay');
+          if (userDisplay) {
+            userDisplay.textContent = sessionData.username;
+          }
+        }
+      } catch (e) {
+        // Invalid session
+      }
     }
   }
 }
@@ -448,16 +469,12 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   
   try {
     // Call logout API
-    const response = await fetch('/logout', {
+    const response = await fetch('/auth/logout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       }
     });
-    
-    // Clear local session
-    localStorage.removeItem('voipSession');
-    sessionStorage.removeItem('voipSession');
     
     // Show success message
     const dict = i18n[currentLang];
@@ -474,9 +491,7 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
     
   } catch (error) {
     console.error('Logout error:', error);
-    // Fallback: clear session and redirect anyway
-    localStorage.removeItem('voipSession');
-    sessionStorage.removeItem('voipSession');
+    // Fallback: redirect anyway
     window.location.href = '/login.html';
   }
 });

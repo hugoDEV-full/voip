@@ -1,10 +1,3 @@
-// Valid credentials (in production, these should be stored securely)
-const VALID_CREDENTIALS = [
-  { username: 'admin', password: 'admin123' },
-  { username: 'voip', password: 'monitor2024' },
-  { username: 'demo', password: 'demo123' }
-];
-
 // Translation dictionary
 const i18n = {
   pt: {
@@ -124,35 +117,32 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + 
                        i18n[currentLang].loggingIn;
   
-  // Simulate authentication delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Validate credentials against the list
-  const isValid = VALID_CREDENTIALS.some(cred => 
-    cred.username === username.trim() && cred.password === password.trim()
-  );
-  
-  if (isValid) {
-    // Store session
-    const session = {
-      username: username,
-      loginTime: new Date().toISOString(),
-      rememberMe: rememberMe
-    };
+  try {
+    // Call authentication API
+    const response = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
     
-    if (rememberMe) {
-      localStorage.setItem('voipSession', JSON.stringify(session));
+    const data = await response.json();
+    
+    if (data.success) {
+      showNotification(i18n[currentLang].loginSuccess, 'success');
+      
+      // Redirect to dashboard after delay
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
     } else {
-      sessionStorage.setItem('voipSession', JSON.stringify(session));
+      showNotification(data.error || i18n[currentLang].loginError, 'danger');
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
     }
-    
-    showNotification(i18n[currentLang].loginSuccess, 'success');
-    
-    // Redirect to dashboard
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1000);
-  } else {
+  } catch (error) {
+    console.error('Login error:', error);
     showNotification(i18n[currentLang].loginError, 'danger');
     submitBtn.disabled = false;
     submitBtn.textContent = originalText;
@@ -160,22 +150,19 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 });
 
 // Check if user is already logged in
-function checkExistingSession() {
-  const session = localStorage.getItem('voipSession') || sessionStorage.getItem('voipSession');
-  
-  if (session) {
-    try {
-      const sessionData = JSON.parse(session);
-      // If session is valid, redirect to dashboard
-      if (sessionData.username) {
-        window.location.href = '/';
-        return;
-      }
-    } catch (e) {
-      // Invalid session, clear it
-      localStorage.removeItem('voipSession');
-      sessionStorage.removeItem('voipSession');
+async function checkExistingSession() {
+  try {
+    const response = await fetch('/auth/verify');
+    const data = await response.json();
+    
+    if (data.valid) {
+      // User is already logged in, redirect to dashboard
+      window.location.href = '/';
+      return;
     }
+  } catch (error) {
+    // Not logged in or API error, continue to login page
+    console.log('Not authenticated');
   }
 }
 

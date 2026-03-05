@@ -1,6 +1,7 @@
 const path = require('path');
 const http = require('http');
 const os = require('os');
+const cookieParser = require('cookie-parser');
 
 const express = require('express');
 const { Server } = require('socket.io');
@@ -9,6 +10,8 @@ const { createCall } = require('./modules/sipSimulator');
 const { RtpAnalyzer } = require('./modules/rtpAnalyzer');
 const { parseSipLogFile } = require('./modules/pcapParser');
 const { startEventSimulator } = require('./modules/eventSimulator');
+const { verifySessionToken } = require('./modules/auth');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,14 +19,14 @@ const io = new Server(server);
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Authentication middleware
 function requireAuth(req, res, next) {
-  const session = req.headers.cookie?.match(/voipSession=([^;]+)/);
-  const sessionData = session ? decodeURIComponent(session[1]) : null;
+  const token = req.cookies.voipSession;
   
-  if (!sessionData) {
+  if (!token) {
     // Check if requesting login page or static assets
     if (req.path === '/login.html' || req.path === '/login.js' || 
         req.path.startsWith('/node_modules/') || 
@@ -34,25 +37,41 @@ function requireAuth(req, res, next) {
     return res.redirect('/login.html');
   }
   
-  try {
-    const parsedSession = JSON.parse(sessionData);
-    if (parsedSession.username) {
+  const verification = verifySessionToken(token);
+  
+  if (!verification.valid) {
+    // Clear invalid token
+    res.clearCookie('voipSession');
+    
+    // Check if requesting login page or static assets
+    if (req.path === '/login.html' || req.path === '/login.js' || 
+        req.path.startsWith('/node_modules/') || 
+        req.path.endsWith('.css') || 
+        req.path.endsWith('.js') && req.path !== '/login.js') {
       return next();
     }
-  } catch (e) {
-    // Invalid session
+    return res.redirect('/login.html');
   }
   
-  res.redirect('/login.html');
+  // Add user info to request
+  req.user = verification.user;
+  next();
 }
 
-// Apply auth middleware to all routes except login
-app.use(requireAuth);
+// Apply auth middleware to all routes except login and auth API
+app.use((req, res, next) => {
+  if (req.path.startsWith('/auth/')) {
+    return next();
+  }
+  requireAuth(req, res, next);
+});
 
-// Logout route
+// Auth routes
+app.use('/auth', authRoutes);
+
+// Legacy logout route (redirect to auth)
 app.post('/logout', (req, res) => {
-  res.clearCookie('voipSession');
-  res.json({ success: true });
+  res.redirect('/auth/logout');
 });
 
 const state = {
