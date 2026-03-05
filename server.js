@@ -15,7 +15,12 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production' ? false : true,
+    methods: ['GET', 'POST']
+  }
+});
 
 // Middleware
 app.use(express.json());

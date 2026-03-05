@@ -19,45 +19,99 @@ O sistema possui uma tela de login simulada para proteção básica:
 - Interface bilíngue na tela de login (PT/EN)
 - Proteção de rotas no servidor
 
-## Deploy no Railway
+## 🚀 Deploy no Railway
 
 ### Pré-requisitos
 - Conta no Railway (https://railway.app)
 - Git instalado localmente
-- Repositório GitHub (ou Railway Git)
+- Repositório GitHub
 
-### Passos para Deploy
+### ⚙️ Configurações Automáticas
+O projeto já está configurado com:
+- **Porta dinâmica**: `process.env.PORT` (Railway define automaticamente)
+- **Health check**: `/login.html` (página de login)
+- **Variáveis de ambiente**: `NODE_ENV=production`
+- **Build**: Nixpacks com `npm install`
+- **Restart**: Automático em falhas (até 10 tentativas)
+
+### 📋 Passos para Deploy
 
 1. **Fazer upload do projeto para GitHub**
    ```bash
-   git init
    git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/SEU-USUARIO/voip-interview-demo.git
-   git push -u origin main
+   git commit -m "Ready for Railway deploy"
+   git push origin main
    ```
 
 2. **Criar novo projeto no Railway**
    - Acesse https://railway.app
    - Clique em "New Project" → "Deploy from GitHub repo"
-   - Selecione seu repositório
-   - Railway detectará automaticamente que é um projeto Node.js
+   - Selecione o repositório `hugoDEV-full/voip`
+   - Railway detectará automaticamente Node.js
 
-3. **Configurações (se necessário)**
-   - Railway usará automaticamente a porta definida em `process.env.PORT`
-   - O arquivo `railway.json` já está configurado para:
-     - Usar Nixpacks para build
-     - Health check na raiz ("/")
-     - Restart automático em falhas
+3. **Aguardar deploy**
+   - O build levará 2-3 minutos
+   - Railway instalará dependências automaticamente
+   - O servidor iniciará na porta fornecida
 
-4. **Variáveis de ambiente (opcional)**
-   - Não são necessárias variáveis extras
-   - O sistema funciona com configurações padrão
+4. **Acessar aplicação**
+   - Railway fornecerá URL pública
+   - Ex: `https://voip-production.up.railway.app`
 
-5. **Acessar a aplicação**
-   - Após deploy, Railway fornecerá uma URL pública
-   - Ex: https://voip-monitoring.up.railway.app
+### 🧪 Teste de Funcionalidades
+
+Após o deploy, teste todas as funcionalidades:
+
+1. **Acesso inicial**
+   - Redireciona para `/login.html`
+   - Página carrega com design moderno
+
+2. **Autenticação**
+   - Login com `admin` / `admin123`
+   - Redireciona para dashboard
+   - Mostra nome do usuário
+
+3. **Funcionalidades Principais**
+   - Botão "Iniciar chamada (normal)"
+   - Botão "Iniciar chamada (one-way audio)"
+   - Botão "Iniciar chamada (NAT incorreto)"
+   - Botão "Analisar tráfego SIP"
+   - Alertas em tempo real
+
+4. **Socket.io (WebSocket)**
+   - Eventos em tempo real funcionando
+   - Chamadas ativas atualizam
+   - Sistema stats atualiza
+
+5. **Modal "Como funciona?"**
+   - Abas Geral, SAMU DF, Controle de Frota
+   - Exemplos práticos traduzidos
+   - Alternância PT/EN
+
+6. **Internacionalização**
+   - Seletor de idioma PT/EN
+   - Todo conteúdo traduzido
+   - Persistência de idioma
+
+7. **Logout**
+   - Botão de logout funciona
+   - Limpa sessão corretamente
+   - Redireciona para login
+
+### 🔧 Troubleshooting
+
+Se algo não funcionar no Railway:
+
+1. **Verificar logs** no painel do Railway
+2. **Fazer redeploy** com novas alterações
+3. **Verificar variáveis de ambiente**
+4. **Testar localmente** com `npm start`
+
+### 📊 Monitoramento
+
+- **Health check**: Railway monitora `/login.html`
+- **Logs**: Disponíveis no painel do Railway
+- **Métricas**: CPU, memória, tráfego
 
 ### Funcionalidades
 
