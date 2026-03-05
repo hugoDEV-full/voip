@@ -267,9 +267,14 @@ async function startServer() {
 // Start the server
 startServer();
 
-// Help page route
+// Serve help page without authentication
 app.get('/ajuda', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'ajuda.html'));
+});
+
+// Serve technical demo page without authentication
+app.get('/technical-demo', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'technical-demo.html'));
 });
 
 // Graceful shutdown

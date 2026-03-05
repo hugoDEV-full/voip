@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Demo - VoIP Interview Scenarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .scenario-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #007bff;
+        }
+        .scenario-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .tech-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .answer-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        .demo-terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .tool-icon {
+            font-size: 2rem;
+            color: #007bff;
+        }
+        .workflow-step {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+        }
+        .architecture-diagram {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="bi bi-telephone-fill"></i> VoIP Monitor
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/dashboard">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a class="nav-link active" href="/technical-demo">
+                    <i class="bi bi-code-slash"></i> Technical Demo
+                </a>
+                <a class="nav-link" href="/ajuda">
+                    <i class="bi bi-question-circle"></i> Ajuda
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold">
+                <i class="bi bi-cpu"></i> Technical Interview Scenarios
+            </h1>
+            <p class="lead text-muted">
+                Demonstração prática de cenários reais de VoIP com soluções empresariais
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <span class="tech-badge">FreeSWITCH</span>
+                <span class="tech-badge">OpenSIPS</span>
+                <span class="tech-badge">Kamailio</span>
+                <span class="tech-badge">Node.js</span>
+                <span class="tech-badge">WebSockets</span>
+                <span class="tech-badge">PCAP Analysis</span>
+            </div>
+        </div>
+
+        <!-- Scenario 1: One-Way Audio Resolution -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card scenario-card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-bug"></i> Scenario 1: One-Way Audio Resolution
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-question-circle text-primary"></i> Question:</h5>
+                                <p class="fst-italic">
+                                    "Tell me about a time you resolved a one-way audio or dropped call issue using SIP traces and PCAPs. 
+                                    What did you find, and how did you fix it?"
+                                </p>
+                                
+                                <h5><i class="bi bi-lightbulb text-warning"></i> Technical Approach:</h5>
+                                <ul>
+                                    <li><strong>Tools:</strong> sngrep + Wireshark for SIP/RTP analysis</li>
+                                    <li><strong>Detection:</strong> RTP packets reaching only one direction</li>
+                                    <li><strong>Root Cause:</strong> NAT configuration issue in FreeSWITCH</li>
+                                    <li><strong>Solution:</strong> External IP correction + firewall rules</li>
+                                </ul>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-1-circle-fill"></i> Analysis Phase</h6>
+                                    <div class="demo-terminal">
+$ sngrep -d any -I pcap_capture.pcap
+SIP Request: INVITE sip:user@domain.com
+From: +5511912345678
+To: +5511987654321
+Call-ID: call-12345@freeswitch
+
+$ wireshark -r pcap_capture.pcap
+RTP Stream Analysis:
+SSRC: 0x12345678 (Direction: Outbound Only)
+Packets: 50 sent, 0 received
+Loss: 100%
+                                    </div>
+                                </div>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-2-circle-fill"></i> Solution Implementation</h6>
+                                    <div class="code-block">
+<!-- FreeSWITCH Configuration -->
+&lt;configuration name="sip-settings"&gt;
+  &lt;param name="ext-rtp-ip" value="200.150.10.20"/&gt;
+  &lt;param name="ext-sip-ip" value="200.150.10.20"/&gt;
+  &lt;param name="rtp-ip" value="$${local_ip_v4}"/&gt;
+&lt;/configuration&gt;
+
+<!-- Firewall Rules -->
+iptables -A INPUT -p udp --dport 10000:20000 -j ACCEPT
+iptables -A OUTPUT -p udp --sport 10000:20000 -j ACCEPT
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-check-circle text-success"></i> Answer & Results:</h5>
+                                <div class="answer-section">
+                                    <p>
+                                        <strong>"In one situation, I used sngrep and Wireshark to check the SIP signaling 
+                                        and noticed that RTP was not reaching one side because of a NAT configuration issue. 
+                                        After adjusting the external IP settings in FreeSWITCH and correcting the firewall rules, 
+                                        the audio started working normally again."</strong>
+                                    </p>
+                                    
+                                    <h6><i class="bi bi-graph-up"></i> Performance Metrics:</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value">100%</div>
+                                                <small>Packet Loss Before</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value">0.5%</div>
+                                                <small>Packet Loss After</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value">1.0</div>
+                                                <small>MOS Score Before</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value">4.3</div>
+                                                <small>MOS Score After</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <button class="btn btn-primary" onclick="simulateOneWayAudioDemo()">
+                                        <i class="bi bi-play-fill"></i> Simulate One-Way Audio Fix
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario 2: Custom FreeSWITCH Dialplan -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card scenario-card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-gear"></i> Scenario 2: Custom FreeSWITCH Dialplan
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-question-circle text-success"></i> Question:</h5>
+                                <p class="fst-italic">
+                                    "Describe how you customized FreeSWITCH, OpenSIPS, or Kamailio for a non-standard call flow. 
+                                    What modules or scripts were involved?"
+                                </p>
+                                
+                                <h5><i class="bi bi-lightbulb text-warning"></i> Technical Implementation:</h5>
+                                <ul>
+                                    <li><strong>Platform:</strong> FreeSWITCH with XML dialplan</li>
+                                    <li><strong>Integration:</strong> Node.js backend for dynamic routing</li>
+                                    <li><strong>Logic:</strong> Conditional routing based on database rules</li>
+                                    <li><strong>Flexibility:</strong> Real-time call flow modifications</li>
+                                </ul>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-code-slash"></i> XML Dialplan Integration</h6>
+                                    <div class="code-block">
+&lt;extension name="custom_routing"&gt;
+  &lt;condition field="${destination_number}" expression="^(.+)$"&gt;
+    &lt;action application="set" data="api_result=${jsapi(custom_routing.js ${destination_number})}"/&gt;
+    &lt;action application="eval" data="${api_result}"/&gt;
+  &lt;/condition&gt;
+&lt;/extension&gt;
+                                    </div>
+                                </div>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-node-plus"></i> Node.js Backend Logic</h6>
+                                    <div class="code-block">
+// custom_routing.js
+function customRouting(destination) {
+  const dbResult = database.query(`
+    SELECT route, priority FROM routing_rules 
+    WHERE pattern = ? AND active = 1
+  `, [destination]);
+  
+  if (dbResult.length > 0) {
+    return `transfer ${destination} XML ${dbResult[0].route}`;
+  }
+  return `transfer ${destination} XML default`;
+}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-check-circle text-success"></i> Answer & Architecture:</h5>
+                                <div class="answer-section">
+                                    <p>
+                                        <strong>"I modified the XML dialplan and implemented conditional routing 
+                                        integrated with a Node.js backend service. The call decisions were handled 
+                                        in JavaScript based on system rules and database data, allowing dynamic 
+                                        behavior connected to the web application."</strong>
+                                    </p>
+                                    
+                                    <div class="architecture-diagram">
+                                        <h6><i class="bi bi-diagram-3"></i> System Architecture</h6>
+                                        <div class="row mt-3">
+                                            <div class="col-md-3">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-telephone-fill tool-icon"></i><br>
+                                                    <small>Inbound Call</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <i class="bi bi-arrow-right fs-4"></i>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-gear-fill tool-icon"></i><br>
+                                                    <small>FreeSWITCH</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <i class="bi bi-arrow-right fs-4"></i>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-server tool-icon"></i><br>
+                                                    <small>Node.js API</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-3 offset-3">
+                                                <i class="bi bi-arrow-down fs-4"></i>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <i class="bi bi-arrow-down fs-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3 offset-3">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-database tool-icon"></i><br>
+                                                    <small>Database</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-telephone-forward-fill tool-icon"></i><br>
+                                                    <small>Dynamic Route</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <button class="btn btn-success" onclick="simulateCustomRouting()">
+                                        <i class="bi bi-play-fill"></i> Simulate Custom Routing
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario 3: ESL Event Handling -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card scenario-card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="bi bi-lightning"></i> Scenario 3: Real-time ESL Event Processing
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-question-circle text-warning"></i> Question:</h5>
+                                <p class="fst-italic">
+                                    "Have you built a system reacting to live call events (ESL, Webhooks, AMI)? 
+                                    How did you handle external API calls, especially under failure or timeout conditions?"
+                                </p>
+                                
+                                <h5><i class="bi bi-lightbulb text-info"></i> Technical Architecture:</h5>
+                                <ul>
+                                    <li><strong>Event Source:</strong> FreeSWITCH ESL (Event Socket Library)</li>
+                                    <li><strong>Backend:</strong> Node.js with WebSocket real-time updates</li>
+                                    <li><strong>Events:</strong> CHANNEL_CREATE, CHANNEL_ANSWER, CHANNEL_HANGUP</li>
+                                    <li><strong>Reliability:</strong> Timeout handling + error logging</li>
+                                </ul>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-plug"></i> ESL Connection Setup</h6>
+                                    <div class="code-block">
+const ESL = require('modesl');
+const connection = new ESL.Connection('localhost', 8021, 'ClueCon');
+
+connection.subscribe(['CHANNEL_CREATE', 'CHANNEL_ANSWER', 'CHANNEL_HANGUP']);
+
+connection.on('esl::event', (event) => {
+  const eventData = event.getHeader('Event-Name');
+  const uuid = event.getHeader('Unique-ID');
+  
+  // Process event and update UI
+  processCallEvent(eventData, uuid, event);
+});
+                                    </div>
+                                </div>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-shield-check"></i> Error Handling Strategy</h6>
+                                    <div class="code-block">
+async function callExternalAPI(url, data, timeout = 5000) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    return await response.json();
+  } catch (error) {
+    console.error('API call failed:', error.message);
+    logger.error('External API timeout/failure', { url, error });
+    return null; // Don't affect live call flow
+  }
+}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-check-circle text-success"></i> Answer & Implementation:</h5>
+                                <div class="answer-section">
+                                    <p>
+                                        <strong>"I built a Node.js service that listens to FreeSWITCH ESL events like 
+                                        CHANNEL_CREATE, CHANNEL_ANSWER, and CHANNEL_HANGUP. The backend processes these 
+                                        events, updates the application state, and the web interface is updated in real 
+                                        time using WebSockets so operators can track call status in the browser. When 
+                                        calling external APIs, I configured timeouts and error handling, and if something 
+                                        failed it was logged to avoid affecting the live call flow."</strong>
+                                    </p>
+                                    
+                                    <h6><i class="bi bi-activity"></i> Real-time Event Flow:</h6>
+                                    <div class="demo-terminal">
+ESL Event: CHANNEL_CREATE
+UUID: 4b5a6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d
+Caller: +5511912345678
+Callee: +5511987654321
+→ WebSocket broadcast to operators
+→ UI updated: "Call Incoming"
+
+ESL Event: CHANNEL_ANSWER  
+UUID: 4b5a6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d
+→ WebSocket broadcast to operators
+→ UI updated: "Call Connected" (Green)
+
+ESL Event: CHANNEL_HANGUP
+UUID: 4b5a6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d
+Duration: 00:05:23
+→ WebSocket broadcast to operators  
+→ UI updated: "Call Ended" + CDR logged
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value">< 100ms</div>
+                                            <small>Event Processing Latency</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <button class="btn btn-warning" onclick="simulateESLEvents()">
+                                        <i class="bi bi-play-fill"></i> Simulate ESL Events
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario 4: Linux Performance Optimization -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card scenario-card h-100">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-speedometer2"></i> Scenario 4: Linux Performance & Networking
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-question-circle text-danger"></i> Question:</h5>
+                                <p class="fst-italic">
+                                    "Share a production issue where Linux performance or networking affected VoIP. 
+                                    What tools helped, and what changes did you make?"
+                                </p>
+                                
+                                <h5><i class="bi bi-lightbulb text-info"></i> Performance Analysis:</h5>
+                                <ul>
+                                    <li><strong>Monitoring:</strong> htop + netstat for system analysis</li>
+                                    <li><strong>Issue:</strong> High CPU during peak call volume</li>
+                                    <li><strong>Solution:</strong> Codec optimization + system tuning</li>
+                                    <li><strong>Result:</strong> Improved stability under load</li>
+                                </ul>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-graph-up-arrow"></i> Performance Monitoring</h6>
+                                    <div class="demo-terminal">
+$ htop
+CPU: 85% [||||||||||||||||||||||||||||||||||||||||||||||]
+Mem: 4.2G/8.0G [||||||||||||||||||||||              ]
+Load Average: 2.8, 2.5, 2.3
+
+$ netstat -an | grep :5060 | wc -l
+Active SIP connections: 1247
+
+$ sar -u 1 5
+CPU %user %nice %system %iowait %steal %idle
+12:30:01  45.2  0.0  40.1  0.5   0.0   14.2
+                                    </div>
+                                </div>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-tools"></i> System Optimizations</h6>
+                                    <div class="code-block">
+# Kernel parameters for VoIP
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.udp_mem = 102400 873800 16777216
+net.core.netdev_max_backlog = 5000
+
+# FreeSWITCH codec optimization
+&lt;param name="codec-prefs" value="PCMU,PCMA,G729"/&gt;
+&lt;param name="inbound-codec-negotiation" value="generous"/&gt;
+&lt;param name="disable-transcoding" value="true"/&gt;
+
+# Process limits
+* soft nofile 65536
+* hard nofile 65536
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-check-circle text-success"></i> Answer & Results:</h5>
+                                <div class="answer-section">
+                                    <p>
+                                        <strong>"During periods of higher call volume, I monitored CPU and network 
+                                        usage using htop and netstat to understand the system behavior. After reviewing 
+                                        the usage patterns, I adjusted codec configuration and some system limits, which 
+                                        helped improve stability."</strong>
+                                    </p>
+                                    
+                                    <h6><i class="bi bi-bar-chart"></i> Before/After Metrics:</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value text-danger">85%</div>
+                                                <small>CPU Usage Before</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value text-success">45%</div>
+                                                <small>CPU Usage After</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value text-warning">200</div>
+                                                <small>Max Concurrent Calls</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-value text-success">500+</div>
+                                                <small>Max Concurrent Calls</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6 class="mt-3"><i class="bi bi-hdd-network"></i> Network Optimizations:</h6>
+                                    <ul class="small">
+                                        <li>Increased UDP buffer sizes for RTP handling</li>
+                                        <li>Optimized kernel network parameters</li>
+                                        <li>Disabled unnecessary codecs to reduce CPU load</li>
+                                        <li>Implemented transcoding only when required</li>
+                                        <li>Added proper file descriptor limits</li>
+                                    </ul>
+                                </div>
+
+                                <div class="mt-3">
+                                    <button class="btn btn-danger" onclick="simulatePerformanceOptimization()">
+                                        <i class="bi bi-play-fill"></i> Simulate Performance Fix
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario 5: Cloud VoIP Deployment -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card scenario-card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-cloud"></i> Scenario 5: Cloud VoIP Deployment
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-question-circle text-info"></i> Question:</h5>
+                                <p class="fst-italic">
+                                    "Walk me through a VoIP deployment you managed in the cloud. 
+                                    How did you handle NAT, latency, and service reliability?"
+                                </p>
+                                
+                                <h5><i class="bi bi-lightbulb text-warning"></i> Cloud Architecture:</h5>
+                                <ul>
+                                    <li><strong>Platform:</strong> Linux cloud server (AWS/DigitalOcean)</li>
+                                    <li><strong>Service:</strong> FreeSWITCH with SIP/RTP configuration</li>
+                                    <li><strong>Networking:</strong> External IP + port configuration</li>
+                                    <li><strong>Reliability:</strong> Monitoring + NAT troubleshooting</li>
+                                </ul>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-cloud-arrow-up"></i> Cloud Deployment Steps</h6>
+                                    <div class="code-block">
+# 1. Server Provisioning
+aws ec2 run-instances --image-id ami-0c55b159cbfafe1f0 \
+  --instance-type t3.medium --key-name voip-keypair
+
+# 2. FreeSWITCH Installation
+apt-get update && apt-get install -y freeswitch-meta-all
+
+# 3. Network Configuration
+&lt;param name="ext-rtp-ip" value="$${external_rtp_ip}"/&gt;
+&lt;param name="ext-sip-ip" value="$${external_sip_ip}"/&gt;
+&lt;param name="rtp-ip" value="$${local_ip_v4}"/&gt;
+
+# 4. Security Groups
+AWS SG: UDP 5060 (SIP), UDP 10000-20000 (RTP)
+                                    </div>
+                                </div>
+
+                                <div class="workflow-step">
+                                    <h6><i class="bi bi-globe"></i> NAT & Network Configuration</h6>
+                                    <div class="code-block">
+# vars.xml configuration
+&lt;X-PRE-PROCESS cmd="set" data="external_rtp_ip=203.0.113.10"/&gt;
+&lt;X-PRE-PROCESS cmd="set" data="external_sip_ip=203.0.113.10"/&gt;
+
+# SIP Profile Configuration
+&lt;param name="apply-nat-acl" value="nat.auto"/&gt;
+&lt;param name="aggressive-nat-detection" value="true"/&gt;
+&lt;param name="stun-enabled" value="true"/&gt;
+&lt;param name="stun-auto-disable" value="true"/&gt;
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-check-circle text-success"></i> Answer & Deployment:</h5>
+                                <div class="answer-section">
+                                    <p>
+                                        <strong>"I deployed FreeSWITCH on a Linux cloud server, configuring SIP and RTP 
+                                        ports and setting the correct external IP. I also monitored the server and 
+                                        ensured the NAT configuration was correct to keep communication stable."</strong>
+                                    </p>
+                                    
+                                    <div class="architecture-diagram">
+                                        <h6><i class="bi bi-diagram-3-fill"></i> Cloud Architecture</h6>
+                                        <div class="row mt-3">
+                                            <div class="col-md-4">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-globe tool-icon"></i><br>
+                                                    <small>Internet Clients</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-shield-check tool-icon"></i><br>
+                                                    <small>Security Group</small><br>
+                                                    <small>5060/10000-20000</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="p-2 bg-white rounded">
+                                                    <i class="bi bi-server tool-icon"></i><br>
+                                                    <small>FreeSWITCH</small><br>
+                                                    <small>203.0.113.10</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <h6 class="mt-3"><i class="bi bi-check2-square"></i> Reliability Features:</h6>
+                                        <div class="row text-start">
+                                            <div class="col-md-6">
+                                                <ul class="small">
+                                                    <li>✅ Health monitoring</li>
+                                                    <li>✅ Auto-scaling capability</li>
+                                                    <li>✅ Backup configuration</li>
+                                                    <li>✅ Failover routing</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <ul class="small">
+                                                    <li>✅ DDoS protection</li>
+                                                    <li>✅ SSL/TLS encryption</li>
+                                                    <li>✅ Rate limiting</li>
+                                                    <li>✅ 24/7 monitoring</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6 class="mt-3"><i class="bi bi-graph-up"></i> Performance Metrics:</h6>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="metric-card">
+                                                <div class="metric-value">15ms</div>
+                                                <small>Avg Latency</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="metric-card">
+                                                <div class="metric-value">99.9%</div>
+                                                <small>Uptime</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="metric-card">
+                                                <div class="metric-value">1000+</div>
+                                                <small>Concurrent Calls</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <button class="btn btn-info" onclick="simulateCloudDeployment()">
+                                        <i class="bi bi-play-fill"></i> Simulate Cloud Deployment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Demo Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark text-white">
+                    <div class="card-body text-center">
+                        <h4><i class="bi bi-play-circle"></i> Interactive Demo Console</h4>
+                        <p class="mb-3">Execute all scenarios to see the complete technical workflow</p>
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <button class="btn btn-outline-light" onclick="runAllScenarios()">
+                                <i class="bi bi-play-fill"></i> Run All Scenarios
+                            </button>
+                            <button class="btn btn-outline-light" onclick="resetDemo()">
+                                <i class="bi bi-arrow-clockwise"></i> Reset Demo
+                            </button>
+                            <button class="btn btn-outline-light" onclick="exportReport()">
+                                <i class="bi bi-download"></i> Export Report
+                            </button>
+                        </div>
+                        <div id="demo-output" class="mt-3 text-start" style="display:none;">
+                            <div class="demo-terminal" id="demo-terminal"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                <i class="bi bi-telephone-fill"></i> VoIP Technical Interview Demo 
+                | Enterprise-grade solutions for real-world scenarios
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let demoOutput = [];
+        let currentScenario = 0;
+        let isRunning = false;
+        let activeIntervals = [];
+
+        function addDemoOutput(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'success' ? '[✓]' : type === 'error' ? '[✗]' : type === 'warning' ? '[⚠]' : '[*]';
+            demoOutput.push(`${timestamp} ${prefix} ${message}`);
+            updateDemoTerminal();
+        }
+
+        function updateDemoTerminal() {
+            const terminal = document.getElementById('demo-terminal');
+            if (terminal) {
+                terminal.innerHTML = demoOutput.join('\n');
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }
+
+        function showDemoOutput() {
+            const output = document.getElementById('demo-output');
+            if (output) {
+                output.style.display = output.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function updateMetrics(scenario, metrics) {
+            // Update metric cards with animations
+            Object.keys(metrics).forEach(key => {
+                const elements = document.querySelectorAll(`[data-metric="${scenario}-${key}"]`);
+                elements.forEach(el => {
+                    if (el) {
+                        el.style.transition = 'all 0.5s ease';
+                        el.style.transform = 'scale(1.1)';
+                        el.textContent = metrics[key];
+                        setTimeout(() => {
+                            el.style.transform = 'scale(1)';
+                        }, 300);
+                    }
+                });
+            });
+        }
+
+        function highlightCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.style.transition = 'all 0.3s ease';
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 12px 35px rgba(0,0,0,0.2)';
+                setTimeout(() => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '';
+                }, 1000);
+            }
+        }
+
+        function simulateOneWayAudioDemo() {
+            if (isRunning) return;
+            isRunning = true;
+            showDemoOutput();
+            highlightCard('scenario-1');
+            addDemoOutput('=== Starting One-Way Audio Resolution Demo ===', 'info');
+            
+            const steps = [
+                { delay: 500, message: 'Initializing sngrep for SIP trace analysis...', type: 'info' },
+                { delay: 1000, message: 'Loading PCAP file: capture_20250305.pcap (15.2 MB)', type: 'info' },
+                { delay: 1500, message: 'Analyzing SIP dialog: INVITE sip:+5511987654321@voip.com', type: 'info' },
+                { delay: 2000, message: 'SIP Flow: INVITE → 100 Trying → 180 Ringing → 200 OK → ACK', type: 'info' },
+                { delay: 2500, message: 'RTP Stream Analysis: SSRC=0x12345678', type: 'info' },
+                { delay: 3000, message: 'CRITICAL: RTP packets only outbound!', type: 'error' },
+                { delay: 3500, message: 'Statistics: 50 packets sent, 0 received (100% loss)', type: 'error' },
+                { delay: 4000, message: 'Root Cause: NAT configuration blocking inbound RTP', type: 'error' },
+                { delay: 4500, message: 'Checking FreeSWITCH configuration...', type: 'info' },
+                { delay: 5000, message: 'Found: ext-rtp-ip not configured (using internal IP)', type: 'warning' },
+                { delay: 5500, message: 'Configuring external IP: vars.xml update', type: 'info' },
+                { delay: 6000, message: 'Setting ext-rtp-ip="203.0.113.10"', type: 'info' },
+                { delay: 6500, message: 'Adding firewall rules for RTP ports...', type: 'info' },
+                { delay: 7000, message: 'iptables -A INPUT -p udp --dport 10000:20000 -j ACCEPT', type: 'info' },
+                { delay: 7500, message: 'iptables -A OUTPUT -p udp --sport 10000:20000 -j ACCEPT', type: 'info' },
+                { delay: 8000, message: 'Restarting FreeSWITCH service...', type: 'info' },
+                { delay: 8500, message: 'Service restarted successfully', type: 'success' },
+                { delay: 9000, message: 'Testing audio flow with new configuration...', type: 'info' },
+                { delay: 9500, message: 'RTP Test: 25 packets sent, 25 received (0% loss)', type: 'success' },
+                { delay: 10000, message: 'Audio Quality: MOS score 4.3 (Excellent)', type: 'success' },
+                { delay: 10500, message: 'One-Way Audio issue RESOLVED!', type: 'success' },
+                { delay: 11000, message: '=== Demo completed successfully ===', 'success' }
+            ];
+
+            steps.forEach(step => {
+                const timeout = setTimeout(() => {
+                    addDemoOutput(step.message, step.type);
+                    
+                    // Update metrics at specific points
+                    if (step.message.includes('100% loss')) {
+                        updateMetrics('oneway', { loss: '100%', mos: '1.0', status: 'Critical' });
+                    } else if (step.message.includes('0% loss')) {
+                        updateMetrics('oneway', { loss: '0%', mos: '4.3', status: 'Excellent' });
+                    }
+                }, step.delay);
+                activeIntervals.push(timeout);
+            });
+
+            setTimeout(() => { isRunning = false; }, 12000);
+        }
+
+        function simulateCustomRouting() {
+            if (isRunning) return;
+            isRunning = true;
+            showDemoOutput();
+            highlightCard('scenario-2');
+            addDemoOutput('=== Starting Custom Routing Demo ===', 'info');
+            
+            const steps = [
+                { delay: 500, message: 'Incoming call detected: +5511987654321 → +5511912345678', type: 'info' },
+                { delay: 1000, message: 'FreeSWITCH XML dialplan processing...', type: 'info' },
+                { delay: 1500, message: 'Extension matched: custom_routing', type: 'info' },
+                { delay: 2000, message: 'Executing JavaScript API call...', type: 'info' },
+                { delay: 2500, message: 'API Endpoint: POST /api/routing/decision', type: 'info' },
+                { delay: 3000, message: 'Request payload: {"destination": "+5511987654321", "caller": "+5511912345678"}', type: 'info' },
+                { delay: 3500, message: 'Querying routing database...', type: 'info' },
+                { delay: 4000, message: 'SQL: SELECT route, priority FROM routing_rules WHERE pattern = ?', type: 'info' },
+                { delay: 4500, message: 'Database result: Found VIP customer routing rule', type: 'success' },
+                { delay: 5000, message: 'Route decision: premium_support_queue', type: 'info' },
+                { delay: 5500, message: 'JavaScript logic: Checking business hours...', type: 'info' },
+                { delay: 6000, message: 'Business hours: ACTIVE (9:00-18:00)', type: 'success' },
+                { delay: 6500, message: 'Agent availability: 3 agents online', type: 'success' },
+                { delay: 7000, message: 'Dynamic routing: transfer premium_support_queue', type: 'info' },
+                { delay: 7500, message: 'XML dialplan updated in real-time', type: 'success' },
+                { delay: 8000, message: 'Call transferred to: premium_support_queue', type: 'success' },
+                { delay: 8500, message: 'Queue position: 1st in line', type: 'info' },
+                { delay: 9000, message: 'Expected wait time: < 30 seconds', type: 'success' },
+                { delay: 9500, message: 'Custom routing completed successfully!', type: 'success' },
+                { delay: 10000, message: '=== Demo completed successfully ===', 'success' }
+            ];
+
+            steps.forEach(step => {
+                const timeout = setTimeout(() => {
+                    addDemoOutput(step.message, step.type);
+                }, step.delay);
+                activeIntervals.push(timeout);
+            });
+
+            setTimeout(() => { isRunning = false; }, 11000);
+        }
+
+        function simulateESLEvents() {
+            if (isRunning) return;
+            isRunning = true;
+            showDemoOutput();
+            highlightCard('scenario-3');
+            addDemoOutput('=== Starting ESL Event Processing Demo ===', 'info');
+            
+            const steps = [
+                { delay: 500, message: 'Connecting to FreeSWITCH ESL (localhost:8021)...', type: 'info' },
+                { delay: 1000, message: 'Authentication successful: ClueCon', type: 'success' },
+                { delay: 1500, message: 'Subscribing to events: CHANNEL_CREATE, CHANNEL_ANSWER, CHANNEL_HANGUP', type: 'info' },
+                { delay: 2000, message: 'ESL connection established and ready', type: 'success' },
+                { delay: 2500, message: 'Event received: CHANNEL_CREATE', type: 'info' },
+                { delay: 3000, message: 'UUID: 4b5a6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d', type: 'info' },
+                { delay: 3500, message: 'Caller: +5511912345678 | Callee: +5511987654321', type: 'info' },
+                { delay: 4000, message: 'Processing event in Node.js backend...', type: 'info' },
+                { delay: 4500, message: 'Broadcasting to WebSocket clients...', type: 'info' },
+                { delay: 5000, message: 'WebSocket sent: {"type":"incoming","caller":"+5511912345678"}', type: 'success' },
+                { delay: 5500, message: 'UI updated: "Incoming Call +5511912345678"', type: 'success' },
+                { delay: 6000, message: 'Event received: CHANNEL_ANSWER', type: 'info' },
+                { delay: 6500, message: 'Call answered at: 2025-03-05 17:30:15', type: 'info' },
+                { delay: 7000, message: 'WebSocket sent: {"type":"connected","duration":"00:00:01"}', type: 'success' },
+                { delay: 7500, message: 'UI updated: "Call Connected" (Green status)', type: 'success' },
+                { delay: 8000, message: 'Calling external API: POST /api/call-logging', type: 'info' },
+                { delay: 8500, message: 'API timeout configured: 5000ms', type: 'info' },
+                { delay: 9000, message: 'API response received: {"status":"logged","id":"call_12345"}', type: 'success' },
+                { delay: 9500, message: 'Response time: 127ms', type: 'success' },
+                { delay: 10000, message: 'Event received: CHANNEL_HANGUP', type: 'info' },
+                { delay: 10500, message: 'Call duration: 00:05:23', type: 'info' },
+                { delay: 11000, message: 'CDR generated and stored in database', type: 'success' },
+                { delay: 11500, message: 'ESL event processing completed!', type: 'success' },
+                { delay: 12000, message: '=== Demo completed successfully ===', 'success' }
+            ];
+
+            steps.forEach(step => {
+                const timeout = setTimeout(() => {
+                    addDemoOutput(step.message, step.type);
+                }, step.delay);
+                activeIntervals.push(timeout);
+            });
+
+            setTimeout(() => { isRunning = false; }, 13000);
+        }
+
+        function simulatePerformanceOptimization() {
+            if (isRunning) return;
+            isRunning = true;
+            showDemoOutput();
+            highlightCard('scenario-4');
+            addDemoOutput('=== Starting Performance Optimization Demo ===', 'info');
+            
+            const steps = [
+                { delay: 500, message: 'Starting system performance monitoring...', type: 'info' },
+                { delay: 1000, message: 'Running htop for CPU and memory analysis...', type: 'info' },
+                { delay: 1500, message: 'CPU Usage: 85% [||||||||||||||||||||||||||||||||||||||||||||||]', type: 'error' },
+                { delay: 2000, message: 'Memory Usage: 4.2G/8.0G [||||||||||||||||||||||              ]', type: 'warning' },
+                { delay: 2500, message: 'Load Average: 2.8, 2.5, 2.3', type: 'warning' },
+                { delay: 3000, message: 'Running netstat for network analysis...', type: 'info' },
+                { delay: 3500, message: 'Active SIP connections: 1247', type: 'warning' },
+                { delay: 4000, message: 'RTP streams: 623 active', type: 'info' },
+                { delay: 4500, message: 'ALERT: High CPU usage during peak call volume!', type: 'error' },
+                { delay: 5000, message: 'Analyzing codec usage patterns...', type: 'info' },
+                { delay: 5500, message: 'Codec usage: G.729 (45%), PCMU (30%), PCMA (25%)', type: 'info' },
+                { delay: 6000, message: 'PROBLEM: Excessive transcoding G.729 → PCMU detected!', type: 'error' },
+                { delay: 6500, message: 'Transcoding overhead: 40% CPU usage', type: 'error' },
+                { delay: 7000, message: 'Starting optimization process...', type: 'info' },
+                { delay: 7500, message: 'Optimizing codec preferences in FreeSWITCH...', type: 'info' },
+                { delay: 8000, message: 'Setting codec-prefs: PCMU,PCMA,G729', type: 'info' },
+                { delay: 8500, message: 'Disabling transcoding where possible...', type: 'info' },
+                { delay: 9000, message: 'Updating kernel network parameters...', type: 'info' },
+                { delay: 9500, message: 'net.core.rmem_max = 16777216', type: 'info' },
+                { delay: 10000, message: 'net.core.wmem_max = 16777216', type: 'info' },
+                { delay: 10500, message: 'net.ipv4.udp_mem = 102400 873800 16777216', type: 'info' },
+                { delay: 11000, message: 'Increasing file descriptor limits...', type: 'info' },
+                { delay: 11500, message: 'ulimit -n 65536', type: 'info' },
+                { delay: 12000, message: 'Restarting services with new configuration...', type: 'info' },
+                { delay: 12500, message: 'Monitoring post-optimization performance...', type: 'info' },
+                { delay: 13000, message: 'CPU Usage: 45% [||||||||||||||||||||        ]', type: 'success' },
+                { delay: 13500, message: 'Memory Usage: 3.8G/8.0G [||||||||||||||||          ]', type: 'success' },
+                { delay: 14000, message: 'Load Average: 1.2, 1.1, 1.0', type: 'success' },
+                { delay: 14500, message: 'Max concurrent calls: 200 → 500+', type: 'success' },
+                { delay: 15000, message: 'Performance optimization completed!', type: 'success' },
+                { delay: 15500, message: '=== Demo completed successfully ===', 'success' }
+            ];
+
+            steps.forEach(step => {
+                const timeout = setTimeout(() => {
+                    addDemoOutput(step.message, step.type);
+                    
+                    // Update metrics at specific points
+                    if (step.message.includes('CPU Usage: 85%')) {
+                        updateMetrics('performance', { cpu: '85%', calls: '200', status: 'Critical' });
+                    } else if (step.message.includes('CPU Usage: 45%')) {
+                        updateMetrics('performance', { cpu: '45%', calls: '500+', status: 'Optimal' });
+                    }
+                }, step.delay);
+                activeIntervals.push(timeout);
+            });
+
+            setTimeout(() => { isRunning = false; }, 16000);
+        }
+
+        function simulateCloudDeployment() {
+            if (isRunning) return;
+            isRunning = true;
+            showDemoOutput();
+            highlightCard('scenario-5');
+            addDemoOutput('=== Starting Cloud VoIP Deployment Demo ===', 'info');
+            
+            const steps = [
+                { delay: 500, message: 'Starting cloud deployment process...', type: 'info' },
+                { delay: 1000, message: 'Provisioning Linux cloud server...', type: 'info' },
+                { delay: 1500, message: 'AWS EC2 instance: t3.medium (2 vCPU, 4GB RAM)', type: 'info' },
+                { delay: 2000, message: 'Region: us-east-1 | Availability Zone: us-east-1a', type: 'info' },
+                { delay: 2500, message: 'Security Group: voip-sg (custom rules)', type: 'info' },
+                { delay: 3000, message: 'Instance launched successfully: i-0abcd1234efgh5678', type: 'success' },
+                { delay: 3500, message: 'Connecting to instance via SSH...', type: 'info' },
+                { delay: 4000, message: 'Updating system packages...', type: 'info' },
+                { delay: 4500, message: 'apt-get update && apt-get upgrade -y', type: 'info' },
+                { delay: 5000, message: 'Installing FreeSWITCH...', type: 'info' },
+                { delay: 5500, message: 'apt-get install -y freeswitch-meta-all', type: 'info' },
+                { delay: 6000, message: 'FreeSWITCH installation completed', type: 'success' },
+                { delay: 6500, message: 'Configuring network settings...', type: 'info' },
+                { delay: 7000, message: 'External IP: 203.0.113.10', type: 'info' },
+                { delay: 7500, message: 'Internal IP: 10.0.1.100', type: 'info' },
+                { delay: 8000, message: 'Configuring vars.xml...', type: 'info' },
+                { delay: 8500, message: 'Setting external_rtp_ip=203.0.113.10', type: 'info' },
+                { delay: 9000, message: 'Setting external_sip_ip=203.0.113.10', type: 'info' },
+                { delay: 9500, message: 'Configuring AWS Security Group rules...', type: 'info' },
+                { delay: 10000, message: 'UDP 5060 (SIP) - Source: 0.0.0.0/0', type: 'info' },
+                { delay: 10500, message: 'UDP 10000-20000 (RTP) - Source: 0.0.0.0/0', type: 'info' },
+                { delay: 11000, message: 'Configuring NAT traversal...', type: 'info' },
+                { delay: 11500, message: 'apply-nat-acl: nat.auto', type: 'info' },
+                { delay: 12000, message: 'aggressive-nat-detection: true', type: 'info' },
+                { delay: 12500, message: 'stun-enabled: true', type: 'info' },
+                { delay: 13000, message: 'Starting FreeSWITCH service...', type: 'info' },
+                { delay: 13500, message: 'systemctl start freeswitch', type: 'info' },
+                { delay: 14000, message: 'Service status: Active (running)', type: 'success' },
+                { delay: 14500, message: 'Testing connectivity from external client...', type: 'info' },
+                { delay: 15000, message: 'SIP REGISTER: +5511912345678 → 203.0.113.10:5060', type: 'info' },
+                { delay: 15500, message: 'Registration successful: 200 OK', type: 'success' },
+                { delay: 16000, message: 'Test call: +5511912345678 → +5511987654321', type: 'info' },
+                { delay: 16500, message: 'Call established: Audio bidirectional!', type: 'success' },
+                { delay: 17000, message: 'Audio quality: MOS 4.4 (Excellent)', type: 'success' },
+                { delay: 17500, message: 'Latency: 15ms | Jitter: 2ms | Loss: 0.1%', type: 'success' },
+                { delay: 18000, message: 'Cloud deployment completed successfully!', type: 'success' },
+                { delay: 18500, message: '=== Demo completed successfully ===', 'success' }
+            ];
+
+            steps.forEach(step => {
+                const timeout = setTimeout(() => {
+                    addDemoOutput(step.message, step.type);
+                    
+                    // Update metrics at specific points
+                    if (step.message.includes('Registration successful')) {
+                        updateMetrics('cloud', { uptime: '99.9%', latency: '15ms', calls: '1000+' });
+                    }
+                }, step.delay);
+                activeIntervals.push(timeout);
+            });
+
+            setTimeout(() => { isRunning = false; }, 19000);
+        }
+
+        function runAllScenarios() {
+            if (isRunning) return;
+            demoOutput = [];
+            showDemoOutput();
+            addDemoOutput('=== Starting Complete Technical Demo Suite ===', 'info');
+            addDemoOutput('This will demonstrate all 5 VoIP scenarios sequentially', 'info');
+            addDemoOutput('Total estimated time: ~2 minutes', 'info');
+            
+            setTimeout(() => simulateOneWayAudioDemo(), 2000);
+            setTimeout(() => simulateCustomRouting(), 15000);
+            setTimeout(() => simulateESLEvents(), 27000);
+            setTimeout(() => simulatePerformanceOptimization(), 41000);
+            setTimeout(() => simulateCloudDeployment(), 58000);
+            setTimeout(() => {
+                addDemoOutput('=== ALL SCENARIOS COMPLETED SUCCESSFULLY! ===', 'success');
+                addDemoOutput('Technical interview demo ready for presentation!', 'success');
+                addDemoOutput('All systems functioning within normal parameters', 'success');
+            }, 78000);
+        }
+
+        function resetDemo() {
+            // Clear all active timeouts
+            activeIntervals.forEach(timeout => clearTimeout(timeout));
+            activeIntervals = [];
+            
+            demoOutput = [];
+            updateDemoTerminal();
+            document.getElementById('demo-output').style.display = 'none';
+            isRunning = false;
+            
+            // Reset all metrics to default values
+            updateMetrics('oneway', { loss: '0%', mos: '4.5', status: 'Ready' });
+            updateMetrics('performance', { cpu: '25%', calls: '0', status: 'Ready' });
+            updateMetrics('cloud', { uptime: '99.9%', latency: '0ms', calls: '0' });
+            
+            addDemoOutput('Demo reset completed. Ready for new demonstration.', 'info');
+        }
+
+        function exportReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                demoSession: {
+                    duration: demoOutput.length > 0 ? 'Completed' : 'Not started',
+                    scenariosExecuted: demoOutput.filter(line => line.includes('Demo completed')).length,
+                    totalSteps: demoOutput.length
+                },
+                scenarios: [
+                    {
+                        name: 'One-Way Audio Resolution',
+                        status: 'Ready for demonstration',
+                        tools: ['sngrep', 'Wireshark', 'FreeSWITCH', 'iptables'],
+                        expectedResults: {
+                            packetLossBefore: '100%',
+                            packetLossAfter: '0%',
+                            mosBefore: '1.0',
+                            mosAfter: '4.3'
+                        }
+                    },
+                    {
+                        name: 'Custom FreeSWITCH Dialplan',
+                        status: 'Ready for demonstration',
+                        tools: ['XML Dialplan', 'Node.js', 'Database API'],
+                        features: ['Dynamic routing', 'VIP customer detection', 'Business hours check']
+                    },
+                    {
+                        name: 'ESL Event Processing',
+                        status: 'Ready for demonstration',
+                        tools: ['FreeSWITCH ESL', 'WebSockets', 'Node.js'],
+                        performance: {
+                            eventLatency: '<100ms',
+                            supportedEvents: ['CHANNEL_CREATE', 'CHANNEL_ANSWER', 'CHANNEL_HANGUP']
+                        }
+                    },
+                    {
+                        name: 'Linux Performance Optimization',
+                        status: 'Ready for demonstration',
+                        tools: ['htop', 'netstat', 'sar', 'sysctl'],
+                        improvements: {
+                            cpuBefore: '85%',
+                            cpuAfter: '45%',
+                            maxCallsBefore: '200',
+                            maxCallsAfter: '500+'
+                        }
+                    },
+                    {
+                        name: 'Cloud VoIP Deployment',
+                        status: 'Ready for demonstration',
+                        tools: ['AWS EC2', 'Security Groups', 'FreeSWITCH'],
+                        specifications: {
+                            instance: 't3.medium',
+                            uptime: '99.9%',
+                            maxConcurrentCalls: '1000+',
+                            avgLatency: '15ms'
+                        }
+                    }
+                ],
+                demoOutput: demoOutput,
+                systemInfo: {
+                    browser: navigator.userAgent,
+                    platform: navigator.platform,
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `voip-technical-demo-report-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            addDemoOutput('Demo report exported successfully!', 'success');
+        }
+
+        // Initialize tooltips and add IDs to cards
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add IDs to scenario cards
+            const cards = document.querySelectorAll('.scenario-card');
+            cards.forEach((card, index) => {
+                card.id = `scenario-${index + 1}`;
+            });
+            
+            // Add data-metric attributes to metric values
+            const metricValues = document.querySelectorAll('.metric-value');
+            metricValues.forEach((metric, index) => {
+                if (index < 3) {
+                    metric.setAttribute('data-metric', `oneway-${['loss', 'mos', 'status'][index]}`);
+                } else if (index < 6) {
+                    metric.setAttribute('data-metric', `performance-${['cpu', 'calls', 'status'][index - 3]}`);
+                } else {
+                    metric.setAttribute('data-metric', `cloud-${['uptime', 'latency', 'calls'][index - 6]}`);
+                }
+            });
+            
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case '1':
+                            e.preventDefault();
+                            simulateOneWayAudioDemo();
+                            break;
+                        case '2':
+                            e.preventDefault();
+                            simulateCustomRouting();
+                            break;
+                        case '3':
+                            e.preventDefault();
+                            simulateESLEvents();
+                            break;
+                        case '4':
+                            e.preventDefault();
+                            simulatePerformanceOptimization();
+                            break;
+                        case '5':
+                            e.preventDefault();
+                            simulateCloudDeployment();
+                            break;
+                        case 'a':
+                            e.preventDefault();
+                            runAllScenarios();
+                            break;
+                        case 'r':
+                            e.preventDefault();
+                            resetDemo();
+                            break;
+                        case 'e':
+                            e.preventDefault();
+                            exportReport();
+                            break;
+                    }
+                }
+            });
+            
+            // Add visual feedback for button clicks
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 100);
+                });
+            });
+            
+            // Initialize with welcome message
+            addDemoOutput('VoIP Technical Demo System v2.0 initialized', 'success');
+            addDemoOutput('Ready for demonstration. Press Ctrl+1-5 for individual scenarios', 'info');
+            addDemoOutput('Press Ctrl+A to run all scenarios, Ctrl+R to reset, Ctrl+E to export', 'info');
+        });
+    </script>
+</body>
+</html>
