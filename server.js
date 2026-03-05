@@ -123,6 +123,10 @@ app.get('/calls', (req, res) => {
 });
 
 app.post('/call', async (req, res) => {
+  console.log('📞 /call route hit');
+  console.log('📞 Request body:', req.body);
+  console.log('📞 User:', req.user);
+  
   const {
     from = '1000',
     to = '1001',
@@ -130,8 +134,12 @@ app.post('/call', async (req, res) => {
     durationMs = 12000,
   } = req.body || {};
 
+  console.log('📞 Creating call:', { from, to, scenario, durationMs });
+
   const call = createCall({ from, to, scenario, durationMs });
   state.calls.set(call.id, call.toJSON());
+
+  console.log('📞 Call created:', call.id);
 
   const updateCall = (patch) => {
     const existing = state.calls.get(call.id) || { id: call.id };
@@ -170,9 +178,15 @@ app.post('/call', async (req, res) => {
 });
 
 app.get('/pcap/analyze', async (req, res) => {
+  console.log('🔍 /pcap/analyze route hit');
+  console.log('🔍 User:', req.user);
+  
   const filePath = path.join(__dirname, 'pcap', 'traffic_log.txt');
+  console.log('🔍 Analyzing file:', filePath);
+  
   try {
     const analysis = await parseSipLogFile(filePath);
+    console.log('🔍 Analysis completed:', analysis);
     io.emit('call_event', { type: 'PCAP_ANALYSIS', ts: Date.now(), analysis });
     res.json({ ok: true, analysis });
   } catch (err) {

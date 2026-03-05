@@ -604,21 +604,67 @@ function escapeHtml(s) {
 }
 
 async function placeCall(scenario) {
-  await fetch('/call', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: '1000', to: '1001', scenario }),
-  });
+  console.log('🚀 placeCall called with scenario:', scenario);
+  try {
+    console.log('📡 Sending POST request to /call...');
+    const response = await fetch('/call', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: '1000', to: '1001', scenario }),
+    });
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response ok:', response.ok);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Call failed:', response.status, errorText);
+    }
+  } catch (error) {
+    console.error('❌ placeCall error:', error);
+  }
 }
 
 async function analyzePcap() {
-  await fetch('/pcap/analyze');
+  console.log('🔍 analyzePcap called');
+  try {
+    console.log('📡 Sending GET request to /pcap/analyze...');
+    const response = await fetch('/pcap/analyze');
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response ok:', response.ok);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Analyze failed:', response.status, errorText);
+    }
+  } catch (error) {
+    console.error('❌ analyzePcap error:', error);
+  }
 }
 
-btnSimNormal.addEventListener('click', () => placeCall('normal'));
-btnSimOneWay.addEventListener('click', () => placeCall('one_way_audio'));
-btnSimNat.addEventListener('click', () => placeCall('nat_wrong'));
-btnAnalyze.addEventListener('click', () => analyzePcap());
+// Add event listeners with error handling
+if (btnSimNormal) {
+  btnSimNormal.addEventListener('click', () => placeCall('normal'));
+} else {
+  console.error('btnSimNormal not found');
+}
+
+if (btnSimOneWay) {
+  btnSimOneWay.addEventListener('click', () => placeCall('one_way_audio'));
+} else {
+  console.error('btnSimOneWay not found');
+}
+
+if (btnSimNat) {
+  btnSimNat.addEventListener('click', () => placeCall('nat_wrong'));
+} else {
+  console.error('btnSimNat not found');
+}
+
+if (btnAnalyze) {
+  btnAnalyze.addEventListener('click', () => analyzePcap());
+} else {
+  console.error('btnAnalyze not found');
+}
 
 socket.on('connect', () => {
   socket.emit('request_snapshot');
