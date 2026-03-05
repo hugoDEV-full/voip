@@ -24,13 +24,14 @@ async function deploy() {
     console.log('----------------------------------------');
     
     console.log('🔍 Checking database configuration...');
-    console.log('🔍 DB_HOST:', process.env.DB_HOST || process.env.MYSQLHOST || 'not set');
-    console.log('🔍 DB_PORT:', process.env.DB_PORT || process.env.MYSQLPORT || 'not set');
-    console.log('🔍 DB_USER:', process.env.DB_USER || process.env.MYSQLUSER || 'not set');
-    console.log('🔍 DB_NAME:', process.env.DB_NAME || process.env.MYSQLDATABASE || 'not set');
+    console.log('🔍 MYSQLHOST:', process.env.MYSQLHOST || 'not set');
+    console.log('🔍 MYSQLPORT:', process.env.MYSQLPORT || 'not set');
+    console.log('🔍 MYSQLUSER:', process.env.MYSQLUSER || 'not set');
+    console.log('🔍 MYSQLDATABASE:', process.env.MYSQLDATABASE || 'not set');
+    console.log('🔍 MYSQLPASSWORD:', process.env.MYSQLPASSWORD ? '***' : 'not set');
     
     // Check if MySQL is available
-    const hasMySQL = process.env.DB_HOST || process.env.MYSQLHOST;
+    const hasMySQL = process.env.MYSQLHOST;
     
     if (!hasMySQL) {
       console.log('⚠️ MySQL not available - using fallback mode');
