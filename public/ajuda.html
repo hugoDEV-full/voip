@@ -120,9 +120,11 @@
         <div class="alert alert-danger d-flex align-items-center" role="alert">
           <i class="bi bi-exclamation-triangle-fill me-3 emergency-indicator"></i>
           <div>
-            <strong class="me-2">Problemas Críticos em Operações de Emergência:</strong>
-            Falhas de comunicação VoIP podem custar vidas em operações do SAMU e comprometer 
-            a eficiência do controle de frota. Nosso sistema identifica e resolve这些问题 automaticamente.
+            <strong class="me-2" data-i18n="criticalProblemsTitle">Problemas Críticos em Operações de Emergência:</strong>
+            <span data-i18n="criticalProblemsText">
+              Falhas de comunicação VoIP podem custar vidas em operações do SAMU e comprometer 
+              a eficiência do controle de frota. Nosso sistema identifica e resolve esses problemas automaticamente.
+            </span>
           </div>
         </div>
 
@@ -137,7 +139,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6">
-                <h6 class="text-danger"><i class="bi bi-bug"></i> Problemas Comuns no SAMU:</h6>
+                <h6 class="text-danger"><i class="bi bi-bug"></i> <span data-i18n="commonProblemsSAMU">Problemas Comuns no SAMU</span>:</h6>
                 
                 <div class="problem-card mb-3 p-3">
                   <h6><i class="bi bi-telephone-x"></i> One-Way Audio em Ambulâncias</h6>
@@ -168,7 +170,7 @@
               </div>
               
               <div class="col-md-6">
-                <h6 class="text-success"><i class="bi bi-check-circle"></i> Soluções Automáticas:</h6>
+                <h6 class="text-success"><i class="bi bi-check-circle"></i> <span data-i18n="automaticSolutions">Soluções Automáticas</span>:</h6>
                 
                 <div class="solution-card mb-3 p-3">
                   <h6><i class="bi bi-shield-check"></i> Detecção e Correção de One-Way Audio</h6>
@@ -1297,14 +1299,140 @@
         backToDashboard: "Voltar ao Dashboard",
         mainTitle: "Soluções VoIP para SAMU e Controle de Frota",
         emergencyTitle: "SAMU - Problemas Críticos e Soluções",
-        fleetTitle: "Controle de Frota - Problemas e Soluções"
+        fleetTitle: "Controle de Frota - Problemas e Soluções",
+        criticalProblemsTitle: "Problemas Críticos em Operações de Emergência",
+        criticalProblemsText: "Falhas de comunicação VoIP podem custar vidas em operações do SAMU e comprometer a eficiência do controle de frota. Nosso sistema identifica e resolve esses problemas automaticamente.",
+        commonProblemsSAMU: "Problemas Comuns no SAMU",
+        automaticSolutions: "Soluções Automáticas",
+        fleetProblems: "Problemas em Frota",
+        intelligentSolutions: "Soluções Inteligentes",
+        workflowTitle: "Workflow de Resolução Automática",
+        workflowSubtitle: "Como o Sistema Resolve Problemas em Tempo Real",
+        immediateDetection: "Detecção Imediata",
+        impactAnalysis: "Análise de Impacto",
+        specificSolution: "Aplicação de Solução Específica",
+        verificationMonitoring: "Verificação e Monitoramento",
+        successStoriesTitle: "Casos Reais - Quando o Sistema Salvou Vidas",
+        impactStatsTitle: "Impacto Real - Estatísticas de Sucesso",
+        livesSaved: "Vidas Salvas Este Ano",
+        successRate: "Taxa de Sucesso em Emergências",
+        avgResolutionTime: "Tempo Médio de Resolução",
+        zeroFatalities: "Fatalidades por Falha de Comunicação",
+        technicalAnalysisTitle: "Análise Técnica - Como o Sistema Resolve os 3 Problemas VoIP Principais",
+        oneWayAudioTitle: "Problema 1: One-Way Audio - Solução Técnica",
+        technicalAnalysis: "Análise Técnica do Problema",
+        technicalCauses: "Causas Técnicas Comuns",
+        technicalSolution: "Solução Técnica Implementada",
+        technicalValidation: "Validação Técnica",
+        natProblemTitle: "Problema 2: NAT Incorreto - Solução Técnica",
+        natDetection: "Detecção de NAT",
+        natTypes: "Tipos de NAT Detectados",
+        natSolution: "Solução Técnica Implementada",
+        natMonitoring: "Monitoramento Técnico",
+        latencyProblemTitle: "Problema 3: Alta Latência - Solução Técnica",
+        latencyMeasurement: "Medição de Latência",
+        latencyCauses: "Causas Técnicas",
+        latencySolution: "Solução Técnica Implementada",
+        performanceValidation: "Validação de Performance",
+        architectureTitle: "Arquitetura Técnica da Solução",
+        detectionLayer: "Camada de Detecção",
+        correctionLayer: "Camada de Correção",
+        validationLayer: "Camada de Validação",
+        interviewGuideTitle: "Guia de Entrevista - Como Apresentar Suas Capacidades VoIP",
+        interviewObjective: "Objetivo da Apresentação",
+        interviewObjectiveText: "Demonstrar que você não apenas identifica problemas VoIP, mas implementa soluções técnicas completas que salvam vidas e otimizam operações críticas.",
+        interviewStructure: "Estrutura Recomendada da Apresentação (5-7 minutos)",
+        introduction: "Introdução",
+        problem1Title: "Problema 1: One-Way Audio",
+        problem2Title: "Problema 2: NAT Configuration",
+        problem3Title: "Problema 3: Alta Latência",
+        differentiatorImpact: "Diferencial e Impacto",
+        qaPreparation: "Perguntas Prováveis e Respostas",
+        valueProposition: "Seu Valor para a Equipe",
+        operationalConfidence: "Confiança Operacional",
+        fastResolution: "Resolução Rápida",
+        scalability: "Escalabilidade",
+        closingStatement: "Statement Final",
+        emergencyProceduresTitle: "Procedimentos de Emergência - Quando o Sistema Falha",
+        samuCommunicationFailure: "Falha Completa de Comunicação SAMU",
+        fleetControlLoss: "Perda Total de Controle de Frota",
+        supportTitle: "Suporte Técnico 24/7",
+        samuEmergency: "Emergência SAMU",
+        fleetSupport: "Suporte Frota",
+        whatsappSupport: "WhatsApp Técnico",
+        priorityMaximum: "Prioridade máxima para falhas críticas",
+        logisticsSpecialization: "Suporte especializado em logística",
+        responseTime: "Resposta em < 5 minutos"
       },
       en: {
         pageTitle: "VoIP Solutions - SAMU and Fleet Control",
         backToDashboard: "Back to Dashboard",
         mainTitle: "VoIP Solutions for SAMU and Fleet Control",
         emergencyTitle: "SAMU - Critical Problems and Solutions",
-        fleetTitle: "Fleet Control - Problems and Solutions"
+        fleetTitle: "Fleet Control - Problems and Solutions",
+        criticalProblemsTitle: "Critical Problems in Emergency Operations",
+        criticalProblemsText: "VoIP communication failures can cost lives in SAMU operations and compromise fleet control efficiency. Our system identifies and resolves these problems automatically.",
+        commonProblemsSAMU: "Common Problems in SAMU",
+        automaticSolutions: "Automatic Solutions",
+        fleetProblems: "Fleet Problems",
+        intelligentSolutions: "Intelligent Solutions",
+        workflowTitle: "Automatic Resolution Workflow",
+        workflowSubtitle: "How the System Solves Problems in Real Time",
+        immediateDetection: "Immediate Detection",
+        impactAnalysis: "Impact Analysis",
+        specificSolution: "Specific Solution Application",
+        verificationMonitoring: "Verification and Monitoring",
+        successStoriesTitle: "Real Cases - When the System Saved Lives",
+        impactStatsTitle: "Real Impact - Success Statistics",
+        livesSaved: "Lives Saved This Year",
+        successRate: "Success Rate in Emergencies",
+        avgResolutionTime: "Average Resolution Time",
+        zeroFatalities: "Fatalities from Communication Failure",
+        technicalAnalysisTitle: "Technical Analysis - How the System Solves the 3 Main VoIP Problems",
+        oneWayAudioTitle: "Problem 1: One-Way Audio - Technical Solution",
+        technicalAnalysis: "Technical Problem Analysis",
+        technicalCauses: "Common Technical Causes",
+        technicalSolution: "Technical Solution Implemented",
+        technicalValidation: "Technical Validation",
+        natProblemTitle: "Problem 2: Incorrect NAT - Technical Solution",
+        natDetection: "NAT Detection",
+        natTypes: "Detected NAT Types",
+        natSolution: "Technical Solution Implemented",
+        natMonitoring: "Technical Monitoring",
+        latencyProblemTitle: "Problem 3: High Latency - Technical Solution",
+        latencyMeasurement: "Latency Measurement",
+        latencyCauses: "Technical Causes",
+        latencySolution: "Technical Solution Implemented",
+        performanceValidation: "Performance Validation",
+        architectureTitle: "Solution Technical Architecture",
+        detectionLayer: "Detection Layer",
+        correctionLayer: "Correction Layer",
+        validationLayer: "Validation Layer",
+        interviewGuideTitle: "Interview Guide - How to Present Your VoIP Capabilities",
+        interviewObjective: "Presentation Objective",
+        interviewObjectiveText: "Demonstrate that you not only identify VoIP problems, but implement complete technical solutions that save lives and optimize critical operations.",
+        interviewStructure: "Recommended Presentation Structure (5-7 minutes)",
+        introduction: "Introduction",
+        problem1Title: "Problem 1: One-Way Audio",
+        problem2Title: "Problem 2: NAT Configuration",
+        problem3Title: "Problem 3: High Latency",
+        differentiatorImpact: "Differentiator and Impact",
+        qaPreparation: "Likely Questions and Answers",
+        valueProposition: "Your Value to the Team",
+        operationalConfidence: "Operational Confidence",
+        fastResolution: "Fast Resolution",
+        scalability: "Scalability",
+        closingStatement: "Closing Statement",
+        emergencyProceduresTitle: "Emergency Procedures - When the System Fails",
+        samuCommunicationFailure: "Complete SAMU Communication Failure",
+        fleetControlLoss: "Total Fleet Control Loss",
+        supportTitle: "24/7 Technical Support",
+        samuEmergency: "SAMU Emergency",
+        fleetSupport: "Fleet Support",
+        whatsappSupport: "WhatsApp Technical",
+        priorityMaximum: "Maximum priority for critical failures",
+        logisticsSpecialization: "Logistics specialization support",
+        responseTime: "Response in < 5 minutes"
       }
     };
 
