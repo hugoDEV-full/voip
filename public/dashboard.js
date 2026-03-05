@@ -1018,32 +1018,76 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnSimNormal) {
     btnSimNormal.addEventListener('click', function() {
       console.log('🖱️ Normal button clicked!');
-      alert('Botão Normal clicado! Iniciando simulação...');
+      // Visual feedback
+      btnSimNormal.classList.add('active');
+      btnSimNormal.innerHTML = '<i class="bi bi-telephone-fill"></i> ' + (currentLanguage === 'pt' ? 'Iniciando...' : 'Starting...');
+      btnSimNormal.disabled = true;
+      
       simulateNormalCall();
+      
+      // Reset button after simulation
+      setTimeout(() => {
+        btnSimNormal.classList.remove('active');
+        btnSimNormal.innerHTML = currentLanguage === 'pt' ? 'Iniciar chamada (normal)' : 'Start call (normal)';
+        btnSimNormal.disabled = false;
+      }, 5000);
     });
   }
   
   if (btnSimOneWay) {
     btnSimOneWay.addEventListener('click', function() {
       console.log('🖱️ One-Way button clicked!');
-      alert('Botão One-Way clicado! Iniciando simulação...');
+      // Visual feedback
+      btnSimOneWay.classList.add('active');
+      btnSimOneWay.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + (currentLanguage === 'pt' ? 'Iniciando...' : 'Starting...');
+      btnSimOneWay.disabled = true;
+      
       simulateOneWayAudio();
+      
+      // Reset button after simulation
+      setTimeout(() => {
+        btnSimOneWay.classList.remove('active');
+        btnSimOneWay.innerHTML = currentLanguage === 'pt' ? 'Iniciar chamada (one-way audio)' : 'Start call (one-way audio)';
+        btnSimOneWay.disabled = false;
+      }, 5000);
     });
   }
   
   if (btnSimNat) {
     btnSimNat.addEventListener('click', function() {
       console.log('🖱️ NAT button clicked!');
-      alert('Botão NAT clicado! Iniciando simulação...');
+      // Visual feedback
+      btnSimNat.classList.add('active');
+      btnSimNat.innerHTML = '<i class="bi bi-wifi-off"></i> ' + (currentLanguage === 'pt' ? 'Iniciando...' : 'Starting...');
+      btnSimNat.disabled = true;
+      
       simulateNatProblem();
+      
+      // Reset button after simulation
+      setTimeout(() => {
+        btnSimNat.classList.remove('active');
+        btnSimNat.innerHTML = currentLanguage === 'pt' ? 'Iniciar chamada (NAT incorreto)' : 'Start call (NAT incorrect)';
+        btnSimNat.disabled = false;
+      }, 5000);
     });
   }
   
   if (btnAnalyze) {
     btnAnalyze.addEventListener('click', function() {
       console.log('🖱️ Analyze button clicked!');
-      alert('Botão Analisar clicado! Iniciando simulação...');
+      // Visual feedback
+      btnAnalyze.classList.add('active');
+      btnAnalyze.innerHTML = '<i class="bi bi-search"></i> ' + (currentLanguage === 'pt' ? 'Analisando...' : 'Analyzing...');
+      btnAnalyze.disabled = true;
+      
       analyzeTraffic();
+      
+      // Reset button after simulation
+      setTimeout(() => {
+        btnAnalyze.classList.remove('active');
+        btnAnalyze.innerHTML = currentLanguage === 'pt' ? 'Analisar tráfego SIP' : 'Analyze SIP traffic';
+        btnAnalyze.disabled = false;
+      }, 6000);
     });
   }
   

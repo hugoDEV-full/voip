@@ -7,7 +7,7 @@
     ]
   },
   "deploy": {
-    "startCommand": "npm run deploy",
+    "startCommand": "npm run deploy && npm start",
     "healthcheckPath": "/login.html",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
