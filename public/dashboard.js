@@ -18,10 +18,14 @@ const translations = {
     btnOneWay: 'Iniciar chamada (one-way audio)',
     btnNat: 'Iniciar chamada (NAT incorreto)',
     btnAnalyze: 'Analisar tráfego SIP',
-    callsHeader: 'Chamadas ativas',
-    alertsHeader: 'Alertas de rede',
+    callsHeader: 'Chamadas Ativas',
+    alertsHeader: 'Alertas de Rede',
     statsHeader: 'System Stats',
-    eventsHeader: 'Eventos em tempo real (SIP / RTP / ESL)',
+    eventsHeader: 'Eventos em Tempo Real',
+    systemStatus: 'Status do Sistema',
+    activeCalls: 'Chamadas Ativas',
+    alerts: 'Alertas',
+    events: 'Eventos',
     userInfo: 'Informações do Usuário',
     logout: 'Sair',
     loading: 'Carregando...'
@@ -34,7 +38,11 @@ const translations = {
     callsHeader: 'Active Calls',
     alertsHeader: 'Network Alerts',
     statsHeader: 'System Stats',
-    eventsHeader: 'Real-time Events (SIP / RTP / ESL)',
+    eventsHeader: 'Real-time Events',
+    systemStatus: 'System Status',
+    activeCalls: 'Active Calls',
+    alerts: 'Alerts',
+    events: 'Events',
     userInfo: 'User Information',
     logout: 'Logout',
     loading: 'Loading...'
@@ -42,6 +50,81 @@ const translations = {
 };
 
 let currentLanguage = 'pt';
+let eventsPaused = false;
+let eventCount = 0;
+
+// Notification system
+function showNotification(message, type = 'info', duration = 5000) {
+  const container = document.getElementById('notifications-container');
+  if (!container) return;
+  
+  const notificationId = 'notification-' + Date.now();
+  const typeClasses = {
+    success: 'bg-success',
+    warning: 'bg-warning',
+    danger: 'bg-danger',
+    info: 'bg-info',
+    primary: 'bg-primary'
+  };
+  
+  const icons = {
+    success: 'bi-check-circle-fill',
+    warning: 'bi-exclamation-triangle-fill',
+    danger: 'bi-x-circle-fill',
+    info: 'bi-info-circle-fill',
+    primary: 'bi-bell-fill'
+  };
+  
+  const notification = document.createElement('div');
+  notification.id = notificationId;
+  notification.className = `toast align-items-center text-white ${typeClasses[type]} border-0 mb-2`;
+  notification.setAttribute('role', 'alert');
+  notification.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi ${icons[type]} me-2"></i>
+        ${message}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  `;
+  
+  container.appendChild(notification);
+  
+  // Initialize Bootstrap toast
+  if (window.bootstrap) {
+    const toast = new bootstrap.Toast(notification, { delay: duration });
+    toast.show();
+    
+    // Remove from DOM after hidden
+    notification.addEventListener('hidden.bs.toast', () => {
+      notification.remove();
+    });
+  } else {
+    // Fallback if Bootstrap not loaded
+    setTimeout(() => {
+      notification.remove();
+    }, duration);
+  }
+}
+
+function updateCounters() {
+  const activeCallsCount = document.getElementById('activeCallsCount');
+  const alertsCount = document.getElementById('alertsCount');
+  const eventsCount = document.getElementById('eventsCount');
+  
+  if (activeCallsCount) {
+    activeCallsCount.textContent = state.calls.size;
+  }
+  
+  if (alertsCount) {
+    alertsCount.textContent = state.alerts.length;
+  }
+  
+  if (eventsCount) {
+    eventsCount.textContent = eventCount;
+  }
+}
 
 function updateLanguage(lang) {
   currentLanguage = lang;
@@ -684,6 +767,13 @@ function simulateNormalCall() {
   // Add call to state
   state.calls.set(callId, newCall);
   
+  // Show notification
+  showNotification(
+    currentLanguage === 'pt' ? '📞 Chamada normal iniciada' : '📞 Normal call started',
+    'success',
+    3000
+  );
+  
   // Normal SIP flow with RTP
   const events = [
     { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
@@ -697,24 +787,29 @@ function simulateNormalCall() {
   
   events.forEach((event, index) => {
     setTimeout(() => {
-      const html = `
-        <div class="event-row border-bottom pb-2 mb-2">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1">
-              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
-              <strong>${event.message}</strong>
-              <span class="text-muted ms-2">Call: ${callId}</span>
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+                <strong>${event.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
             </div>
-            <small class="text-muted">${fmtTs(Date.now())}</small>
+            <div class="small text-muted mt-1">${event.details}</div>
           </div>
-          <div class="small text-muted mt-1">${event.details}</div>
-        </div>
-      `;
-      appendEvent(html);
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
     }, index * 800);
   });
   
   renderCalls();
+  updateCounters();
   console.log('📞 Normal call simulated:', callId);
 }
 
@@ -734,6 +829,13 @@ function simulateOneWayAudio() {
   
   state.calls.set(callId, newCall);
   
+  // Show warning notification
+  showNotification(
+    currentLanguage === 'pt' ? '⚠️ Problema de one-way audio detectado!' : '⚠️ One-way audio problem detected!',
+    'warning',
+    4000
+  );
+  
   // One-way audio scenario
   const events = [
     { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
@@ -746,20 +848,24 @@ function simulateOneWayAudio() {
   
   events.forEach((event, index) => {
     setTimeout(() => {
-      const html = `
-        <div class="event-row border-bottom pb-2 mb-2">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1">
-              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
-              <strong>${event.message}</strong>
-              <span class="text-muted ms-2">Call: ${callId}</span>
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+                <strong>${event.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
             </div>
-            <small class="text-muted">${fmtTs(Date.now())}</small>
+            <div class="small text-muted mt-1">${event.details}</div>
           </div>
-          <div class="small text-muted mt-1">${event.details}</div>
-        </div>
-      `;
-      appendEvent(html);
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
     }, index * 800);
   });
   
@@ -777,10 +883,12 @@ function simulateOneWayAudio() {
     
     state.alerts.push(alert);
     renderAlerts();
+    updateCounters();
   }, 4000);
   
   renderCalls();
-  console.log('� One-way audio call simulated:', callId);
+  updateCounters();
+  console.log('🔇 One-way audio call simulated:', callId);
 }
 
 function simulateNatProblem() {
@@ -799,6 +907,13 @@ function simulateNatProblem() {
   
   state.calls.set(callId, newCall);
   
+  // Show danger notification
+  showNotification(
+    currentLanguage === 'pt' ? '🔴 Problema de NAT detectado!' : '🔴 NAT problem detected!',
+    'danger',
+    4000
+  );
+  
   // NAT problem scenario
   const events = [
     { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
@@ -812,20 +927,24 @@ function simulateNatProblem() {
   
   events.forEach((event, index) => {
     setTimeout(() => {
-      const html = `
-        <div class="event-row border-bottom pb-2 mb-2">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1">
-              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
-              <strong>${event.message}</strong>
-              <span class="text-muted ms-2">Call: ${callId}</span>
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+                <strong>${event.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
             </div>
-            <small class="text-muted">${fmtTs(Date.now())}</small>
+            <div class="small text-muted mt-1">${event.details}</div>
           </div>
-          <div class="small text-muted mt-1">${event.details}</div>
-        </div>
-      `;
-      appendEvent(html);
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
     }, index * 800);
   });
   
@@ -854,13 +973,22 @@ function simulateNatProblem() {
     
     state.alerts.push(...alerts);
     renderAlerts();
+    updateCounters();
   }, 4000);
   
   renderCalls();
+  updateCounters();
   console.log('🌐 NAT problem call simulated:', callId);
 }
 
 function analyzeTraffic() {
+  // Show info notification
+  showNotification(
+    currentLanguage === 'pt' ? '📊 Iniciando análise de tráfego...' : '📊 Starting traffic analysis...',
+    'info',
+    3000
+  );
+  
   // Simulate traffic analysis
   const analysisEvents = [
     { type: 'SYSTEM', message: 'Starting traffic analysis...', details: 'Reading /pcap/traffic_log.txt' },
@@ -872,19 +1000,23 @@ function analyzeTraffic() {
   
   analysisEvents.forEach((event, index) => {
     setTimeout(() => {
-      const html = `
-        <div class="event-row border-bottom pb-2 mb-2">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1">
-              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
-              <strong>${event.message}</strong>
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+                <strong>${event.message}</strong>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
             </div>
-            <small class="text-muted">${fmtTs(Date.now())}</small>
+            <div class="small text-muted mt-1">${event.details}</div>
           </div>
-          <div class="small text-muted mt-1">${event.details}</div>
-        </div>
-      `;
-      appendEvent(html);
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
     }, index * 1000);
   });
   
@@ -910,6 +1042,14 @@ function analyzeTraffic() {
     
     state.alerts.push(...analysisAlerts);
     renderAlerts();
+    updateCounters();
+    
+    // Show completion notification
+    showNotification(
+      currentLanguage === 'pt' ? '✅ Análise concluída! 5 problemas encontrados' : '✅ Analysis complete! 5 issues found',
+      'success',
+      4000
+    );
   }, 5000);
   
   console.log('📊 Traffic analysis simulated');
@@ -1091,6 +1231,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
+  // Add event control buttons
+  const btnClearEvents = document.getElementById('btnClearEvents');
+  const btnPauseEvents = document.getElementById('btnPauseEvents');
+  
+  if (btnClearEvents) {
+    btnClearEvents.addEventListener('click', function() {
+      const eventsContainer = document.getElementById('events');
+      if (eventsContainer) {
+        eventsContainer.innerHTML = '';
+        eventCount = 0;
+        updateCounters();
+        showNotification(
+          currentLanguage === 'pt' ? '🗑️ Eventos limpos' : '🗑️ Events cleared',
+          'info',
+          2000
+        );
+      }
+    });
+  }
+  
+  if (btnPauseEvents) {
+    btnPauseEvents.addEventListener('click', function() {
+      eventsPaused = !eventsPaused;
+      btnPauseEvents.innerHTML = eventsPaused ? 
+        '<i class="bi bi-play-fill"></i> ' + (currentLanguage === 'pt' ? 'Retomar' : 'Resume') :
+        '<i class="bi bi-pause-fill"></i> ' + (currentLanguage === 'pt' ? 'Pausar' : 'Pause');
+      
+      showNotification(
+        eventsPaused ? 
+          (currentLanguage === 'pt' ? '⏸️ Eventos pausados' : '⏸️ Events paused') :
+          (currentLanguage === 'pt' ? '▶️ Eventos retomados' : '▶️ Events resumed'),
+        'info',
+        2000
+      );
+    });
+  }
+  
   // Add language selector event listeners
   document.querySelectorAll('[data-lang]').forEach(element => {
     element.addEventListener('click', (e) => {
@@ -1102,6 +1279,22 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize language
   updateLanguage('pt');
+  
+  // Initialize counters
+  updateCounters();
+  
+  // Initialize system stats
+  updateSystemStats();
+  setInterval(updateSystemStats, 2000);
+  
+  // Show welcome notification
+  setTimeout(() => {
+    showNotification(
+      currentLanguage === 'pt' ? '🎉 Bem-vindo ao VoIP Monitor!' : '🎉 Welcome to VoIP Monitor!',
+      'success',
+      4000
+    );
+  }, 1000);
   
   // Initialize user display on page load
   displayUserInfo();
@@ -1118,6 +1311,41 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply saved language on load
   applyLanguage(currentLang);
 });
+
+const startTime = Date.now();
+
+function updateSystemStats() {
+  const cpuUsage = document.getElementById('cpuUsage');
+  const cpuBar = document.getElementById('cpuBar');
+  const memUsage = document.getElementById('memUsage');
+  const memBar = document.getElementById('memBar');
+  const uptime = document.getElementById('uptime');
+  const lastUpdate = document.getElementById('lastUpdate');
+  
+  // Simulate CPU usage (10-60%)
+  const cpuValue = Math.floor(Math.random() * 50) + 10;
+  if (cpuUsage) cpuUsage.textContent = cpuValue + '%';
+  if (cpuBar) cpuBar.style.width = cpuValue + '%';
+  
+  // Simulate Memory usage (30-70%)
+  const memValue = Math.floor(Math.random() * 40) + 30;
+  if (memUsage) memUsage.textContent = memValue + '%';
+  if (memBar) memBar.style.width = memValue + '%';
+  
+  // Update uptime
+  if (uptime) {
+    const uptimeSeconds = Math.floor((Date.now() - startTime) / 1000);
+    const hours = Math.floor(uptimeSeconds / 3600);
+    const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+    const seconds = uptimeSeconds % 60;
+    uptime.textContent = `${hours}h ${minutes}m ${seconds}s`;
+  }
+  
+  // Update last update time
+  if (lastUpdate) {
+    lastUpdate.textContent = new Date().toLocaleTimeString();
+  }
+}
 
 function fmtTs(ts) {
   const d = new Date(ts);
