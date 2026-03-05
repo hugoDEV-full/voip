@@ -7,7 +7,7 @@ Plataforma de monitoramento e análise de tráfego VoIP em tempo real com demons
 O sistema possui uma tela de login simulada para proteção básica:
 
 ### Credencial de Acesso
-- **Administrador**: `admin` / `Admin@2024!VoIP`
+- **Usuário**: `admin` (senha fornecida separadamente)
 
 ### Funcionalidades de Segurança
 - Login com validação de credenciais específicas
@@ -91,9 +91,9 @@ O projeto já está configurado com:
 
 O sistema criará automaticamente:
 
-| Usuário | Senha | Role | Descrição |
-|---------|-------|------|-----------|
-| admin | Admin@2024!VoIP | admin | Acesso total |
+| Usuário | Role | Descrição |
+|---------|------|-----------|
+| admin | admin | Acesso total (senha fornecida separadamente) |
 
 ### 📊 Estrutura do Banco de Dados
 

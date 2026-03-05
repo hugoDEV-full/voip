@@ -89,13 +89,13 @@ Este projeto possui um sistema de **deploy completamente automático** que:
 🌍 Environment: production
 ```
 
-## 👥 Usuários Criados Automaticamente
+## 👥 Usuário Criado Automaticamente
 
-| Usuário | Senha | Role | Status |
-|---------|-------|------|--------|
-| admin | admin123 | admin | ✅ Criado auto |
-| voip | monitor2024 | operator | ✅ Criado auto |
-| demo | demo123 | viewer | ✅ Criado auto |
+| Usuário | Role | Status |
+|---------|------|--------|
+| admin | admin | ✅ Criado auto |
+
+**Senha**: Fornecida separadamente (não exibida publicamente)
 
 ## 🔐 Segurança
 
