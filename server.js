@@ -67,9 +67,9 @@ function requireAuth(req, res, next) {
   next();
 }
 
-// Apply auth middleware to all routes except login and auth API
+// Apply auth middleware to all routes except login, auth API and help
 app.use((req, res, next) => {
-  if (req.path.startsWith('/auth/')) {
+  if (req.path.startsWith('/auth/') || req.path === '/ajuda') {
     return next();
   }
   requireAuth(req, res, next);
