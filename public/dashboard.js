@@ -499,6 +499,10 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
 // Initialize user display on page load
 displayUserInfo();
 
+// Initial render to show empty states
+renderCalls();
+renderAlerts();
+
 // Apply saved language on load
 applyLanguage(currentLang);
 
@@ -549,9 +553,11 @@ function renderCalls() {
   initTooltips(elCalls);
 }
 
-function pushAlert(alert) {
-  state.alerts.unshift(alert);
-  state.alerts = state.alerts.slice(0, 50);
+function renderAlerts() {
+  if (state.alerts.length === 0) {
+    elAlerts.innerHTML = '<div class="text-muted">Nenhum alerta</div>';
+    return;
+  }
 
   const getTip = (type) => {
     if (type === 'ONE_WAY_AUDIO') {
@@ -582,6 +588,12 @@ function pushAlert(alert) {
     .join('');
 
   initTooltips(elAlerts);
+}
+
+function pushAlert(alert) {
+  state.alerts.unshift(alert);
+  state.alerts = state.alerts.slice(0, 50);
+  renderAlerts();
 }
 
 function escapeHtml(s) {
