@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Como Funciona - VoIP Monitoring Platform</title>
+  <title data-i18n="pageTitle">Ajuda Operacional - SAMU e Controle de Frota</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
@@ -13,101 +13,467 @@
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="/">
         <i class="bi bi-arrow-left me-2"></i>
-        <span>Voltar ao Dashboard</span>
+        <span data-i18n="backToDashboard">Voltar ao Dashboard</span>
       </a>
+      
+      <div class="ms-auto">
+        <div class="dropdown">
+          <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-globe"></i> <span id="currentLang">PT</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" data-lang="pt">🇧🇷 Português</a></li>
+            <li><a class="dropdown-item" href="#" data-lang="en">🇺🇸 English</a></li>
+          </ul>
+        </div>
+      </div>
     </div>
   </nav>
 
   <div class="container mt-4">
     <div class="row">
       <div class="col-12">
-        <h1 class="mb-4">Como a Plataforma VoIP Monitor Ajuda sua Empresa</h1>
+        <h1 class="mb-4" data-i18n="mainTitle">Ajuda Operacional - SAMU e Controle de Frota</h1>
         
-        <div class="card">
+        <!-- Emergency Services Overview -->
+        <div class="card border-danger mb-4">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-ambulance me-2"></i>
+              <span data-i18n="emergencyTitle">SAMU - Serviço de Atendimento Móvel de Urgência</span>
+            </h5>
+          </div>
           <div class="card-body">
-            <h5 class="card-title">🎯 Por que isso importa para o negócio?</h5>
-            <p class="card-text">Em ambientes de call center, suporte ou vendas, cada minuto com áudio ruim ou sem áudio representa perda de receita, insatisfação do cliente e retrabalho da equipe. Esta plataforma permite detectar e diagnosticar rapidamente problemas de mídia (RTP) e sinalização (SIP), reduzindo o MTTR (Mean Time to Repair) e melhorando a experiência do cliente.</p>
+            <p class="card-text" data-i18n="emergencyDesc">
+              Monitoramento de comunicações críticas para operações de emergência médica. 
+              Cada segundo conta em situações de vida ou morte, e a qualidade das comunicações 
+              VoIP entre ambulâncias, hospitais e centrais de coordenação é fundamental.
+            </p>
             
-            <div class="alert alert-info mt-3" role="alert">
-              <strong>Exemplo prático:</strong> Um call center percebeu que 15% das chamadas de vendas eram perdidas por "áudio cortado". Com esta plataforma, o time de TI identificou que o problema ocorria sempre que o cliente usava WiFi corporativo com NAT restritivo. A solução foi ajustar o firewall para permitir RTP dinâmico, reduzindo as perdas em 80%.
+            <div class="alert alert-danger" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <strong data-i18n="criticalAlert">Alerta Crítico:</strong>
+              <span data-i18n="criticalAlertText">
+                Falhas de comunicação em chamadas de emergência podem atrasar o atendimento 
+                médico em minutos cruciais, impactando diretamente a sobrevivência e recuperação de pacientes.
+              </span>
             </div>
           </div>
         </div>
 
-        <div class="card mt-4">
-          <div class="card-body">
-            <h5 class="card-title">📋 Como usar a plataforma</h5>
-            <ol>
-              <li><strong>Monitoramento em tempo real</strong> — O painel mostra chamadas ativas, eventos SIP/RTP e alertas de rede, permitindo que operadores e engenheiros vejam o status atual e histórico recente.</li>
-              <li><strong>Análise de tráfego SIP</strong> — A plataforma analisa mensagens SIP e métricas RTP em tempo real, detectando problemas como one-way audio e configurações de NAT incorretas.</li>
-              <li><strong>Alertas automáticos</strong> — O sistema gera alertas quando detecta anomalias como latência elevada, perda de pacotes ou fluxos de mídia quebrados.</li>
-              <li><strong>Relatórios e diagnóstico</strong> — Gera relatórios detalhados para análise pós-mortem e ajuda na identificação da causa raiz de problemas.</li>
-            </ol>
+        <!-- Fleet Control Overview -->
+        <div class="card border-primary mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-truck me-2"></i>
+              <span data-i18n="fleetTitle">Controle de Frota</span>
+            </h5>
           </div>
-        </div>
-
-        <div class="card mt-4">
           <div class="card-body">
-            <h5 class="card-title">🛠️ Como isso ajuda a equipe técnica</h5>
-            <ul>
-              <li><strong>Detecta one-way audio automaticamente</strong> — Em vez de depender de reclamações de clientes, a plataforma alerta quando RTP recebido é muito abaixo do esperado, indicando fluxo quebrado.</li>
-              <li><strong>Aponta NAT/Firewall</strong> — Quando o SDP anuncia IP privado ou há perda severa de RTP, o sistema sugere investigar NAT, regras de firewall ou pinholes.</li>
-              <li><strong>Mede latência</strong> — Alerta se a latência ultrapassar 150 ms, ajudando a identificar gargalos de rede ou congestionamento.</li>
-              <li><strong>Centraliza eventos SIP/RTP</strong> — Em um único feed, você vê mensagens SIP completas e métricas RTP, sem precisar alternar entre Wireshark e logs.</li>
-              <li><strong>Facilita pós-mortem</strong> — A análise de tráfego SIP gera diagnóstico estruturado, útil para relatórios de incidente e melhoria contínua.</li>
-            </ul>
+            <p class="card-text" data-i18n="fleetDesc">
+              Gestão de comunicações para frotas de veículos corporativos, entregas e logística. 
+              Monitoramento em tempo real de qualidade de áudio entre motoristas, central de dispatch 
+              e clientes, garantindo eficiência operacional e satisfação do cliente.
+            </p>
             
-            <div class="alert alert-success mt-3" role="alert">
-              <strong>Exemplo prático:</strong> Durante um pico de chamadas, o sistema detectou "one-way audio" apenas para usuários da filial de São Paulo. O time viu no dashboard que o SDP continha IP 10.1.2.x (privado). Corrigiram o NAT do gateway da filial em 10 minutos, evitando impacto nas vendas.
+            <div class="alert alert-info" role="alert">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              <strong data-i18n="operationalImpact">Impacto Operacional:</strong>
+              <span data-i18n="operationalImpactText">
+                Comunicações com falhas em operações de frota resultam em atrasos de entregas, 
+                perda de produtividade e insatisfação de clientes, afetando diretamente a rentabilidade do negócio.
+              </span>
             </div>
           </div>
         </div>
 
-        <div class="card mt-4">
-          <div class="card-body">
-            <h5 class="card-title">💰 Impacto no negócio</h5>
-            <ul>
-              <li><strong>Redução de chamadas com áudio ruim</strong> — Detectar e corrigir rapidamente one-way audio e problemas de NAT diminui o número de chamadas ineficazes.</li>
-              <li><strong>Menor tempo de inatividade</strong> — Alertas proativos permitem que a equipe de infra atue antes que o problema afete muitos usuários.</li>
-              <li><strong>Melhoria da satisfação do cliente</strong> — Menos quedas de áudio e menos necessidade de repetir informações aumentam a percepção de qualidade.</li>
-              <li><strong>Economia operacional</strong> — Menos chamadas de suporte sobre problemas de áudio e diagnósticos mais rápidos reduzem custos operacionais.</li>
-            </ul>
+        <!-- How to Use -->
+        <div class="card border-success mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-book me-2"></i>
+              <span data-i18n="howToUseTitle">Como Usar o Sistema</span>
+            </h5>
           </div>
-        </div>
-
-        <div class="card mt-4">
           <div class="card-body">
-            <h5 class="card-title">📊 Principais funcionalidades</h5>
             <div class="row">
-              <div class="col-md-6">
-                <h6><i class="bi bi-telephone-fill text-primary"></i> Chamadas Ativas</h6>
-                <p>Visualização em tempo real de todas as chamadas ativas com status, duração e informações de diagnóstico.</p>
+              <div class="col-md-6 mb-3">
+                <h6><i class="bi bi-1-circle-fill text-primary"></i> <span data-i18n="step1Title">Monitoramento em Tempo Real</span></h6>
+                <p data-i18n="step1Desc">
+                  Acompanhe chamadas ativas entre ambulâncias/hospitais ou motoristas/central. 
+                  Identifique rapidamente chamadas com problemas de áudio ou conexão.
+                </p>
               </div>
-              <div class="col-md-6">
-                <h6><i class="bi bi-exclamation-triangle-fill text-warning"></i> Alertas de Rede</h6>
-                <p>Detecte automaticamente problemas como one-way audio, NAT incorreto e alta latência.</p>
+              <div class="col-md-6 mb-3">
+                <h6><i class="bi bi-2-circle-fill text-warning"></i> <span data-i18n="step2Title">Alertas Automáticos</span></h6>
+                <p data-i18n="step2Desc">
+                  Receba notificações imediatas sobre one-way audio, problemas de NAT 
+                  ou alta latência que possam comprometer operações críticas.
+                </p>
               </div>
-              <div class="col-md-6">
-                <h6><i class="bi bi-activity text-success"></i> Eventos em Tempo Real</h6>
-                <p>Feed completo de mensagens SIP e métricas RTP para análise detalhada.</p>
+              <div class="col-md-6 mb-3">
+                <h6><i class="bi bi-3-circle-fill text-danger"></i> <span data-i18n="step3Title">Diagnóstico Rápido</span></h6>
+                <p data-i18n="step3Desc">
+                  Analise eventos SIP/RTP para identificar a causa raiz de problemas 
+                  de comunicação e agir corretivamente antes que impactem as operações.
+                </p>
               </div>
-              <div class="col-md-6">
-                <h6><i class="bi bi-speedometer2 text-info"></i> System Stats</h6>
-                <p>Monitoramento de CPU, memória e performance do sistema.</p>
+              <div class="col-md-6 mb-3">
+                <h6><i class="bi bi-4-circle-fill text-info"></i> <span data-i18n="step4Title">Relatórios Operacionais</span></h6>
+                <p data-i18n="step4Desc">
+                  Gere relatórios detalhados de qualidade de comunicação para análise 
+                  de performance e planejamento de melhorias na infraestrutura.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SAMU Specific Features -->
+        <div class="card border-danger mb-4">
+          <div class="card-header bg-danger text-white">
+            <h6 class="mb-0">
+              <i class="bi bi-heart-pulse-fill me-2"></i>
+              <span data-i18n="samuFeaturesTitle">Funcionalidades Específicas SAMU</span>
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="text-center">
+                  <i class="bi bi-telephone-inbound-fill text-danger fs-1"></i>
+                  <h6 class="mt-2" data-i18n="emergencyCalls">Chamadas de Emergência</h6>
+                  <p class="small" data-i18n="emergencyCallsDesc">
+                    Monitoramento prioritário de chamadas 192/193 com qualidade garantida
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="text-center">
+                  <i class="bi bi-hospital-fill text-danger fs-1"></i>
+                  <h6 class="mt-2" data-i18n="hospitalComms">Comunicação Hospitalar</h6>
+                  <p class="small" data-i18n="hospitalCommsDesc">
+                    Conexão crítica entre ambulâncias e centros médicos para triagem
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="text-center">
+                  <i class="bi bi-geo-alt-fill text-danger fs-1"></i>
+                  <h6 class="mt-2" data-i18n="locationTracking">Rastreamento de Localização</h6>
+                  <p class="small" data-i18n="locationTrackingDesc">
+                    Integração com GPS para verificação de cobertura de comunicação
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fleet Control Features -->
+        <div class="card border-primary mb-4">
+          <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">
+              <i class="bi bi-truck-front-fill me-2"></i>
+              <span data-i18n="fleetFeaturesTitle">Funcionalidades de Controle de Frota</span>
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="text-center">
+                  <i class="bi bi-headset-fill text-primary fs-1"></i>
+                  <h6 class="mt-2" data-i18n="dispatchComms">Comunicação com Dispatch</h6>
+                  <p class="small" data-i18n="dispatchCommsDesc">
+                    Áudio claro entre motoristas e central de operações
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="text-center">
+                  <i class="bi bi-box-seam-fill text-primary fs-1"></i>
+                  <h6 class="mt-2" data-i18n="deliveryTracking">Rastreamento de Entregas</h6>
+                  <p class="small" data-i18n="deliveryTrackingDesc">
+                    Status de comunicação durante rotas de entrega
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="text-center">
+                  <i class="bi bi-people-fill text-primary fs-1"></i>
+                  <h6 class="mt-2" data-i18n="customerService">Atendimento ao Cliente</h6>
+                  <p class="small" data-i18n="customerServiceDesc">
+                    Qualidade de áudio entre motoristas e clientes
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="card border-warning mb-4">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="bi bi-tools me-2"></i>
+              <span data-i18n="troubleshootingTitle">Solução de Problemas Comuns</span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="accordion" id="troubleshootingAccordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                    <i class="bi bi-telephone-x me-2 text-danger"></i>
+                    <span data-i18n="issue1Title">One-Way Audio em Ambulâncias</span>
+                  </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#troubleshootingAccordion">
+                  <div class="accordion-body">
+                    <strong data-i18n="issue1SolutionTitle">Solução:</strong>
+                    <span data-i18n="issue1SolutionText">
+                      Verificar configuração de NAT no gateway da ambulância e regras de firewall 
+                      para permitir RTP bidirecional. Problemas comuns em redes 4G/5G móveis.
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                    <i class="bi bi-wifi-off me-2 text-warning"></i>
+                    <span data-i18n="issue2Title">Alta Latência em Chamadas</span>
+                  </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                  <div class="accordion-body">
+                    <strong data-i18n="issue2SolutionTitle">Solução:</strong>
+                    <span data-i18n="issue2SolutionText">
+                      Verificar congestionamento na rede do provedor de serviços móveis e 
+                      otimizar roteamento para o datacenter VoIP mais próximo.
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                    <i class="bi bi-router me-2 text-info"></i>
+                    <span data-i18n="issue3Title">Problemas de NAT em Frota</span>
+                  </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                  <div class="accordion-body">
+                    <strong data-i18n="issue3SolutionTitle">Solução:</strong>
+                    <span data-i18n="issue3SolutionText">
+                      Configurar STUN/TURN servers para travessia de NAT e verificar 
+                      se os IPs privados não estão sendo anunciados no SDP.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="card border-secondary mb-4">
+          <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-headset me-2"></i>
+              <span data-i18n="supportTitle">Suporte Técnico 24/7</span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-md-4 mb-3">
+                <i class="bi bi-telephone-fill text-success fs-2"></i>
+                <h6 class="mt-2" data-i18n="emergencySupport">Suporte de Emergência</h6>
+                <p class="small" data-i18n="emergencySupportDesc">
+                  <strong>0800-123-4567</strong><br>
+                  Para problemas críticos em operações SAMU
+                </p>
+              </div>
+              <div class="col-md-4 mb-3">
+                <i class="bi bi-chat-dots-fill text-info fs-2"></i>
+                <h6 class="mt-2" data-i18n="chatSupport">Chat Online</h6>
+                <p class="small" data-i18n="chatSupportDesc">
+                  <strong>chat.voipmonitor.com</strong><br>
+                  Suporte técnico em tempo real
+                </p>
+              </div>
+              <div class="col-md-4 mb-3">
+                <i class="bi bi-envelope-fill text-primary fs-2"></i>
+                <h6 class="mt-2" data-i18n="emailSupport">E-mail</h6>
+                <p class="small" data-i18n="emailSupportDesc">
+                  <strong>suporte@voipmonitor.com</strong><br>
+                  Resposta em até 2 horas
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <div class="text-center mt-5">
-          <a href="/" class="btn btn-primary btn-lg">
-            <i class="bi bi-arrow-left"></i> Voltar ao Dashboard
+          <a href="/" class="btn btn-primary btn-lg me-2">
+            <i class="bi bi-speedometer2"></i> <span data-i18n="goToDashboard">Ir para Dashboard</span>
           </a>
+          <button class="btn btn-outline-secondary btn-lg" onclick="window.print()">
+            <i class="bi bi-printer"></i> <span data-i18n="printGuide">Imprimir Guia</span>
+          </button>
         </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Translation system
+    const translations = {
+      pt: {
+        pageTitle: "Ajuda Operacional - SAMU e Controle de Frota",
+        backToDashboard: "Voltar ao Dashboard",
+        mainTitle: "Ajuda Operacional - SAMU e Controle de Frota",
+        emergencyTitle: "SAMU - Serviço de Atendimento Móvel de Urgência",
+        emergencyDesc: "Monitoramento de comunicações críticas para operações de emergência médica. Cada segundo conta em situações de vida ou morte, e a qualidade das comunicações VoIP entre ambulâncias, hospitais e centrais de coordenação é fundamental.",
+        criticalAlert: "Alerta Crítico:",
+        criticalAlertText: "Falhas de comunicação em chamadas de emergência podem atrasar o atendimento médico em minutos cruciais, impactando diretamente a sobrevivência e recuperação de pacientes.",
+        fleetTitle: "Controle de Frota",
+        fleetDesc: "Gestão de comunicações para frotas de veículos corporativos, entregas e logística. Monitoramento em tempo real de qualidade de áudio entre motoristas, central de dispatch e clientes, garantindo eficiência operacional e satisfação do cliente.",
+        operationalImpact: "Impacto Operacional:",
+        operationalImpactText: "Comunicações com falhas em operações de frota resultam em atrasos de entregas, perda de produtividade e insatisfação de clientes, afetando diretamente a rentabilidade do negócio.",
+        howToUseTitle: "Como Usar o Sistema",
+        step1Title: "Monitoramento em Tempo Real",
+        step1Desc: "Acompanhe chamadas ativas entre ambulâncias/hospitais ou motoristas/central. Identifique rapidamente chamadas com problemas de áudio ou conexão.",
+        step2Title: "Alertas Automáticos",
+        step2Desc: "Receba notificações imediatas sobre one-way audio, problemas de NAT ou alta latência que possam comprometer operações críticas.",
+        step3Title: "Diagnóstico Rápido",
+        step3Desc: "Analise eventos SIP/RTP para identificar a causa raiz de problemas de comunicação e agir corretivamente antes que impactem as operações.",
+        step4Title: "Relatórios Operacionais",
+        step4Desc: "Gere relatórios detalhados de qualidade de comunicação para análise de performance e planejamento de melhorias na infraestrutura.",
+        samuFeaturesTitle: "Funcionalidades Específicas SAMU",
+        emergencyCalls: "Chamadas de Emergência",
+        emergencyCallsDesc: "Monitoramento prioritário de chamadas 192/193 com qualidade garantida",
+        hospitalComms: "Comunicação Hospitalar",
+        hospitalCommsDesc: "Conexão crítica entre ambulâncias e centros médicos para triagem",
+        locationTracking: "Rastreamento de Localização",
+        locationTrackingDesc: "Integração com GPS para verificação de cobertura de comunicação",
+        fleetFeaturesTitle: "Funcionalidades de Controle de Frota",
+        dispatchComms: "Comunicação com Dispatch",
+        dispatchCommsDesc: "Áudio claro entre motoristas e central de operações",
+        deliveryTracking: "Rastreamento de Entregas",
+        deliveryTrackingDesc: "Status de comunicação durante rotas de entrega",
+        customerService: "Atendimento ao Cliente",
+        customerServiceDesc: "Qualidade de áudio entre motoristas e clientes",
+        troubleshootingTitle: "Solução de Problemas Comuns",
+        issue1Title: "One-Way Audio em Ambulâncias",
+        issue1SolutionTitle: "Solução:",
+        issue1SolutionText: "Verificar configuração de NAT no gateway da ambulância e regras de firewall para permitir RTP bidirecional. Problemas comuns em redes 4G/5G móveis.",
+        issue2Title: "Alta Latência em Chamadas",
+        issue2SolutionTitle: "Solução:",
+        issue2SolutionText: "Verificar congestionamento na rede do provedor de serviços móveis e otimizar roteamento para o datacenter VoIP mais próximo.",
+        issue3Title: "Problemas de NAT em Frota",
+        issue3SolutionTitle: "Solução:",
+        issue3SolutionText: "Configurar STUN/TURN servers para travessia de NAT e verificar se os IPs privados não estão sendo anunciados no SDP.",
+        supportTitle: "Suporte Técnico 24/7",
+        emergencySupport: "Suporte de Emergência",
+        emergencySupportDesc: "<strong>0800-123-4567</strong><br>Para problemas críticos em operações SAMU",
+        chatSupport: "Chat Online",
+        chatSupportDesc: "<strong>chat.voipmonitor.com</strong><br>Suporte técnico em tempo real",
+        emailSupport: "E-mail",
+        emailSupportDesc: "<strong>suporte@voipmonitor.com</strong><br>Resposta em até 2 horas",
+        goToDashboard: "Ir para Dashboard",
+        printGuide: "Imprimir Guia"
+      },
+      en: {
+        pageTitle: "Operational Help - SAMU and Fleet Control",
+        backToDashboard: "Back to Dashboard",
+        mainTitle: "Operational Help - SAMU and Fleet Control",
+        emergencyTitle: "SAMU - Mobile Emergency Medical Service",
+        emergencyDesc: "Critical communications monitoring for medical emergency operations. Every second counts in life-or-death situations, and VoIP communication quality between ambulances, hospitals, and coordination centers is fundamental.",
+        criticalAlert: "Critical Alert:",
+        criticalAlertText: "Communication failures in emergency calls can delay medical care by crucial minutes, directly impacting patient survival and recovery.",
+        fleetTitle: "Fleet Control",
+        fleetDesc: "Communications management for corporate vehicle fleets, deliveries, and logistics. Real-time monitoring of audio quality between drivers, dispatch centers, and customers, ensuring operational efficiency and customer satisfaction.",
+        operationalImpact: "Operational Impact:",
+        operationalImpactText: "Communication failures in fleet operations result in delivery delays, productivity loss, and customer dissatisfaction, directly affecting business profitability.",
+        howToUseTitle: "How to Use the System",
+        step1Title: "Real-Time Monitoring",
+        step1Desc: "Monitor active calls between ambulances/hospitals or drivers/dispatch. Quickly identify calls with audio or connection issues.",
+        step2Title: "Automatic Alerts",
+        step2Desc: "Receive immediate notifications about one-way audio, NAT problems, or high latency that could compromise critical operations.",
+        step3Title: "Quick Diagnosis",
+        step3Desc: "Analyze SIP/RTP events to identify the root cause of communication problems and act correctly before they impact operations.",
+        step4Title: "Operational Reports",
+        step4Desc: "Generate detailed communication quality reports for performance analysis and infrastructure improvement planning.",
+        samuFeaturesTitle: "SAMU-Specific Features",
+        emergencyCalls: "Emergency Calls",
+        emergencyCallsDesc: "Priority monitoring of 192/193 calls with guaranteed quality",
+        hospitalComms: "Hospital Communication",
+        hospitalCommsDesc: "Critical connection between ambulances and medical centers for triage",
+        locationTracking: "Location Tracking",
+        locationTrackingDesc: "GPS integration for communication coverage verification",
+        fleetFeaturesTitle: "Fleet Control Features",
+        dispatchComms: "Dispatch Communication",
+        dispatchCommsDesc: "Clear audio between drivers and operations center",
+        deliveryTracking: "Delivery Tracking",
+        deliveryTrackingDesc: "Communication status during delivery routes",
+        customerService: "Customer Service",
+        customerServiceDesc: "Audio quality between drivers and customers",
+        troubleshootingTitle: "Common Problem Solutions",
+        issue1Title: "One-Way Audio in Ambulances",
+        issue1SolutionTitle: "Solution:",
+        issue1SolutionText: "Check NAT configuration on ambulance gateway and firewall rules to allow bidirectional RTP. Common issues in 4G/5G mobile networks.",
+        issue2Title: "High Latency in Calls",
+        issue2SolutionTitle: "Solution:",
+        issue2SolutionText: "Check network congestion in mobile service provider and optimize routing to nearest VoIP datacenter.",
+        issue3Title: "NAT Problems in Fleet",
+        issue3SolutionTitle: "Solution:",
+        issue3SolutionText: "Configure STUN/TURN servers for NAT traversal and verify private IPs are not being advertised in SDP.",
+        supportTitle: "24/7 Technical Support",
+        emergencySupport: "Emergency Support",
+        emergencySupportDesc: "<strong>1-800-VOIP-HELP</strong><br>For critical issues in SAMU operations",
+        chatSupport: "Online Chat",
+        chatSupportDesc: "<strong>chat.voipmonitor.com</strong><br>Real-time technical support",
+        emailSupport: "E-mail",
+        emailSupportDesc: "<strong>support@voipmonitor.com</strong><br>Response within 2 hours",
+        goToDashboard: "Go to Dashboard",
+        printGuide: "Print Guide"
+      }
+    };
+
+    let currentLanguage = 'pt';
+
+    function updateLanguage(lang) {
+      currentLanguage = lang;
+      const trans = translations[lang];
+      
+      // Update all elements with data-i18n attribute
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (trans[key]) {
+          element.innerHTML = trans[key];
+        }
+      });
+      
+      // Update language selector
+      document.getElementById('currentLang').textContent = lang.toUpperCase();
+      
+      // Update page title
+      document.title = trans.pageTitle;
+    }
+
+    // Add language selector event listeners
+    document.querySelectorAll('[data-lang]').forEach(element => {
+      element.addEventListener('click', (e) => {
+        e.preventDefault();
+        const lang = e.target.getAttribute('data-lang');
+        updateLanguage(lang);
+      });
+    });
+
+    // Initialize language
+    updateLanguage('pt');
+  </script>
 </body>
 </html>
