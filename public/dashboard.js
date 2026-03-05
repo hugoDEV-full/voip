@@ -5,6 +5,11 @@ const elEvents = document.getElementById('events');
 const elAlerts = document.getElementById('alerts');
 const elStats = document.getElementById('stats');
 
+// Mock button elements
+const btnMockCall = document.getElementById('btnMockCall');
+const btnMockAlert = document.getElementById('btnMockAlert');
+const btnMockEvent = document.getElementById('btnMockEvent');
+
 function initTooltips(root = document) {
   if (!window.bootstrap) return;
   const nodes = Array.from(root.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -604,6 +609,160 @@ function addMockStats() {
   console.log('📊 Mock stats added:', mockStats);
 }
 
+// Mock simulation functions
+function simulateNewCall() {
+  const callId = 'call-' + Date.now();
+  const from = '+5511' + Math.floor(Math.random() * 900000000 + 100000000);
+  const to = '+5511' + Math.floor(Math.random() * 900000000 + 100000000);
+  const scenarios = ['normal', 'one_way_audio', 'nat_wrong'];
+  const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+  
+  const newCall = {
+    id: callId,
+    from: from,
+    to: to,
+    scenario: scenario,
+    status: 'ACTIVE',
+    duration: '00:00:01'
+  };
+  
+  // Add call to state
+  state.calls.set(callId, newCall);
+  
+  // Add SIP events
+  const sipEvents = [
+    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
+    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'RTP', message: 'RTP flow established', details: `Codec: PCMU, Payload: 8, SSRC: ${Math.floor(Math.random() * 99999999)}` }
+  ];
+  
+  sipEvents.forEach((event, index) => {
+    setTimeout(() => {
+      const html = `
+        <div class="event-row border-bottom pb-2 mb-2">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+              <strong>${event.message}</strong>
+              <span class="text-muted ms-2">Call: ${callId}</span>
+            </div>
+            <small class="text-muted">${fmtTs(Date.now())}</small>
+          </div>
+          <div class="small text-muted mt-1">${event.details}</div>
+        </div>
+      `;
+      appendEvent(html);
+    }, index * 500);
+  });
+  
+  // Add alert if problematic scenario
+  if (scenario !== 'normal') {
+    setTimeout(() => {
+      const alert = {
+        type: scenario === 'one_way_audio' ? 'ONE_WAY_AUDIO' : 'NAT_SUSPECTED',
+        severity: 'ALERT',
+        message: scenario === 'one_way_audio' ? 'RTP flow detected broken' : 'Private IP detected in SDP',
+        callId: callId,
+        streamId: 'audio-0',
+        ts: Date.now(),
+        details: scenario === 'one_way_audio' ? 
+          { rtp_expected: 50, rtp_received: 0, loss_percent: 100 } :
+          { sdp_ip: '192.168.1.' + Math.floor(Math.random() * 255), public_ip: '200.150.10.' + Math.floor(Math.random() * 255) }
+      };
+      
+      state.alerts.push(alert);
+      renderAlerts();
+      
+      const alertHtml = `
+        <div class="event-row border-bottom pb-2 mb-2">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <span class="badge bg-danger me-2">ALERT</span>
+              <strong>${alert.message}</strong>
+              <span class="text-muted ms-2">Call: ${callId}</span>
+            </div>
+            <small class="text-muted">${fmtTs(alert.ts)}</small>
+          </div>
+          <div class="small text-muted mt-1">${JSON.stringify(alert.details)}</div>
+        </div>
+      `;
+      appendEvent(alertHtml);
+    }, 3000);
+  }
+  
+  renderCalls();
+  console.log('📞 Mock call simulated:', callId);
+}
+
+function simulateNewAlert() {
+  const alertTypes = [
+    { type: 'HIGH_LATENCY', message: 'Elevated latency detected', details: { latency_ms: 180 + Math.floor(Math.random() * 100) } },
+    { type: 'PACKET_LOSS', message: 'Packet loss detected', details: { loss_percent: 5 + Math.floor(Math.random() * 15) } },
+    { type: 'CODEC_MISMATCH', message: 'Codec negotiation failed', details: { local_codec: 'PCMU', remote_codec: 'G729' } },
+    { type: 'CALL_SETUP_FAILURE', message: 'Call setup timeout', details: { timeout_ms: 5000, reason: 'No response' } }
+  ];
+  
+  const alertType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+  const alert = {
+    type: alertType.type,
+    severity: 'WARNING',
+    message: alertType.message,
+    callId: null,
+    streamId: 'system-' + Date.now(),
+    ts: Date.now(),
+    details: alertType.details
+  };
+  
+  state.alerts.push(alert);
+  renderAlerts();
+  
+  const alertHtml = `
+    <div class="event-row border-bottom pb-2 mb-2">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+          <span class="badge bg-warning me-2">ALERT</span>
+          <strong>${alert.message}</strong>
+        </div>
+        <small class="text-muted">${fmtTs(alert.ts)}</small>
+      </div>
+      <div class="small text-muted mt-1">${JSON.stringify(alert.details)}</div>
+    </div>
+  `;
+  appendEvent(alertHtml);
+  
+  console.log('⚠️ Mock alert simulated:', alert.type);
+}
+
+function simulateNewEvent() {
+  const eventTypes = [
+    { type: 'SYSTEM', message: 'Health check completed', details: 'All systems operational' },
+    { type: 'SYSTEM', message: 'Backup completed', details: 'Database backup successful' },
+    { type: 'SYSTEM', message: 'Configuration updated', details: 'SIP server reloaded' },
+    { type: 'RTP', message: 'RTP statistics updated', details: 'Jitter: 2ms, MOS: 4.5' },
+    { type: 'SIP', message: 'REGISTER received', details: 'User: 1001@voip.com' }
+  ];
+  
+  const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+  
+  const eventHtml = `
+    <div class="event-row border-bottom pb-2 mb-2">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+          <span class="badge bg-${getEventColor(eventType.type)} me-2">${eventType.type}</span>
+          <strong>${eventType.message}</strong>
+        </div>
+        <small class="text-muted">${fmtTs(Date.now())}</small>
+      </div>
+      <div class="small text-muted mt-1">${eventType.details}</div>
+    </div>
+  `;
+  appendEvent(eventHtml);
+  
+  console.log('📡 Mock event simulated:', eventType.type);
+}
+
 // Add mock data for demonstration
 function addMockData() {
   // Mock active calls
@@ -702,6 +861,28 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Add mock data for demonstration
   addMockData();
+  
+  // Add mock button event listeners
+  if (btnMockCall) {
+    btnMockCall.addEventListener('click', () => {
+      console.log('🖱️ Mock call button clicked!');
+      simulateNewCall();
+    });
+  }
+  
+  if (btnMockAlert) {
+    btnMockAlert.addEventListener('click', () => {
+      console.log('🖱️ Mock alert button clicked!');
+      simulateNewAlert();
+    });
+  }
+  
+  if (btnMockEvent) {
+    btnMockEvent.addEventListener('click', () => {
+      console.log('🖱️ Mock event button clicked!');
+      simulateNewEvent();
+    });
+  }
   
   // Initialize user display on page load
   displayUserInfo();
