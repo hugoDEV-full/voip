@@ -17,18 +17,29 @@
       </a>
 
       <div class="d-flex gap-2 align-items-center">
+        <!-- Language Selector -->
+        <div class="dropdown me-3">
+          <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-globe"></i> <span id="currentLang">PT</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" data-lang="pt">🇧🇷 Português</a></li>
+            <li><a class="dropdown-item" href="#" data-lang="en">🇺🇸 English</a></li>
+          </ul>
+        </div>
+        
         <!-- Original simulation buttons -->
-        <button id="btnSimNormal" class="btn btn-outline-light btn-sm" title="Inicia uma chamada com fluxo SIP completo e RTP bidirecional (baseline sem problemas)">
-          Normal
+        <button id="btnSimNormal" class="btn btn-outline-light btn-sm" title="Inicia uma chamada com fluxo SIP completo e RTP bidirecional (baseline sem problemas)" data-i18n="btnNormal">
+          Iniciar chamada (normal)
         </button>
-        <button id="btnSimOneWay" class="btn btn-warning btn-sm" title="Gera um cenário de one-way audio: A envia RTP mas B não recebe. O sistema detecta 'RTP flow broken' e aponta NAT/Firewall">
-          One-Way
+        <button id="btnSimOneWay" class="btn btn-warning btn-sm" title="Gera um cenário de one-way audio: A envia RTP mas B não recebe. O sistema detecta 'RTP flow broken' e aponta NAT/Firewall" data-i18n="btnOneWay">
+          Iniciar chamada (one-way audio)
         </button>
-        <button id="btnSimNat" class="btn btn-danger btn-sm" title="Gera um cenário de NAT incorreto: SDP de A anuncia IP privado (c=10.x.x.x), causando falha de mídia e latência elevada">
-          NAT
+        <button id="btnSimNat" class="btn btn-danger btn-sm" title="Gera um cenário de NAT incorreto: SDP de A anuncia IP privado (c=10.x.x.x), causando falha de mídia e latência elevada" data-i18n="btnNat">
+          Iniciar chamada (NAT incorreto)
         </button>
-        <button id="btnAnalyze" class="btn btn-info btn-sm" title="Lê /pcap/traffic_log.txt e gera diagnóstico de tráfego SIP/RTP (estilo análise rápida de Wireshark/sngrep)">
-          Analisar
+        <button id="btnAnalyze" class="btn btn-info btn-sm" title="Lê /pcap/traffic_log.txt e gera diagnóstico de tráfego SIP/RTP (estilo análise rápida de Wireshark/sngrep)" data-i18n="btnAnalyze">
+          Analisar tráfego SIP
         </button>
         
         <div class="nav-item dropdown">
@@ -37,10 +48,10 @@
             <span id="userDisplay">Carregando...</span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><h6 class="dropdown-header">Informações do Usuário</h6></li>
+            <li><h6 class="dropdown-header" data-i18n="userInfo">Informações do Usuário</h6></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" id="logoutBtn">
-              <i class="bi bi-box-arrow-right"></i> Sair
+              <i class="bi bi-box-arrow-right"></i> <span data-i18n="logout">Sair</span>
             </a></li>
           </ul>
         </div>
@@ -52,21 +63,21 @@
     <div class="row g-3">
       <div class="col-lg-4">
         <div class="card shadow-sm">
-          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de calls ativas (como uma visão resumida do que você veria no sngrep). Passe o mouse para ver dicas de cenário/NAT/SDP.">Chamadas ativas</div>
+          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" title="Lista de calls ativas (como uma visão resumida do que você veria no sngrep). Passe o mouse para ver dicas de cenário/NAT/SDP." data-i18n="callsHeader">Chamadas ativas</div>
           <div class="card-body">
             <div id="calls" class="small"></div>
           </div>
         </div>
 
         <div class="card shadow-sm mt-3">
-          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" title="Alertas gerados por regras: one-way audio (RTP abaixo do esperado), suspeita de NAT/Firewall e latência > 150ms.">Alertas de rede</div>
+          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" title="Alertas gerados por regras: one-way audio (RTP abaixo do esperado), suspeita de NAT/Firewall e latência > 150ms." data-i18n="alertsHeader">Alertas de rede</div>
           <div class="card-body">
             <div id="alerts" class="small"></div>
           </div>
         </div>
 
         <div class="card shadow-sm mt-3">
-          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" title="Métricas do backend (CPU/memória/calls ativas). Ajuda a demonstrar monitoramento básico em produção.">System Stats</div>
+          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" title="Métricas do backend (CPU/memória/calls ativas). Ajuda a demonstrar monitoramento básico em produção." data-i18n="statsHeader">System Stats</div>
           <div class="card-body">
             <pre id="stats" class="mb-0 small"></pre>
           </div>
@@ -75,7 +86,7 @@
 
       <div class="col-lg-8">
         <div class="card shadow-sm">
-          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="left" title="Feed em tempo real: SIP (mensagens completas), métricas RTP (esperado/recebido/latência) e eventos ESL simulados (CHANNEL_CREATE/ANSWER/HANGUP).">Eventos em tempo real (SIP / RTP / ESL)</div>
+          <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="left" title="Feed em tempo real: SIP (mensagens completas), métricas RTP (esperado/recebido/latência) e eventos ESL simulados (CHANNEL_CREATE/ANSWER/HANGUP)." data-i18n="eventsHeader">Eventos em tempo real (SIP / RTP / ESL)</div>
           <div class="card-body p-2">
             <div id="events" class="small" style="height: 600px; overflow-y: auto;"></div>
           </div>

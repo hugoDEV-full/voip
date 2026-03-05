@@ -11,6 +11,62 @@ const btnSimOneWay = document.getElementById('btnSimOneWay');
 const btnSimNat = document.getElementById('btnSimNat');
 const btnAnalyze = document.getElementById('btnAnalyze');
 
+// Translation system
+const translations = {
+  pt: {
+    btnNormal: 'Iniciar chamada (normal)',
+    btnOneWay: 'Iniciar chamada (one-way audio)',
+    btnNat: 'Iniciar chamada (NAT incorreto)',
+    btnAnalyze: 'Analisar tráfego SIP',
+    callsHeader: 'Chamadas ativas',
+    alertsHeader: 'Alertas de rede',
+    statsHeader: 'System Stats',
+    eventsHeader: 'Eventos em tempo real (SIP / RTP / ESL)',
+    userInfo: 'Informações do Usuário',
+    logout: 'Sair',
+    loading: 'Carregando...'
+  },
+  en: {
+    btnNormal: 'Start call (normal)',
+    btnOneWay: 'Start call (one-way audio)',
+    btnNat: 'Start call (NAT incorrect)',
+    btnAnalyze: 'Analyze SIP traffic',
+    callsHeader: 'Active Calls',
+    alertsHeader: 'Network Alerts',
+    statsHeader: 'System Stats',
+    eventsHeader: 'Real-time Events (SIP / RTP / ESL)',
+    userInfo: 'User Information',
+    logout: 'Logout',
+    loading: 'Loading...'
+  }
+};
+
+let currentLanguage = 'pt';
+
+function updateLanguage(lang) {
+  currentLanguage = lang;
+  const trans = translations[lang];
+  
+  // Update button texts
+  if (btnSimNormal) btnSimNormal.textContent = trans.btnNormal;
+  if (btnSimOneWay) btnSimOneWay.textContent = trans.btnOneWay;
+  if (btnSimNat) btnSimNat.textContent = trans.btnNat;
+  if (btnAnalyze) btnAnalyze.textContent = trans.btnAnalyze;
+  
+  // Update headers
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    if (trans[key]) {
+      element.textContent = trans[key];
+    }
+  });
+  
+  // Update language selector
+  document.getElementById('currentLang').textContent = lang.toUpperCase();
+  
+  console.log(`🌐 Language updated to: ${lang}`);
+}
+
 function initTooltips(root = document) {
   if (!window.bootstrap) return;
   const nodes = Array.from(root.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -986,6 +1042,18 @@ document.addEventListener('DOMContentLoaded', () => {
       analyzeTraffic();
     });
   }
+  
+  // Add language selector event listeners
+  document.querySelectorAll('[data-lang]').forEach(element => {
+    element.addEventListener('click', (e) => {
+      e.preventDefault();
+      const lang = e.target.getAttribute('data-lang');
+      updateLanguage(lang);
+    });
+  });
+  
+  // Initialize language
+  updateLanguage('pt');
   
   // Initialize user display on page load
   displayUserInfo();
