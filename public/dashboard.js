@@ -5,10 +5,11 @@ const elEvents = document.getElementById('events');
 const elAlerts = document.getElementById('alerts');
 const elStats = document.getElementById('stats');
 
-// Mock button elements
-const btnMockCall = document.getElementById('btnMockCall');
-const btnMockAlert = document.getElementById('btnMockAlert');
-const btnMockEvent = document.getElementById('btnMockEvent');
+// Original simulation button elements
+const btnSimNormal = document.getElementById('btnSimNormal');
+const btnSimOneWay = document.getElementById('btnSimOneWay');
+const btnSimNat = document.getElementById('btnSimNat');
+const btnAnalyze = document.getElementById('btnAnalyze');
 
 function initTooltips(root = document) {
   if (!window.bootstrap) return;
@@ -609,19 +610,17 @@ function addMockStats() {
   console.log('📊 Mock stats added:', mockStats);
 }
 
-// Mock simulation functions
-function simulateNewCall() {
-  const callId = 'call-' + Date.now();
-  const from = '+5511' + Math.floor(Math.random() * 900000000 + 100000000);
-  const to = '+5511' + Math.floor(Math.random() * 900000000 + 100000000);
-  const scenarios = ['normal', 'one_way_audio', 'nat_wrong'];
-  const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+// Specific simulation functions for original buttons
+function simulateNormalCall() {
+  const callId = 'call-normal-' + Date.now();
+  const from = '+5511912345678';
+  const to = '+5511987654321';
   
   const newCall = {
     id: callId,
     from: from,
     to: to,
-    scenario: scenario,
+    scenario: 'normal',
     status: 'ACTIVE',
     duration: '00:00:01'
   };
@@ -629,16 +628,18 @@ function simulateNewCall() {
   // Add call to state
   state.calls.set(callId, newCall);
   
-  // Add SIP events
-  const sipEvents = [
+  // Normal SIP flow with RTP
+  const events = [
     { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
     { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com` },
     { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com` },
     { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'RTP', message: 'RTP flow established', details: `Codec: PCMU, Payload: 8, SSRC: ${Math.floor(Math.random() * 99999999)}` }
+    { type: 'SIP', message: 'ACK sip:+5511987654321@voip.com SIP/2.0', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'RTP', message: 'RTP flow established - Bidirectional', details: 'Codec: PCMU, Payload: 8, SSRC: 12345678' },
+    { type: 'RTP', message: 'RTP stats: Perfect quality', details: 'Jitter: 1ms, Loss: 0%, MOS: 4.5' }
   ];
   
-  sipEvents.forEach((event, index) => {
+  events.forEach((event, index) => {
     setTimeout(() => {
       const html = `
         <div class="event-row border-bottom pb-2 mb-2">
@@ -654,113 +655,208 @@ function simulateNewCall() {
         </div>
       `;
       appendEvent(html);
-    }, index * 500);
+    }, index * 800);
   });
   
-  // Add alert if problematic scenario
-  if (scenario !== 'normal') {
+  renderCalls();
+  console.log('📞 Normal call simulated:', callId);
+}
+
+function simulateOneWayAudio() {
+  const callId = 'call-oneway-' + Date.now();
+  const from = '+5511333444555';
+  const to = '+5511555666777';
+  
+  const newCall = {
+    id: callId,
+    from: from,
+    to: to,
+    scenario: 'one_way_audio',
+    status: 'ACTIVE',
+    duration: '00:00:01'
+  };
+  
+  state.calls.set(callId, newCall);
+  
+  // One-way audio scenario
+  const events = [
+    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
+    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'RTP', message: 'RTP flow established - One way detected', details: 'Codec: PCMU, Payload: 8, SSRC: 87654321' },
+    { type: 'ALERT', message: 'ONE_WAY_AUDIO detected', details: 'RTP expected: 50, Received: 0, Loss: 100%' }
+  ];
+  
+  events.forEach((event, index) => {
     setTimeout(() => {
-      const alert = {
-        type: scenario === 'one_way_audio' ? 'ONE_WAY_AUDIO' : 'NAT_SUSPECTED',
-        severity: 'ALERT',
-        message: scenario === 'one_way_audio' ? 'RTP flow detected broken' : 'Private IP detected in SDP',
-        callId: callId,
-        streamId: 'audio-0',
-        ts: Date.now(),
-        details: scenario === 'one_way_audio' ? 
-          { rtp_expected: 50, rtp_received: 0, loss_percent: 100 } :
-          { sdp_ip: '192.168.1.' + Math.floor(Math.random() * 255), public_ip: '200.150.10.' + Math.floor(Math.random() * 255) }
-      };
-      
-      state.alerts.push(alert);
-      renderAlerts();
-      
-      const alertHtml = `
+      const html = `
         <div class="event-row border-bottom pb-2 mb-2">
           <div class="d-flex justify-content-between align-items-start">
             <div class="flex-grow-1">
-              <span class="badge bg-danger me-2">ALERT</span>
-              <strong>${alert.message}</strong>
+              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+              <strong>${event.message}</strong>
               <span class="text-muted ms-2">Call: ${callId}</span>
             </div>
-            <small class="text-muted">${fmtTs(alert.ts)}</small>
+            <small class="text-muted">${fmtTs(Date.now())}</small>
           </div>
-          <div class="small text-muted mt-1">${JSON.stringify(alert.details)}</div>
+          <div class="small text-muted mt-1">${event.details}</div>
         </div>
       `;
-      appendEvent(alertHtml);
-    }, 3000);
-  }
+      appendEvent(html);
+    }, index * 800);
+  });
+  
+  // Add alert to alerts section
+  setTimeout(() => {
+    const alert = {
+      type: 'ONE_WAY_AUDIO',
+      severity: 'ALERT',
+      message: 'RTP flow detected broken - no audio received from remote',
+      callId: callId,
+      streamId: 'audio-0',
+      ts: Date.now(),
+      details: { rtp_expected: 50, rtp_received: 0, loss_percent: 100 }
+    };
+    
+    state.alerts.push(alert);
+    renderAlerts();
+  }, 4000);
   
   renderCalls();
-  console.log('📞 Mock call simulated:', callId);
+  console.log('� One-way audio call simulated:', callId);
 }
 
-function simulateNewAlert() {
-  const alertTypes = [
-    { type: 'HIGH_LATENCY', message: 'Elevated latency detected', details: { latency_ms: 180 + Math.floor(Math.random() * 100) } },
-    { type: 'PACKET_LOSS', message: 'Packet loss detected', details: { loss_percent: 5 + Math.floor(Math.random() * 15) } },
-    { type: 'CODEC_MISMATCH', message: 'Codec negotiation failed', details: { local_codec: 'PCMU', remote_codec: 'G729' } },
-    { type: 'CALL_SETUP_FAILURE', message: 'Call setup timeout', details: { timeout_ms: 5000, reason: 'No response' } }
-  ];
+function simulateNatProblem() {
+  const callId = 'call-nat-' + Date.now();
+  const from = '+5511444555666';
+  const to = '+5511555666777';
   
-  const alertType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
-  const alert = {
-    type: alertType.type,
-    severity: 'WARNING',
-    message: alertType.message,
-    callId: null,
-    streamId: 'system-' + Date.now(),
-    ts: Date.now(),
-    details: alertType.details
+  const newCall = {
+    id: callId,
+    from: from,
+    to: to,
+    scenario: 'nat_wrong',
+    status: 'ACTIVE',
+    duration: '00:00:01'
   };
   
-  state.alerts.push(alert);
-  renderAlerts();
+  state.calls.set(callId, newCall);
   
-  const alertHtml = `
-    <div class="event-row border-bottom pb-2 mb-2">
-      <div class="d-flex justify-content-between align-items-start">
-        <div class="flex-grow-1">
-          <span class="badge bg-warning me-2">ALERT</span>
-          <strong>${alert.message}</strong>
-        </div>
-        <small class="text-muted">${fmtTs(alert.ts)}</small>
-      </div>
-      <div class="small text-muted mt-1">${JSON.stringify(alert.details)}</div>
-    </div>
-  `;
-  appendEvent(alertHtml);
-  
-  console.log('⚠️ Mock alert simulated:', alert.type);
-}
-
-function simulateNewEvent() {
-  const eventTypes = [
-    { type: 'SYSTEM', message: 'Health check completed', details: 'All systems operational' },
-    { type: 'SYSTEM', message: 'Backup completed', details: 'Database backup successful' },
-    { type: 'SYSTEM', message: 'Configuration updated', details: 'SIP server reloaded' },
-    { type: 'RTP', message: 'RTP statistics updated', details: 'Jitter: 2ms, MOS: 4.5' },
-    { type: 'SIP', message: 'REGISTER received', details: 'User: 1001@voip.com' }
+  // NAT problem scenario
+  const events = [
+    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
+    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'SIP', message: 'SIP/2.0 200 OK - SDP contains private IP', details: `c=IN IP4 192.168.1.100` },
+    { type: 'ALERT', message: 'NAT_SUSPECTED - Private IP in SDP', details: 'SDP IP: 192.168.1.100, Public IP: 200.150.10.20' },
+    { type: 'RTP', message: 'RTP flow with high latency', details: 'Latency: 250ms, Jitter: 15ms' },
+    { type: 'ALERT', message: 'HIGH_LATENCY detected', details: 'Latency: 250ms (threshold: 150ms)' }
   ];
   
-  const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-  
-  const eventHtml = `
-    <div class="event-row border-bottom pb-2 mb-2">
-      <div class="d-flex justify-content-between align-items-start">
-        <div class="flex-grow-1">
-          <span class="badge bg-${getEventColor(eventType.type)} me-2">${eventType.type}</span>
-          <strong>${eventType.message}</strong>
+  events.forEach((event, index) => {
+    setTimeout(() => {
+      const html = `
+        <div class="event-row border-bottom pb-2 mb-2">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+              <strong>${event.message}</strong>
+              <span class="text-muted ms-2">Call: ${callId}</span>
+            </div>
+            <small class="text-muted">${fmtTs(Date.now())}</small>
+          </div>
+          <div class="small text-muted mt-1">${event.details}</div>
         </div>
-        <small class="text-muted">${fmtTs(Date.now())}</small>
-      </div>
-      <div class="small text-muted mt-1">${eventType.details}</div>
-    </div>
-  `;
-  appendEvent(eventHtml);
+      `;
+      appendEvent(html);
+    }, index * 800);
+  });
   
-  console.log('📡 Mock event simulated:', eventType.type);
+  // Add alerts to alerts section
+  setTimeout(() => {
+    const alerts = [
+      {
+        type: 'NAT_SUSPECTED',
+        severity: 'WARNING',
+        message: 'Private IP detected in SDP - NAT configuration issue',
+        callId: callId,
+        streamId: 'sip-0',
+        ts: Date.now(),
+        details: { sdp_ip: '192.168.1.100', public_ip: '200.150.10.20' }
+      },
+      {
+        type: 'HIGH_LATENCY',
+        severity: 'WARNING',
+        message: 'Elevated latency detected on call',
+        callId: callId,
+        streamId: 'audio-1',
+        ts: Date.now() + 1000,
+        details: { latency_ms: 250, jitter_ms: 15 }
+      }
+    ];
+    
+    state.alerts.push(...alerts);
+    renderAlerts();
+  }, 4000);
+  
+  renderCalls();
+  console.log('🌐 NAT problem call simulated:', callId);
+}
+
+function analyzeTraffic() {
+  // Simulate traffic analysis
+  const analysisEvents = [
+    { type: 'SYSTEM', message: 'Starting traffic analysis...', details: 'Reading /pcap/traffic_log.txt' },
+    { type: 'SYSTEM', message: 'Parsing SIP messages...', details: 'Found 45 SIP dialogs' },
+    { type: 'SYSTEM', message: 'Analyzing RTP streams...', details: 'Detected 23 RTP flows' },
+    { type: 'ALERT', message: 'ANALYSIS_COMPLETE - Issues found', details: '3 one-way audio calls, 2 NAT problems' },
+    { type: 'SYSTEM', message: 'Generating report...', details: 'Report saved to /reports/analysis_' + Date.now() + '.json' }
+  ];
+  
+  analysisEvents.forEach((event, index) => {
+    setTimeout(() => {
+      const html = `
+        <div class="event-row border-bottom pb-2 mb-2">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+              <strong>${event.message}</strong>
+            </div>
+            <small class="text-muted">${fmtTs(Date.now())}</small>
+          </div>
+          <div class="small text-muted mt-1">${event.details}</div>
+        </div>
+      `;
+      appendEvent(html);
+    }, index * 1000);
+  });
+  
+  // Add analysis results as alerts
+  setTimeout(() => {
+    const analysisAlerts = [
+      {
+        type: 'ANALYSIS_RESULT',
+        severity: 'INFO',
+        message: 'Traffic analysis completed - 5 issues detected',
+        callId: null,
+        streamId: 'analysis-' + Date.now(),
+        ts: Date.now(),
+        details: { 
+          total_calls: 45, 
+          one_way_audio: 3, 
+          nat_issues: 2, 
+          high_latency: 0,
+          analysis_time: '2.3s'
+        }
+      }
+    ];
+    
+    state.alerts.push(...analysisAlerts);
+    renderAlerts();
+  }, 5000);
+  
+  console.log('📊 Traffic analysis simulated');
 }
 
 // Add mock data for demonstration
@@ -862,25 +958,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add mock data for demonstration
   addMockData();
   
-  // Add mock button event listeners
-  if (btnMockCall) {
-    btnMockCall.addEventListener('click', () => {
-      console.log('🖱️ Mock call button clicked!');
-      simulateNewCall();
+  // Add original button event listeners
+  if (btnSimNormal) {
+    btnSimNormal.addEventListener('click', () => {
+      console.log('🖱️ Normal button clicked!');
+      simulateNormalCall();
     });
   }
   
-  if (btnMockAlert) {
-    btnMockAlert.addEventListener('click', () => {
-      console.log('🖱️ Mock alert button clicked!');
-      simulateNewAlert();
+  if (btnSimOneWay) {
+    btnSimOneWay.addEventListener('click', () => {
+      console.log('🖱️ One-Way button clicked!');
+      simulateOneWayAudio();
     });
   }
   
-  if (btnMockEvent) {
-    btnMockEvent.addEventListener('click', () => {
-      console.log('🖱️ Mock event button clicked!');
-      simulateNewEvent();
+  if (btnSimNat) {
+    btnSimNat.addEventListener('click', () => {
+      console.log('🖱️ NAT button clicked!');
+      simulateNatProblem();
+    });
+  }
+  
+  if (btnAnalyze) {
+    btnAnalyze.addEventListener('click', () => {
+      console.log('🖱️ Analyze button clicked!');
+      analyzeTraffic();
     });
   }
   

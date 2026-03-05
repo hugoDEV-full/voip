@@ -17,15 +17,18 @@
       </a>
 
       <div class="d-flex gap-2 align-items-center">
-        <!-- Mock action buttons -->
-        <button id="btnMockCall" class="btn btn-outline-light btn-sm" title="Simular nova chamada">
-          <i class="bi bi-telephone-plus"></i>
+        <!-- Original simulation buttons -->
+        <button id="btnSimNormal" class="btn btn-outline-light btn-sm" title="Inicia uma chamada com fluxo SIP completo e RTP bidirecional (baseline sem problemas)">
+          Normal
         </button>
-        <button id="btnMockAlert" class="btn btn-outline-warning btn-sm" title="Simular alerta">
-          <i class="bi bi-exclamation-triangle"></i>
+        <button id="btnSimOneWay" class="btn btn-warning btn-sm" title="Gera um cenário de one-way audio: A envia RTP mas B não recebe. O sistema detecta 'RTP flow broken' e aponta NAT/Firewall">
+          One-Way
         </button>
-        <button id="btnMockEvent" class="btn btn-outline-info btn-sm" title="Simular evento">
-          <i class="bi bi-activity"></i>
+        <button id="btnSimNat" class="btn btn-danger btn-sm" title="Gera um cenário de NAT incorreto: SDP de A anuncia IP privado (c=10.x.x.x), causando falha de mídia e latência elevada">
+          NAT
+        </button>
+        <button id="btnAnalyze" class="btn btn-info btn-sm" title="Lê /pcap/traffic_log.txt e gera diagnóstico de tráfego SIP/RTP (estilo análise rápida de Wireshark/sngrep)">
+          Analisar
         </button>
         
         <div class="nav-item dropdown">
