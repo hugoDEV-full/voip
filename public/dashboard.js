@@ -496,15 +496,65 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   }
 });
 
-// Initialize user display on page load
-displayUserInfo();
+// Wait for DOM to be ready before initializing
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 DOM Content Loaded');
+  
+  // Re-get elements to ensure they exist
+  const elCallsCheck = document.getElementById('calls');
+  const elAlertsCheck = document.getElementById('alerts');
+  const elStatsCheck = document.getElementById('stats');
+  
+  console.log('🔍 Elements found:', {
+    calls: !!elCallsCheck,
+    alerts: !!elAlertsCheck,
+    stats: !!elStatsCheck
+  });
+  
+  // Add event listeners with error handling
+  if (btnSimNormal) {
+    btnSimNormal.addEventListener('click', () => placeCall('normal'));
+    console.log('✅ btnSimNormal listener added');
+  } else {
+    console.error('❌ btnSimNormal not found');
+  }
 
-// Initial render to show empty states
-renderCalls();
-renderAlerts();
+  if (btnSimOneWay) {
+    btnSimOneWay.addEventListener('click', () => placeCall('one_way_audio'));
+    console.log('✅ btnSimOneWay listener added');
+  } else {
+    console.error('❌ btnSimOneWay not found');
+  }
 
-// Apply saved language on load
-applyLanguage(currentLang);
+  if (btnSimNat) {
+    btnSimNat.addEventListener('click', () => placeCall('nat_wrong'));
+    console.log('✅ btnSimNat listener added');
+  } else {
+    console.error('❌ btnSimNat not found');
+  }
+
+  if (btnAnalyze) {
+    btnAnalyze.addEventListener('click', () => analyzePcap());
+    console.log('✅ btnAnalyze listener added');
+  } else {
+    console.error('❌ btnAnalyze not found');
+  }
+  
+  // Initialize user display on page load
+  displayUserInfo();
+
+  // Initial render to show empty states (only if elements exist)
+  if (elCallsCheck && elAlertsCheck) {
+    renderCalls();
+    renderAlerts();
+    console.log('✅ Initial render completed');
+  } else {
+    console.error('❌ Cannot render - missing elements');
+  }
+
+  // Apply saved language on load
+  applyLanguage(currentLang);
+});
 
 function fmtTs(ts) {
   const d = new Date(ts);
@@ -523,6 +573,11 @@ function appendEvent(html) {
 }
 
 function renderCalls() {
+  if (!elCalls) {
+    console.error('❌ elCalls element not found');
+    return;
+  }
+  
   const calls = Array.from(state.calls.values());
   if (calls.length === 0) {
     elCalls.innerHTML = '<div class="text-muted">Nenhuma chamada ativa</div>';
@@ -554,6 +609,11 @@ function renderCalls() {
 }
 
 function renderAlerts() {
+  if (!elAlerts) {
+    console.error('❌ elAlerts element not found');
+    return;
+  }
+  
   if (state.alerts.length === 0) {
     elAlerts.innerHTML = '<div class="text-muted">Nenhum alerta</div>';
     return;
@@ -639,31 +699,6 @@ async function analyzePcap() {
   } catch (error) {
     console.error('❌ analyzePcap error:', error);
   }
-}
-
-// Add event listeners with error handling
-if (btnSimNormal) {
-  btnSimNormal.addEventListener('click', () => placeCall('normal'));
-} else {
-  console.error('btnSimNormal not found');
-}
-
-if (btnSimOneWay) {
-  btnSimOneWay.addEventListener('click', () => placeCall('one_way_audio'));
-} else {
-  console.error('btnSimOneWay not found');
-}
-
-if (btnSimNat) {
-  btnSimNat.addEventListener('click', () => placeCall('nat_wrong'));
-} else {
-  console.error('btnSimNat not found');
-}
-
-if (btnAnalyze) {
-  btnAnalyze.addEventListener('click', () => analyzePcap());
-} else {
-  console.error('btnAnalyze not found');
 }
 
 socket.on('connect', () => {
