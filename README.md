@@ -1,6 +1,6 @@
 # VoIP Monitoring Platform
 
-Plataforma de monitoramento e análise de tráfego VoIP em tempo real com demonstração de problemas comuns (one-way audio, NAT, latência).
+Plataforma de monitoramento e análise de tráfego VoIP em tempo real com detecção automática de problemas como one-way audio, configurações de NAT e latência elevada.
 
 ## 🔐 Acesso ao Sistema
 

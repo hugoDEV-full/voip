@@ -5,11 +5,6 @@ const elEvents = document.getElementById('events');
 const elAlerts = document.getElementById('alerts');
 const elStats = document.getElementById('stats');
 
-const btnSimNormal = document.getElementById('btnSimNormal');
-const btnSimOneWay = document.getElementById('btnSimOneWay');
-const btnSimNat = document.getElementById('btnSimNat');
-const btnAnalyze = document.getElementById('btnAnalyze');
-
 function initTooltips(root = document) {
   if (!window.bootstrap) return;
   const nodes = Array.from(root.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -510,70 +505,6 @@ document.addEventListener('DOMContentLoaded', () => {
     alerts: !!elAlertsCheck,
     stats: !!elStatsCheck
   });
-
-  // Check button visibility
-  console.log('🔍 Checking button visibility:');
-  console.log('btnSimNormal:', {
-    exists: !!btnSimNormal,
-    visible: btnSimNormal ? btnSimNormal.offsetParent !== null : false,
-    display: btnSimNormal ? window.getComputedStyle(btnSimNormal).display : 'N/A'
-  });
-  console.log('btnSimOneWay:', {
-    exists: !!btnSimOneWay,
-    visible: btnSimOneWay ? btnSimOneWay.offsetParent !== null : false,
-    display: btnSimOneWay ? window.getComputedStyle(btnSimOneWay).display : 'N/A'
-  });
-  console.log('btnSimNat:', {
-    exists: !!btnSimNat,
-    visible: btnSimNat ? btnSimNat.offsetParent !== null : false,
-    display: btnSimNat ? window.getComputedStyle(btnSimNat).display : 'N/A'
-  });
-  console.log('btnAnalyze:', {
-    exists: !!btnAnalyze,
-    visible: btnAnalyze ? btnAnalyze.offsetParent !== null : false,
-    display: btnAnalyze ? window.getComputedStyle(btnAnalyze).display : 'N/A'
-  });
-  
-  // Add event listeners with error handling
-  if (btnSimNormal) {
-    btnSimNormal.addEventListener('click', () => {
-      console.log('🖱️ btnSimNormal clicked!');
-      placeCall('normal');
-    });
-    console.log('✅ btnSimNormal listener added');
-  } else {
-    console.error('❌ btnSimNormal not found');
-  }
-
-  if (btnSimOneWay) {
-    btnSimOneWay.addEventListener('click', () => {
-      console.log('🖱️ btnSimOneWay clicked!');
-      placeCall('one_way_audio');
-    });
-    console.log('✅ btnSimOneWay listener added');
-  } else {
-    console.error('❌ btnSimOneWay not found');
-  }
-
-  if (btnSimNat) {
-    btnSimNat.addEventListener('click', () => {
-      console.log('🖱️ btnSimNat clicked!');
-      placeCall('nat_wrong');
-    });
-    console.log('✅ btnSimNat listener added');
-  } else {
-    console.error('❌ btnSimNat not found');
-  }
-
-  if (btnAnalyze) {
-    btnAnalyze.addEventListener('click', () => {
-      console.log('🖱️ btnAnalyze clicked!');
-      analyzePcap();
-    });
-    console.log('✅ btnAnalyze listener added');
-  } else {
-    console.error('❌ btnAnalyze not found');
-  }
   
   // Initialize user display on page load
   displayUserInfo();
@@ -696,44 +627,6 @@ function escapeHtml(s) {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
-}
-
-async function placeCall(scenario) {
-  console.log('🚀 placeCall called with scenario:', scenario);
-  try {
-    console.log('📡 Sending POST request to /call...');
-    const response = await fetch('/call', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: '1000', to: '1001', scenario }),
-    });
-    console.log('📡 Response status:', response.status);
-    console.log('📡 Response ok:', response.ok);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Call failed:', response.status, errorText);
-    }
-  } catch (error) {
-    console.error('❌ placeCall error:', error);
-  }
-}
-
-async function analyzePcap() {
-  console.log('🔍 analyzePcap called');
-  try {
-    console.log('📡 Sending GET request to /pcap/analyze...');
-    const response = await fetch('/pcap/analyze');
-    console.log('📡 Response status:', response.status);
-    console.log('📡 Response ok:', response.ok);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Analyze failed:', response.status, errorText);
-    }
-  } catch (error) {
-    console.error('❌ analyzePcap error:', error);
-  }
 }
 
 socket.on('connect', () => {

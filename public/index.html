@@ -38,10 +38,6 @@
               </div>
             </div>
           <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#howItWorksModal" data-i18n="howItWorks">Como funciona?</button>
-          <button id="btnSimNormal" class="btn btn-outline-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnNormalTooltip" title="Inicia uma chamada com fluxo SIP completo e RTP bidirecional (baseline sem problemas)." data-i18n="btnNormal">Iniciar chamada (normal)</button>
-          <button id="btnSimOneWay" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnOneWayTooltip" title="Gera um cenário de one-way audio: A envia RTP mas B não recebe. O sistema detecta 'RTP flow broken' e aponta NAT/Firewall." data-i18n="btnOneWay">Iniciar chamada (one-way audio)</button>
-          <button id="btnSimNat" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnNatTooltip" title="Gera um cenário de NAT incorreto: SDP de A anuncia IP privado (c=10.x.x.x), causando falha de mídia e latência elevada." data-i18n="btnNat">Iniciar chamada (NAT incorreto)</button>
-          <button id="btnAnalyze" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnAnalyzeTooltip" title="Lê /pcap/traffic_log.txt e gera diagnóstico de tráfego SIP/RTP (estilo análise rápida de Wireshark/sngrep)." data-i18n="btnAnalyze">Analisar tráfego SIP</button>
         </div>
       </div>
     </nav>
@@ -81,13 +77,12 @@
                 </section>
 
                 <section class="mb-4">
-                  <h6 data-i18n="generalStepsTitle">📋 Passo a passo de uso</h6>
+                  <h6 data-i18n="generalStepsTitle">📋 Como usar a plataforma</h6>
                   <ol>
-                    <li><strong data-i18n="generalStep1">Iniciar chamada (normal)</strong> — <span data-i18n="generalStep1Desc">Gera um fluxo SIP completo (INVITE/100/180/200/ACK) e RTP bidirecional. Serve como baseline para comparar com cenários problemáticos.</span></li>
-                    <li><strong data-i18n="generalStep2">Iniciar chamada (one-way audio)</strong> — <span data-i18n="generalStep2Desc">Simula um cenário onde A envia RTP mas B não recebe. O sistema detecta “RTP flow broken” e aponta NAT/Firewall como causa provável.</span></li>
-                    <li><strong data-i18n="generalStep3">Iniciar chamada (NAT incorreto)</strong> — <span data-i18n="generalStep3Desc">Gera um SDP com IP privado (c=10.x.x.x), causando falha de mídia e latência elevada. O sistema alerta sobre NAT/Firewall e alta latência.</span></li>
-                    <li><strong data-i18n="generalStep4">Analisar tráfego SIP</strong> — <span data-i18n="generalStep4Desc">Lê um arquivo de log e gera diagnóstico rápido (estilo Wireshark/sngrep), útil para pós-mortem de incidentes.</span></li>
-                    <li><strong data-i18n="generalStep5">Monitoramento em tempo real</strong> — <span data-i18n="generalStep5Desc">O painel mostra chamadas ativas, eventos SIP/RTP e alertas de rede, permitindo que operadores e engenheiros vejam o status atual e histórico recente.</span></li>
+                    <li><strong data-i18n="generalStep1">Monitoramento em tempo real</strong> — <span data-i18n="generalStep1Desc">O painel mostra chamadas ativas, eventos SIP/RTP e alertas de rede, permitindo que operadores e engenheiros vejam o status atual e histórico recente.</span></li>
+                    <li><strong data-i18n="generalStep2">Análise de tráfego SIP</strong> — <span data-i18n="generalStep2Desc">A plataforma analisa mensagens SIP e métricas RTP em tempo real, detectando problemas como one-way audio e configurações de NAT incorretas.</span></li>
+                    <li><strong data-i18n="generalStep3">Alertas automáticos</strong> — <span data-i18n="generalStep3Desc">O sistema gera alertas quando detecta anomalias como latência elevada, perda de pacotes ou fluxos de mídia quebrados.</span></li>
+                    <li><strong data-i18n="generalStep4">Relatórios e diagnóstico</strong> — <span data-i18n="generalStep4Desc">Gera relatórios detalhados para análise pós-mortem e ajuda na identificação da causa raiz de problemas.</span></li>
                   </ol>
                 </section>
 
