@@ -317,6 +317,270 @@
           </div>
         </div>
 
+        <!-- Technical Deep Dive - Problem Resolution -->
+        <div class="card border-dark mb-4">
+          <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-gear-fill"></i>
+              Análise Técnica - Como o Sistema Resolve os 3 Problemas VoIP Principais
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <!-- Problem 1: One-Way Audio -->
+              <div class="col-12 mb-4">
+                <div class="card border-danger">
+                  <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0">
+                      <i class="bi bi-telephone-x"></i> Problema 1: One-Way Audio - Solução Técnica
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h6><i class="bi bi-bug text-danger"></i> Análise Técnica do Problema:</h6>
+                        <div class="code-block mb-3">
+                          <small><strong>Deteção Técnica:</strong></small><br>
+                          RTP Stream Analysis:<br>
+                          - SSRC: 0x12345678 (Outbound only)<br>
+                          - Packets: 50 sent, 0 received<br>
+                          - Loss: 100% (unidirectional)<br>
+                          <br>
+                          SIP SDP Inspection:<br>
+                          - c=IN IP4 192.168.1.100 (private)<br>
+                          - m=audio 10000 RTP/AVP 0 8<br>
+                          - External IP mismatch detected
+                        </div>
+                        
+                        <h6><i class="bi bi-exclamation-triangle text-warning"></i> Causas Técnicas Comuns:</h6>
+                        <ul class="small">
+                          <li><strong>NAT Symmetric:</strong> Port mapping não preserva IP externo</li>
+                          <li><strong>ICE Falha:</strong> STUN/TURN não configurado corretamente</li>
+                          <li><strong>Firewall Block:</strong> Portas RTP bloqueadas unidirecionalmente</li>
+                          <li><strong>SDP Inválido:</strong> Endereço IP privado em cenário público</li>
+                        </ul>
+                      </div>
+                      
+                      <div class="col-md-6">
+                        <h6><i class="bi bi-tools text-success"></i> Solução Técnica Implementada:</h6>
+                        <div class="code-block mb-3">
+                          <small><strong>Algoritmo de Detecção:</strong></small><br>
+                          function detectOneWayAudio(callId) {<br>
+                          &nbsp;&nbsp;const rtpStats = getRTPStats(callId);<br>
+                          &nbsp;&nbsp;if (rtpStats.sent > 10 && rtpStats.received === 0) {<br>
+                          &nbsp;&nbsp;&nbsp;&nbsp;triggerOneWayAudioFix(callId);<br>
+                          &nbsp;&nbsp;}<br>
+                          &nbsp;&nbsp;return rtpStats.loss === 100;<br>
+                          }
+                        </div>
+                        
+                        <div class="code-block mb-3">
+                          <small><strong>Correção Automática:</strong></small><br>
+                          // 1. STUN Configuration<br>
+                          stun_server = "stun.voip.com:3478";<br>
+                          <br>
+                          // 2. TURN Fallback<br>
+                          turn_server = "turn.voip.com:3478";<br>
+                          turn_username = "samu_user";<br>
+                          turn_password = "secure_token";<br>
+                          <br>
+                          // 3. SDP Rewrite<br>
+                          sdp.c_line = replaceWithExternalIP();<br>
+                          sdp.m_lines = updatePortMapping();
+                        </div>
+                        
+                        <h6><i class="bi bi-shield-check text-success"></i> Validação Técnica:</h6>
+                        <ul class="small">
+                          <li><strong>Teste de Loopback:</strong> Pacotes RTP enviados e recebidos</li>
+                          <li><strong>MOS Monitoring:</strong> Score > 4.0 pós-correção</li>
+                          <li><strong>Latency Check:</strong> < 150ms após ajuste</li>
+                          <li><strong>Continuous Monitoring:</strong> Verificação a cada 2 segundos</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Problem 2: NAT Configuration -->
+              <div class="col-12 mb-4">
+                <div class="card border-warning">
+                  <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                      <i class="bi bi-globe"></i> Problema 2: NAT Incorreto - Solução Técnica
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h6><i class="bi bi-bug text-danger"></i> Análise Técnica do Problema:</h6>
+                        <div class="code-block mb-3">
+                          <small><strong>Deteção de NAT:</strong></small><br>
+                          Network Interface Analysis:<br>
+                          - eth0: 203.0.113.10 (public)<br>
+                          - docker0: 172.17.0.1 (internal)<br>
+                          <br>
+                          SDP Packet Capture:<br>
+                          - c=IN IP4 172.17.0.1 (internal)<br>
+                          - Remote endpoint cannot reach<br>
+                          - Connection timeout: 5000ms
+                        </div>
+                        
+                        <h6><i class="bi bi-exclamation-triangle text-warning"></i> Tipos de NAT Detectados:</h6>
+                        <ul class="small">
+                          <li><strong>Full Cone:</strong> Mapeamento 1:1 (menos problemático)</li>
+                          <li><strong>Restricted Cone:</strong> Restringe IP de origem</li>
+                          <li><strong>Port Restricted:</strong> Restringe IP+porta de origem</li>
+                          <li><strong>Symmetric:</strong> Mapeamento diferente por destino</li>
+                        </ul>
+                      </div>
+                      
+                      <div class="col-md-6">
+                        <h6><i class="bi bi-tools text-success"></i> Solução Técnica Implementada:</h6>
+                        <div class="code-block mb-3">
+                          <small><strong>Configuração FreeSWITCH:</strong></small><br>
+                          &lt;configuration name="sip-settings"&gt;<br>
+                          &nbsp;&nbsp;&lt;param name="ext-rtp-ip" value="$${external_rtp_ip}"/&gt;<br>
+                          &nbsp;&nbsp;&lt;param name="ext-sip-ip" value="$${external_sip_ip}"/&gt;<br>
+                          &nbsp;&nbsp;&lt;param name="rtp-ip" value="$${local_ip_v4}"/&gt;<br>
+                          &nbsp;&nbsp;&lt;param name="apply-nat-acl" value="nat.auto"/&gt;<br>
+                          &lt;/configuration&gt;
+                        </div>
+                        
+                        <div class="code-block mb-3">
+                          <small><strong>Algoritmo de Correção:</strong></small><br>
+                          function fixNATConfiguration(sdp) {<br>
+                          &nbsp;&nbsp;const internalIP = extractIP(sdp.c_line);<br>
+                          &nbsp;&nbsp;if (isPrivate(internalIP)) {<br>
+                          &nbsp;&nbsp;&nbsp;&nbsp;const publicIP = getExternalIP();<br>
+                          &nbsp;&nbsp;&nbsp;&nbsp;sdp.c_line = `c=IN IP4 ${publicIP}`;<br>
+                          &nbsp;&nbsp;&nbsp;&nbsp;return updatePortBindings(sdp);<br>
+                          &nbsp;&nbsp;}<br>
+                          &nbsp;&nbsp;return sdp;<br>
+                          }
+                        </div>
+                        
+                        <h6><i class="bi bi-shield-check text-success"></i> Monitoramento Técnico:</h6>
+                        <ul class="small">
+                          <li><strong>IP Validation:</strong> Verificação de IP público vs privado</li>
+                          <li><strong>Port Mapping:</strong> Mapeamento dinâmico de portas RTP</li>
+                          <li><strong>Connectivity Test:</strong> Ping UDP para validação</li>
+                          <li><strong>Fallback Mechanism:</strong> TURN server se NAT falhar</li>
+                        </ul>
+                      </div>
+                </div>
+              </div>
+
+              <!-- Problem 3: High Latency -->
+              <div class="col-12 mb-4">
+                <div class="card border-info">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                      <i class="bi bi-clock-history"></i> Problema 3: Alta Latência - Solução Técnica
+                    </h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h6><i class="bi bi-bug text-danger"></i> Análise Técnica do Problema:</h6>
+                        <div class="code-block mb-3">
+                          <small><strong>Medição de Latência:</strong></small><br>
+                          RTT Analysis:<br>
+                          - Initial RTT: 250ms (above threshold)<br>
+                          - Jitter: 45ms (unacceptable)<br>
+                          - MOS Score: 2.8 (poor quality)<br>
+                          <br>
+                          Network Path Trace:<br>
+                          - Hop 1: Gateway (2ms)<br>
+                          - Hop 2-8: ISP backbone (15ms)<br>
+                          - Hop 9-15: Congested peering (200ms)
+                        </div>
+                        
+                        <h6><i class="bi bi-exclamation-triangle text-warning"></i> Causas Técnicas:</h6>
+                        <ul class="small">
+                          <li><strong>Network Congestion:</strong> Enlaces saturados</li>
+                          <li><strong>Suboptimal Routing:</strong> Caminhos não otimizados</li>
+                          <li><strong>QoS Misconfiguration:</strong> Priorização inadequada</li>
+                          <li><strong>Bufferbloat:</strong> Buffers excessivos em roteadores</li>
+                        </ul>
+                      </div>
+                      
+                      <div class="col-md-6">
+                        <h6><i class="bi bi-tools text-success"></i> Solução Técnica Implementada:</h6>
+                        <div class="code-block mb-3">
+                          <small><strong>QoS Configuration:</strong></small><br>
+                          // Linux TC (Traffic Control)<br>
+                          tc qdisc add dev eth0 root handle 1: htb default 30<br>
+                          tc class add dev eth0 parent 1: classid 1:1 htb rate 100mbit<br>
+                          tc class add dev eth0 parent 1:1 classid 1:10 htb rate 50mbit ceil 100mbit prio 0<br>
+                          tc filter add dev eth0 protocol ip parent 1:0 prio 0 u32 match ip dport 5060 0xffff flowid 1:10
+                        </div>
+                        
+                        <div class="code-block mb-3">
+                          <small><strong>Optimização de Rota:</strong></small><br>
+                          function optimizeRoute(destination) {<br>
+                          &nbsp;&nbsp;const paths = traceNetworkPaths(destination);<br>
+                          &nbsp;&nbsp;const optimal = selectLowestLatency(paths);<br>
+                          &nbsp;&nbsp;if (optimal.latency < current.latency * 0.5) {<br>
+                          &nbsp;&nbsp;&nbsp;&nbsp;applyRoutingChange(optimal.path);<br>
+                          &nbsp;&nbsp;&nbsp;&nbsp;return true;<br>
+                          &nbsp;&nbsp;}<br>
+                          &nbsp;&nbsp;return false;<br>
+                          }
+                        </div>
+                        
+                        <h6><i class="bi bi-shield-check text-success"></i> Validação de Performance:</h6>
+                        <ul class="small">
+                          <li><strong>Continuous RTT Monitoring:</strong> Medição a cada 500ms</li>
+                          <li><strong>Adaptive Jitter Buffer:</strong> Ajuste dinâmico (20-60ms)</li>
+                          <li><strong>Codec Selection:</strong> G.729 para economizar banda</li>
+                          <li><strong>Redundancy (FEC):</strong> 20% overhead para perdas</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Technical Implementation Summary -->
+            <div class="card bg-light">
+              <div class="card-body">
+                <h6 class="mb-3"><i class="bi bi-cpu"></i> Arquitetura Técnica da Solução:</h6>
+                <div class="row">
+                  <div class="col-md-4">
+                    <h6 class="text-primary">Camada de Detecção</h6>
+                    <ul class="small">
+                      <li><strong>Real-time Monitoring:</strong> Análise contínua de RTP/SIP</li>
+                      <li><strong>Pattern Recognition:</strong> ML para identificar anomalias</li>
+                      <li><strong>Threshold Analysis:</strong> Limites configuráveis por tipo</li>
+                      <li><strong>Event Correlation:</strong> Correlação múltiplas fontes</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-4">
+                    <h6 class="text-success">Camada de Correção</h6>
+                    <ul class="small">
+                      <li><strong>Automated Remediation:</strong> Scripts de correção automática</li>
+                      <li><strong>Configuration Management:</strong> Aplicação dinâmica de configs</li>
+                      <li><strong>Network Optimization:</strong> Ajustes em tempo real</li>
+                      <li><strong>Fallback Mechanisms:</strong> Múltiplas estratégias</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-4">
+                    <h6 class="text-info">Camada de Validação</h6>
+                    <ul class="small">
+                      <li><strong>Quality Assurance:</strong> Testes automáticos pós-correção</li>
+                      <li><strong>Performance Metrics:</strong> MOS, jitter, latência</li>
+                      <li><strong>Continuous Monitoring:</strong> Verificação de estabilidade</li>
+                      <li><strong>Alert Generation:</strong> Notificação se problema persistir</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Real-Life Success Stories -->
         <div class="card border-success mb-4">
           <div class="card-header bg-success text-white">
