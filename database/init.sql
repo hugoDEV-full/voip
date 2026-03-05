@@ -66,18 +66,10 @@ BEGIN
 END //
 DELIMITER ;
 
--- Insert default users with bcrypt hashes
--- Bento1617 -> $2b$12$/zuAlv1IH7jntdR0FQppQeQ/U/mPRz/a9INXrYlZdfLtCy4I8hNc.
+-- Insert default admin user with strong password
+-- Admin@2024!VoIP -> $2b$12$qXoa7uUu/1PBecNr/wLaLuKu.f0ZrFa5WXQI9xvnvm6giSzSEviNG
 INSERT INTO users (username, password_hash, email, role) VALUES 
-('admin', '$2b$12$/zuAlv1IH7jntdR0FQppQeQ/U/mPRz/a9INXrYlZdfLtCy4I8hNc.', 'admin@voip.com', 'admin');
-
--- monitor2024 -> $2b$12$8KxO3OJhKIOAOk8fHO5L/.9dR8hQqB5fQzB7f9M5wK8xO3OJhKIOA
-INSERT INTO users (username, password_hash, email, role) VALUES 
-('voip', '$2b$12$8KxO3OJhKIOAOk8fHO5L/.9dR8hQqB5fQzB7f9M5wK8xO3OJhKIOA', 'voip@voip.com', 'operator');
-
--- demo123 -> $2b$12$D9a8H7gF6eD5cB4aZ3y.X8KxO3OJhKIOAOk8fHO5L/.9dR8hQqB5f
-INSERT INTO users (username, password_hash, email, role) VALUES 
-('demo', '$2b$12$D9a8H7gF6eD5cB4aZ3y.X8KxO3OJhKIOAOk8fHO5L/.9dR8hQqB5f', 'demo@voip.com', 'viewer');
+('admin', '$2b$12$qXoa7uUu/1PBecNr/wLaLuKu.f0ZrFa5WXQI9xvnvm6giSzSEviNG', 'admin@voip.com', 'admin');
 
 -- Show created users
 SELECT 

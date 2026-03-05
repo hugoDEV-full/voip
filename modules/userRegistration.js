@@ -10,21 +10,9 @@ class UserRegistration {
     const defaultUsers = [
       {
         username: 'admin',
-        password: 'Bento1617',
+        password: 'Admin@2024!VoIP',
         email: 'admin@voip.com',
         role: 'admin'
-      },
-      {
-        username: 'voip',
-        password: 'monitor2024',
-        email: 'voip@voip.com',
-        role: 'operator'
-      },
-      {
-        username: 'demo',
-        password: 'demo123',
-        email: 'demo@voip.com',
-        role: 'viewer'
       }
     ];
 
@@ -170,9 +158,7 @@ class UserRegistration {
 
 // Pre-computed bcrypt hashes for default passwords (12 rounds)
 const DEFAULT_PASSWORD_HASHES = {
-  'Bento1617': '$2b$12$/zuAlv1IH7jntdR0FQppQeQ/U/mPRz/a9INXrYlZdfLtCy4I8hNc.',
-  'monitor2024': '$2b$12$8KxO3OJhKIOAOk8fHO5L/.9dR8hQqB5fQzB7f9M5wK8xO3OJhKIOA',
-  'demo123': '$2b$12$D9a8H7gF6eD5cB4aZ3y.X8KxO3OJhKIOAOk8fHO5L/.9dR8hQqB5f'
+  'Admin@2024!VoIP': '$2b$12$qXoa7uUu/1PBecNr/wLaLuKu.f0ZrFa5WXQI9xvnvm6giSzSEviNG'
 };
 
 class QuickUserRegistration {
@@ -184,21 +170,9 @@ class QuickUserRegistration {
     const defaultUsers = [
       {
         username: 'admin',
-        passwordHash: DEFAULT_PASSWORD_HASHES['Bento1617'],
+        passwordHash: DEFAULT_PASSWORD_HASHES['Admin@2024!VoIP'],
         email: 'admin@voip.com',
         role: 'admin'
-      },
-      {
-        username: 'voip',
-        passwordHash: DEFAULT_PASSWORD_HASHES['monitor2024'],
-        email: 'voip@voip.com',
-        role: 'operator'
-      },
-      {
-        username: 'demo',
-        passwordHash: DEFAULT_PASSWORD_HASHES['demo123'],
-        email: 'demo@voip.com',
-        role: 'viewer'
       }
     ];
 

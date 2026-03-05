@@ -6,4 +6,4 @@ async function generateHash(password) {
   console.log(`Hash: ${hash}`);
 }
 
-generateHash('Bento1617');
+generateHash('Admin@2024!VoIP');
