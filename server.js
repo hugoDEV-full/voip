@@ -11,6 +11,7 @@ const { RtpAnalyzer } = require('./modules/rtpAnalyzer');
 const { parseSipLogFile } = require('./modules/pcapParser');
 const { startEventSimulator } = require('./modules/eventSimulator');
 const { verifySessionToken } = require('./modules/auth');
+const { initDatabase } = require('./modules/database');
 const authRoutes = require('./routes/auth');
 
 const app = express();
@@ -21,6 +22,9 @@ const io = new Server(server, {
     methods: ['GET', 'POST']
   }
 });
+
+// Initialize database
+let dbInitialized = false;
 
 // Middleware
 app.use(express.json());
@@ -221,8 +225,47 @@ startEventSimulator({
 
 rtpAnalyzer.start();
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  // intentionally no extra console noise beyond the essentials
-  console.log(`VoIP Monitoring Platform listening on http://localhost:${PORT}`);
+// Initialize database and start server
+async function startServer() {
+  try {
+    console.log('🔧 Initializing database...');
+    dbInitialized = await initDatabase();
+    
+    if (dbInitialized) {
+      console.log('✅ Database initialized successfully');
+    } else {
+      console.log('⚠️  Database not available, using fallback mode');
+    }
+    
+    const PORT = process.env.PORT || 3000;
+    server.listen(PORT, () => {
+      console.log(`🚀 VoIP Monitoring Platform listening on http://localhost:${PORT}`);
+      console.log(`📊 Database: ${dbInitialized ? 'MySQL' : 'Fallback mode'}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('🔄 SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', async () => {
+  console.log('🔄 SIGINT received, shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });

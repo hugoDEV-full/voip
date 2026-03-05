@@ -1,53 +1,10 @@
 const crypto = require('crypto');
-
-// In production, users should be stored in a database
-// For demo purposes, we'll use in-memory storage with hashed passwords
-const users = new Map([
-  ['admin', {
-    username: 'admin',
-    passwordHash: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', // admin123
-    role: 'admin',
-    createdAt: new Date().toISOString()
-  }],
-  ['voip', {
-    username: 'voip',
-    passwordHash: 'ef92b778ba7a6c8f2150019a31c5e2ebedbfd408113a747858f6a9c29e4e5a5e', // monitor2024
-    role: 'operator',
-    createdAt: new Date().toISOString()
-  }],
-  ['demo', {
-    username: 'demo',
-    passwordHash: 'fe5c295059323edbc29e7386b4754dc01121a4c525b6211c6c5586a4322a1e5e', // demo123
-    role: 'viewer',
-    createdAt: new Date().toISOString()
-  }]
-]);
-
-// Hash password using SHA-256 (in production, use bcrypt with salt)
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
-// Verify user credentials
-function authenticateUser(username, password) {
-  const user = users.get(username);
-  if (!user) {
-    return { success: false, error: 'User not found' };
-  }
-  
-  const passwordHash = hashPassword(password);
-  if (user.passwordHash !== passwordHash) {
-    return { success: false, error: 'Invalid password' };
-  }
-  
-  // Remove sensitive data before returning
-  const { passwordHash, ...userSafe } = user;
-  return { success: true, user: userSafe };
-}
+const { UserDatabase, SessionDatabase } = require('./database');
 
 // Create session token (JWT-like, simplified for demo)
 function createSessionToken(user) {
   const payload = {
+    id: user.id,
     username: user.username,
     role: user.role,
     iat: Date.now(),
@@ -55,11 +12,14 @@ function createSessionToken(user) {
   };
   
   // In production, use real JWT with proper secret
-  return Buffer.from(JSON.stringify(payload)).toString('base64');
+  const token = Buffer.from(JSON.stringify(payload)).toString('base64');
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  
+  return { token, tokenHash, expiresAt: new Date(payload.exp) };
 }
 
 // Verify session token
-function verifySessionToken(token) {
+async function verifySessionToken(token) {
   try {
     const payload = JSON.parse(Buffer.from(token, 'base64').toString());
     
@@ -68,37 +28,84 @@ function verifySessionToken(token) {
       return { valid: false, error: 'Token expired' };
     }
     
-    return { valid: true, user: payload };
+    // Create token hash for database lookup
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    
+    // Validate session in database
+    const session = await SessionDatabase.validateSession(tokenHash);
+    
+    if (!session.valid) {
+      return { valid: false, error: session.error };
+    }
+    
+    return { valid: true, user: session.user };
   } catch (error) {
     return { valid: false, error: 'Invalid token' };
   }
 }
 
-// Add new user (for demo purposes)
-function addUser(username, password, role = 'viewer') {
-  if (users.has(username)) {
-    return { success: false, error: 'User already exists' };
+// Authenticate user with database
+async function authenticateUser(username, password, ipAddress = null, userAgent = null) {
+  try {
+    const result = await UserDatabase.authenticateUser(username, password);
+    
+    if (!result.success) {
+      return result;
+    }
+    
+    // Create session token
+    const { token, tokenHash, expiresAt } = createSessionToken(result.user);
+    
+    // Store session in database
+    const sessionResult = await SessionDatabase.createSession(
+      result.user.id,
+      tokenHash,
+      expiresAt,
+      ipAddress,
+      userAgent
+    );
+    
+    if (!sessionResult.success) {
+      return { success: false, error: 'Failed to create session' };
+    }
+    
+    return { 
+      success: true, 
+      user: result.user,
+      token,
+      expiresAt
+    };
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return { success: false, error: 'Authentication failed' };
   }
-  
-  const user = {
-    username,
-    passwordHash: hashPassword(password),
-    role,
-    createdAt: new Date().toISOString()
-  };
-  
-  users.set(username, user);
-  return { success: true, user: { username, role, createdAt: user.createdAt } };
 }
 
-// Get all users (for demo)
-function getAllUsers() {
-  const userList = [];
-  for (const [username, user] of users) {
-    const { passwordHash, ...userSafe } = user;
-    userList.push(userSafe);
+// Logout user
+async function logoutUser(token) {
+  try {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const result = await SessionDatabase.deleteSession(tokenHash);
+    return result;
+  } catch (error) {
+    console.error('Logout error:', error);
+    return { success: false, error: 'Logout failed' };
   }
-  return userList;
+}
+
+// Create new user
+async function createUser(userData) {
+  return await UserDatabase.createUser(userData);
+}
+
+// Get user by ID
+async function getUserById(userId) {
+  return await UserDatabase.getUserById(userId);
+}
+
+// Hash password using SHA-256 (kept for compatibility, but bcrypt is used for storage)
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
 }
 
 module.exports = {
@@ -106,6 +113,7 @@ module.exports = {
   authenticateUser,
   createSessionToken,
   verifySessionToken,
-  addUser,
-  getAllUsers
+  logoutUser,
+  createUser,
+  getUserById
 };

@@ -1,0 +1,311 @@
+const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
+
+// Database configuration
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'voip_monitoring',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionLimit: 10,
+  acquireTimeout: 60000,
+  timeout: 60000
+};
+
+let pool;
+
+// Initialize database connection
+async function initDatabase() {
+  try {
+    pool = mysql.createPool(dbConfig);
+    
+    // Test connection
+    const connection = await pool.getConnection();
+    console.log('✅ MySQL connected successfully');
+    connection.release();
+    
+    // Create tables if they don't exist
+    await createTables();
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection failed:', error.message);
+    
+    // Fallback to in-memory storage for demo
+    if (process.env.NODE_ENV === 'production') {
+      console.log('⚠️  Using fallback in-memory storage');
+      return false;
+    }
+    throw error;
+  }
+}
+
+// Create database tables
+async function createTables() {
+  const createUsersTable = `
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      email VARCHAR(100),
+      role ENUM('admin', 'operator', 'viewer') DEFAULT 'viewer',
+      active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      last_login TIMESTAMP NULL,
+      INDEX idx_username (username),
+      INDEX idx_role (role)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `;
+  
+  const createSessionsTable = `
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      token_hash VARCHAR(255) NOT NULL,
+      expires_at TIMESTAMP NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      ip_address VARCHAR(45),
+      user_agent TEXT,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      INDEX idx_user_id (user_id),
+      INDEX idx_token_hash (token_hash),
+      INDEX idx_expires_at (expires_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `;
+  
+  try {
+    await pool.execute(createUsersTable);
+    await pool.execute(createSessionsTable);
+    console.log('✅ Database tables ready');
+    
+    // Create default users if table is empty
+    await createDefaultUsers();
+  } catch (error) {
+    console.error('❌ Error creating tables:', error.message);
+    throw error;
+  }
+}
+
+// Create default users
+async function createDefaultUsers() {
+  try {
+    const [rows] = await pool.execute('SELECT COUNT(*) as count FROM users');
+    
+    if (rows[0].count === 0) {
+      const defaultUsers = [
+        { username: 'admin', password: 'admin123', email: 'admin@voip.com', role: 'admin' },
+        { username: 'voip', password: 'monitor2024', email: 'voip@voip.com', role: 'operator' },
+        { username: 'demo', password: 'demo123', email: 'demo@voip.com', role: 'viewer' }
+      ];
+      
+      for (const user of defaultUsers) {
+        const passwordHash = await bcrypt.hash(user.password, 12);
+        await pool.execute(
+          'INSERT INTO users (username, password_hash, email, role) VALUES (?, ?, ?, ?)',
+          [user.username, passwordHash, user.email, user.role]
+        );
+      }
+      
+      console.log('✅ Default users created');
+    }
+  } catch (error) {
+    console.error('❌ Error creating default users:', error.message);
+  }
+}
+
+// User management functions
+class UserDatabase {
+  static async authenticateUser(username, password) {
+    try {
+      const [rows] = await pool.execute(
+        'SELECT id, username, password_hash, email, role, active FROM users WHERE username = ? AND active = TRUE',
+        [username]
+      );
+      
+      if (rows.length === 0) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      const user = rows[0];
+      const passwordMatch = await bcrypt.compare(password, user.password_hash);
+      
+      if (!passwordMatch) {
+        return { success: false, error: 'Invalid password' };
+      }
+      
+      // Update last login
+      await pool.execute(
+        'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
+        [user.id]
+      );
+      
+      // Remove sensitive data
+      const { password_hash, ...userSafe } = user;
+      return { success: true, user: userSafe };
+      
+    } catch (error) {
+      console.error('Authentication error:', error);
+      return { success: false, error: 'Authentication failed' };
+    }
+  }
+  
+  static async createUser(userData) {
+    try {
+      const { username, password, email, role = 'viewer' } = userData;
+      
+      // Check if user already exists
+      const [existing] = await pool.execute(
+        'SELECT id FROM users WHERE username = ?',
+        [username]
+      );
+      
+      if (existing.length > 0) {
+        return { success: false, error: 'Username already exists' };
+      }
+      
+      const passwordHash = await bcrypt.hash(password, 12);
+      
+      const [result] = await pool.execute(
+        'INSERT INTO users (username, password_hash, email, role) VALUES (?, ?, ?, ?)',
+        [username, passwordHash, email, role]
+      );
+      
+      return { 
+        success: true, 
+        user: { id: result.insertId, username, email, role }
+      };
+      
+    } catch (error) {
+      console.error('Create user error:', error);
+      return { success: false, error: 'Failed to create user' };
+    }
+  }
+  
+  static async getUserById(userId) {
+    try {
+      const [rows] = await pool.execute(
+        'SELECT id, username, email, role, active, created_at, last_login FROM users WHERE id = ? AND active = TRUE',
+        [userId]
+      );
+      
+      return rows.length > 0 ? { success: true, user: rows[0] } : { success: false, error: 'User not found' };
+    } catch (error) {
+      console.error('Get user error:', error);
+      return { success: false, error: 'Failed to get user' };
+    }
+  }
+  
+  static async updateUserLastLogin(userId) {
+    try {
+      await pool.execute(
+        'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
+        [userId]
+      );
+      return { success: true };
+    } catch (error) {
+      console.error('Update last login error:', error);
+      return { success: false, error: 'Failed to update last login' };
+    }
+  }
+}
+
+// Session management functions
+class SessionDatabase {
+  static async createSession(userId, tokenHash, expiresAt, ipAddress = null, userAgent = null) {
+    try {
+      const [result] = await pool.execute(
+        'INSERT INTO user_sessions (user_id, token_hash, expires_at, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
+        [userId, tokenHash, expiresAt, ipAddress, userAgent]
+      );
+      
+      return { success: true, sessionId: result.insertId };
+    } catch (error) {
+      console.error('Create session error:', error);
+      return { success: false, error: 'Failed to create session' };
+    }
+  }
+  
+  static async validateSession(tokenHash) {
+    try {
+      // Clean expired sessions first
+      await pool.execute('DELETE FROM user_sessions WHERE expires_at < NOW()');
+      
+      const [rows] = await pool.execute(`
+        SELECT s.user_id, s.expires_at, u.username, u.email, u.role 
+        FROM user_sessions s 
+        JOIN users u ON s.user_id = u.id 
+        WHERE s.token_hash = ? AND s.expires_at > NOW() AND u.active = TRUE
+      `, [tokenHash]);
+      
+      if (rows.length === 0) {
+        return { valid: false, error: 'Invalid or expired session' };
+      }
+      
+      const session = rows[0];
+      return { 
+        valid: true, 
+        user: {
+          id: session.user_id,
+          username: session.username,
+          email: session.email,
+          role: session.role
+        }
+      };
+    } catch (error) {
+      console.error('Validate session error:', error);
+      return { valid: false, error: 'Session validation failed' };
+    }
+  }
+  
+  static async deleteSession(tokenHash) {
+    try {
+      const [result] = await pool.execute(
+        'DELETE FROM user_sessions WHERE token_hash = ?',
+        [tokenHash]
+      );
+      
+      return { success: true, deleted: result.affectedRows > 0 };
+    } catch (error) {
+      console.error('Delete session error:', error);
+      return { success: false, error: 'Failed to delete session' };
+    }
+  }
+  
+  static async deleteAllUserSessions(userId) {
+    try {
+      const [result] = await pool.execute(
+        'DELETE FROM user_sessions WHERE user_id = ?',
+        [userId]
+      );
+      
+      return { success: true, deleted: result.affectedRows };
+    } catch (error) {
+      console.error('Delete all sessions error:', error);
+      return { success: false, error: 'Failed to delete sessions' };
+    }
+  }
+}
+
+// Get database connection pool
+function getPool() {
+  return pool;
+}
+
+// Close database connection
+async function closeDatabase() {
+  if (pool) {
+    await pool.end();
+    console.log('Database connection closed');
+  }
+}
+
+module.exports = {
+  initDatabase,
+  UserDatabase,
+  SessionDatabase,
+  getPool,
+  closeDatabase
+};
