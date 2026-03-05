@@ -754,18 +754,24 @@ function simulateNormalCall() {
   const callId = 'call-normal-' + Date.now();
   const from = '+5511912345678';
   const to = '+5511987654321';
+  const startTime = new Date();
   
   const newCall = {
     id: callId,
     from: from,
     to: to,
     scenario: 'normal',
-    status: 'ACTIVE',
-    duration: '00:00:01'
+    status: 'RINGING',
+    duration: '00:00:01',
+    startTime: startTime,
+    codec: 'PCMU',
+    quality: 'Excellent'
   };
   
   // Add call to state
   state.calls.set(callId, newCall);
+  renderCalls();
+  updateCounters();
   
   // Show notification
   showNotification(
@@ -774,29 +780,41 @@ function simulateNormalCall() {
     3000
   );
   
-  // Normal SIP flow with RTP
+  // Realistic SIP flow with RTP
   const events = [
-    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
-    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'SIP', message: 'ACK sip:+5511987654321@voip.com SIP/2.0', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'RTP', message: 'RTP flow established - Bidirectional', details: 'Codec: PCMU, Payload: 8, SSRC: 12345678' },
-    { type: 'RTP', message: 'RTP stats: Perfect quality', details: 'Jitter: 1ms, Loss: 0%, MOS: 4.5' }
+    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}`, timestamp: Date.now() },
+    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 200 },
+    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 500 },
+    { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com | SDP: PCMU/8000`, timestamp: Date.now() + 1200 },
+    { type: 'SIP', message: 'ACK sip:+5511987654321@voip.com SIP/2.0', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 1500 },
+    { type: 'RTP', message: 'RTP stream established - Bidirectional', details: 'Codec: PCMU, Payload: 8, SSRC: 12345678, Jitter: 1ms', timestamp: Date.now() + 2000 },
+    { type: 'RTP', message: 'RTP quality monitoring', details: 'Packets: 50/50 (100%), Loss: 0%, MOS: 4.5, Latency: 25ms', timestamp: Date.now() + 3000 },
+    { type: 'ESL', message: 'CHANNEL_CREATE', details: `Channel: SIP/${to}-00000001, State: CS_EXECUTE`, timestamp: Date.now() + 2500 },
+    { type: 'ESL', message: 'CHANNEL_ANSWER', details: `Channel: SIP/${to}-00000001, Answered: ${startTime.toISOString()}`, timestamp: Date.now() + 2500 }
   ];
   
+  // Update call status to ACTIVE
+  setTimeout(() => {
+    if (state.calls.has(callId)) {
+      const call = state.calls.get(callId);
+      call.status = 'ACTIVE';
+      renderCalls();
+    }
+  }, 1700);
+  
+  // Process events with realistic timing
   events.forEach((event, index) => {
     setTimeout(() => {
-      if (!eventsPaused) {
+      if (!eventsPaused && state.calls.has(callId)) {
         const html = `
-          <div class="event-row border-bottom pb-2 mb-2">
+          <div class="event-row border-bottom pb-2 mb-2 animate__animated animate__fadeInLeft">
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
                 <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
                 <strong>${event.message}</strong>
                 <span class="text-muted ms-2">Call: ${callId}</span>
               </div>
-              <small class="text-muted">${fmtTs(Date.now())}</small>
+              <small class="text-muted">${fmtTs(event.timestamp)}</small>
             </div>
             <div class="small text-muted mt-1">${event.details}</div>
           </div>
@@ -804,12 +822,27 @@ function simulateNormalCall() {
         appendEvent(html);
         eventCount++;
         updateCounters();
+        
+        // Update call duration
+        if (event.type === 'ESL' && event.message === 'CHANNEL_ANSWER') {
+          updateCallDuration(callId);
+        }
       }
-    }, index * 800);
+    }, event.timestamp - events[0].timestamp);
   });
   
-  renderCalls();
-  updateCounters();
+  // Start duration counter and metrics simulation
+  const durationInterval = setInterval(() => {
+    if (state.calls.has(callId) && !eventsPaused) {
+      updateCallDuration(callId);
+    } else {
+      clearInterval(durationInterval);
+    }
+  }, 1000);
+  
+  // Start real-time metrics simulation
+  simulateCallMetrics(callId);
+  
   console.log('📞 Normal call simulated:', callId);
 }
 
@@ -817,17 +850,23 @@ function simulateOneWayAudio() {
   const callId = 'call-oneway-' + Date.now();
   const from = '+5511333444555';
   const to = '+5511555666777';
+  const startTime = new Date();
   
   const newCall = {
     id: callId,
     from: from,
     to: to,
     scenario: 'one_way_audio',
-    status: 'ACTIVE',
-    duration: '00:00:01'
+    status: 'RINGING',
+    duration: '00:00:01',
+    startTime: startTime,
+    codec: 'PCMU',
+    quality: 'Poor'
   };
   
   state.calls.set(callId, newCall);
+  renderCalls();
+  updateCounters();
   
   // Show warning notification
   showNotification(
@@ -836,28 +875,42 @@ function simulateOneWayAudio() {
     4000
   );
   
-  // One-way audio scenario
+  // One-way audio scenario with detailed RTP issues
   const events = [
-    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
-    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'RTP', message: 'RTP flow established - One way detected', details: 'Codec: PCMU, Payload: 8, SSRC: 87654321' },
-    { type: 'ALERT', message: 'ONE_WAY_AUDIO detected', details: 'RTP expected: 50, Received: 0, Loss: 100%' }
+    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}`, timestamp: Date.now() },
+    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 200 },
+    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 500 },
+    { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com | SDP: PCMU/8000`, timestamp: Date.now() + 1200 },
+    { type: 'SIP', message: 'ACK sip:+5511555666777@voip.com SIP/2.0', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 1500 },
+    { type: 'RTP', message: 'RTP stream established - One way detected', details: 'Codec: PCMU, Payload: 8, SSRC: 87654321, Direction: OUTBOUND ONLY', timestamp: Date.now() + 2000 },
+    { type: 'RTP', message: 'RTP quality degradation', details: 'Packets: 50/0 (0%), Loss: 100%, MOS: 1.0, Latency: N/A', timestamp: Date.now() + 3000 },
+    { type: 'ALERT', message: 'ONE_WAY_AUDIO detected', details: 'RTP expected: 50 packets, Received: 0 packets, Loss: 100%', timestamp: Date.now() + 3500 },
+    { type: 'ESL', message: 'CHANNEL_CREATE', details: `Channel: SIP/${to}-00000002, State: CS_EXECUTE`, timestamp: Date.now() + 2500 },
+    { type: 'ESL', message: 'CHANNEL_ANSWER', details: `Channel: SIP/${to}-00000002, Answered: ${startTime.toISOString()}`, timestamp: Date.now() + 2500 }
   ];
+  
+  // Update call status
+  setTimeout(() => {
+    if (state.calls.has(callId)) {
+      const call = state.calls.get(callId);
+      call.status = 'ACTIVE';
+      call.quality = 'Poor';
+      renderCalls();
+    }
+  }, 1700);
   
   events.forEach((event, index) => {
     setTimeout(() => {
-      if (!eventsPaused) {
+      if (!eventsPaused && state.calls.has(callId)) {
         const html = `
-          <div class="event-row border-bottom pb-2 mb-2">
+          <div class="event-row border-bottom pb-2 mb-2 animate__animated animate__fadeInLeft">
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
                 <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
                 <strong>${event.message}</strong>
                 <span class="text-muted ms-2">Call: ${callId}</span>
               </div>
-              <small class="text-muted">${fmtTs(Date.now())}</small>
+              <small class="text-muted">${fmtTs(event.timestamp)}</small>
             </div>
             <div class="small text-muted mt-1">${event.details}</div>
           </div>
@@ -865,29 +918,57 @@ function simulateOneWayAudio() {
         appendEvent(html);
         eventCount++;
         updateCounters();
+        
+        if (event.type === 'ESL' && event.message === 'CHANNEL_ANSWER') {
+          updateCallDuration(callId);
+        }
       }
-    }, index * 800);
+    }, event.timestamp - events[0].timestamp);
   });
   
-  // Add alert to alerts section
+  // Add detailed alert after detection
   setTimeout(() => {
-    const alert = {
-      type: 'ONE_WAY_AUDIO',
-      severity: 'ALERT',
-      message: 'RTP flow detected broken - no audio received from remote',
-      callId: callId,
-      streamId: 'audio-0',
-      ts: Date.now(),
-      details: { rtp_expected: 50, rtp_received: 0, loss_percent: 100 }
-    };
-    
-    state.alerts.push(alert);
-    renderAlerts();
-    updateCounters();
+    if (state.calls.has(callId)) {
+      const alert = {
+        type: 'ONE_WAY_AUDIO',
+        severity: 'CRITICAL',
+        message: 'RTP flow detected broken - no audio received from remote endpoint',
+        callId: callId,
+        streamId: 'audio-0',
+        ts: Date.now(),
+        details: { 
+          rtp_expected: 50, 
+          rtp_received: 0, 
+          loss_percent: 100,
+          direction: 'outbound_only',
+          impact: 'User cannot hear remote party'
+        }
+      };
+      
+      state.alerts.push(alert);
+      renderAlerts();
+      updateCounters();
+      
+      // Update call quality indicator
+      const call = state.calls.get(callId);
+      if (call) {
+        call.quality = 'Critical';
+        renderCalls();
+      }
+    }
   }, 4000);
   
-  renderCalls();
-  updateCounters();
+  const durationInterval = setInterval(() => {
+    if (state.calls.has(callId) && !eventsPaused) {
+      updateCallDuration(callId);
+    } else {
+      clearInterval(durationInterval);
+    }
+  }, 1000);
+  
+  // Start real-time metrics simulation
+  simulateCallMetrics(callId);
+  
   console.log('🔇 One-way audio call simulated:', callId);
 }
 
@@ -895,17 +976,23 @@ function simulateNatProblem() {
   const callId = 'call-nat-' + Date.now();
   const from = '+5511444555666';
   const to = '+5511555666777';
+  const startTime = new Date();
   
   const newCall = {
     id: callId,
     from: from,
     to: to,
     scenario: 'nat_wrong',
-    status: 'ACTIVE',
-    duration: '00:00:01'
+    status: 'RINGING',
+    duration: '00:00:01',
+    startTime: startTime,
+    codec: 'PCMU',
+    quality: 'Fair'
   };
   
   state.calls.set(callId, newCall);
+  renderCalls();
+  updateCounters();
   
   // Show danger notification
   showNotification(
@@ -914,29 +1001,42 @@ function simulateNatProblem() {
     4000
   );
   
-  // NAT problem scenario
+  // NAT problem scenario with detailed network issues
   const events = [
-    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}` },
-    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com` },
-    { type: 'SIP', message: 'SIP/2.0 200 OK - SDP contains private IP', details: `c=IN IP4 192.168.1.100` },
-    { type: 'ALERT', message: 'NAT_SUSPECTED - Private IP in SDP', details: 'SDP IP: 192.168.1.100, Public IP: 200.150.10.20' },
-    { type: 'RTP', message: 'RTP flow with high latency', details: 'Latency: 250ms, Jitter: 15ms' },
-    { type: 'ALERT', message: 'HIGH_LATENCY detected', details: 'Latency: 250ms (threshold: 150ms)' }
+    { type: 'SIP', message: `INVITE sip:${to}@voip.com SIP/2.0`, details: `From: ${from};tag=${Date.now()}`, timestamp: Date.now() },
+    { type: 'SIP', message: 'SIP/2.0 100 Trying', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 200 },
+    { type: 'SIP', message: 'SIP/2.0 180 Ringing', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 500 },
+    { type: 'SIP', message: 'SIP/2.0 200 OK - SDP contains private IP', details: `Call-ID: ${callId}@voip.com | c=IN IP4 192.168.1.100`, timestamp: Date.now() + 1200 },
+    { type: 'ALERT', message: 'NAT_SUSPECTED - Private IP in SDP', details: 'SDP IP: 192.168.1.100 (private), Public IP: 200.150.10.20', timestamp: Date.now() + 1500 },
+    { type: 'SIP', message: 'ACK sip:+5511555666777@voip.com SIP/2.0', details: `Call-ID: ${callId}@voip.com`, timestamp: Date.now() + 1800 },
+    { type: 'RTP', message: 'RTP flow with high latency', details: 'Codec: PCMU, Payload: 8, SSRC: 98765432, Latency: 250ms, Jitter: 15ms', timestamp: Date.now() + 2500 },
+    { type: 'RTP', message: 'RTP quality issues', details: 'Packets: 45/50 (90%), Loss: 10%, MOS: 3.2, Latency: 250ms', timestamp: Date.now() + 3500 },
+    { type: 'ALERT', message: 'HIGH_LATENCY detected', details: 'Latency: 250ms (threshold: 150ms), Impact: Poor audio quality', timestamp: Date.now() + 4000 },
+    { type: 'ESL', message: 'CHANNEL_CREATE', details: `Channel: SIP/${to}-00000003, State: CS_EXECUTE`, timestamp: Date.now() + 3000 },
+    { type: 'ESL', message: 'CHANNEL_ANSWER', details: `Channel: SIP/${to}-00000003, Answered: ${startTime.toISOString()}`, timestamp: Date.now() + 3000 }
   ];
+  
+  setTimeout(() => {
+    if (state.calls.has(callId)) {
+      const call = state.calls.get(callId);
+      call.status = 'ACTIVE';
+      call.quality = 'Fair';
+      renderCalls();
+    }
+  }, 2000);
   
   events.forEach((event, index) => {
     setTimeout(() => {
-      if (!eventsPaused) {
+      if (!eventsPaused && state.calls.has(callId)) {
         const html = `
-          <div class="event-row border-bottom pb-2 mb-2">
+          <div class="event-row border-bottom pb-2 mb-2 animate__animated animate__fadeInLeft">
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
                 <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
                 <strong>${event.message}</strong>
                 <span class="text-muted ms-2">Call: ${callId}</span>
               </div>
-              <small class="text-muted">${fmtTs(Date.now())}</small>
+              <small class="text-muted">${fmtTs(event.timestamp)}</small>
             </div>
             <div class="small text-muted mt-1">${event.details}</div>
           </div>
@@ -944,44 +1044,77 @@ function simulateNatProblem() {
         appendEvent(html);
         eventCount++;
         updateCounters();
+        
+        if (event.type === 'ESL' && event.message === 'CHANNEL_ANSWER') {
+          updateCallDuration(callId);
+        }
       }
-    }, index * 800);
+    }, event.timestamp - events[0].timestamp);
   });
   
-  // Add alerts to alerts section
+  // Add multiple alerts for NAT issues
   setTimeout(() => {
-    const alerts = [
-      {
-        type: 'NAT_SUSPECTED',
-        severity: 'WARNING',
-        message: 'Private IP detected in SDP - NAT configuration issue',
-        callId: callId,
-        streamId: 'sip-0',
-        ts: Date.now(),
-        details: { sdp_ip: '192.168.1.100', public_ip: '200.150.10.20' }
-      },
-      {
-        type: 'HIGH_LATENCY',
-        severity: 'WARNING',
-        message: 'Elevated latency detected on call',
-        callId: callId,
-        streamId: 'audio-1',
-        ts: Date.now() + 1000,
-        details: { latency_ms: 250, jitter_ms: 15 }
+    if (state.calls.has(callId)) {
+      const alerts = [
+        {
+          type: 'NAT_SUSPECTED',
+          severity: 'WARNING',
+          message: 'Private IP detected in SDP - NAT configuration issue',
+          callId: callId,
+          streamId: 'sip-0',
+          ts: Date.now(),
+          details: { 
+            sdp_ip: '192.168.1.100', 
+            public_ip: '200.150.10.20',
+            recommendation: 'Configure STUN/TURN or fix NAT rules'
+          }
+        },
+        {
+          type: 'HIGH_LATENCY',
+          severity: 'WARNING',
+          message: 'Elevated latency detected on call',
+          callId: callId,
+          streamId: 'audio-1',
+          ts: Date.now() + 1000,
+          details: { 
+            latency_ms: 250, 
+            jitter_ms: 15,
+            threshold_ms: 150,
+            impact: 'Echo and delay issues'
+          }
+        }
+      ];
+      
+      state.alerts.push(...alerts);
+      renderAlerts();
+      updateCounters();
+      
+      // Update call quality
+      const call = state.calls.get(callId);
+      if (call) {
+        call.quality = 'Poor';
+        renderCalls();
       }
-    ];
-    
-    state.alerts.push(...alerts);
-    renderAlerts();
-    updateCounters();
-  }, 4000);
+    }
+  }, 4500);
   
-  renderCalls();
-  updateCounters();
+  const durationInterval = setInterval(() => {
+    if (state.calls.has(callId) && !eventsPaused) {
+      updateCallDuration(callId);
+    } else {
+      clearInterval(durationInterval);
+    }
+  }, 1000);
+  
+  // Start real-time metrics simulation
+  simulateCallMetrics(callId);
+  
   console.log('🌐 NAT problem call simulated:', callId);
 }
 
 function analyzeTraffic() {
+  const analysisId = 'analysis-' + Date.now();
+  
   // Show info notification
   showNotification(
     currentLanguage === 'pt' ? '📊 Iniciando análise de tráfego...' : '📊 Starting traffic analysis...',
@@ -989,26 +1122,29 @@ function analyzeTraffic() {
     3000
   );
   
-  // Simulate traffic analysis
+  // Comprehensive traffic analysis simulation
   const analysisEvents = [
-    { type: 'SYSTEM', message: 'Starting traffic analysis...', details: 'Reading /pcap/traffic_log.txt' },
-    { type: 'SYSTEM', message: 'Parsing SIP messages...', details: 'Found 45 SIP dialogs' },
-    { type: 'SYSTEM', message: 'Analyzing RTP streams...', details: 'Detected 23 RTP flows' },
-    { type: 'ALERT', message: 'ANALYSIS_COMPLETE - Issues found', details: '3 one-way audio calls, 2 NAT problems' },
-    { type: 'SYSTEM', message: 'Generating report...', details: 'Report saved to /reports/analysis_' + Date.now() + '.json' }
+    { type: 'SYSTEM', message: 'Starting comprehensive traffic analysis...', details: `Analysis ID: ${analysisId}`, timestamp: Date.now() },
+    { type: 'SYSTEM', message: 'Reading PCAP file: /pcap/traffic_log_20250305.pcap', details: 'File size: 125.4 MB, Duration: 2 hours', timestamp: Date.now() + 500 },
+    { type: 'SYSTEM', message: 'Parsing SIP messages...', details: 'Found 45 SIP dialogs, 89 INVITE transactions', timestamp: Date.now() + 1500 },
+    { type: 'SYSTEM', message: 'Analyzing RTP streams...', details: 'Detected 23 RTP flows, 12 unique codecs', timestamp: Date.now() + 2500 },
+    { type: 'SYSTEM', message: 'Checking call quality metrics...', details: 'MOS average: 3.8, Packet loss: 2.3%', timestamp: Date.now() + 3500 },
+    { type: 'ALERT', message: 'ANALYSIS_COMPLETE - Issues found', details: '3 one-way audio calls, 2 NAT problems, 1 high latency', timestamp: Date.now() + 4500 },
+    { type: 'SYSTEM', message: 'Generating detailed report...', details: `Report: /reports/analysis_${analysisId}.json`, timestamp: Date.now() + 5500 },
+    { type: 'SYSTEM', message: 'Analysis completed successfully', details: `Total processing time: 4.2 seconds`, timestamp: Date.now() + 6000 }
   ];
   
   analysisEvents.forEach((event, index) => {
     setTimeout(() => {
       if (!eventsPaused) {
         const html = `
-          <div class="event-row border-bottom pb-2 mb-2">
+          <div class="event-row border-bottom pb-2 mb-2 animate__animated animate__fadeInLeft">
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
                 <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
                 <strong>${event.message}</strong>
               </div>
-              <small class="text-muted">${fmtTs(Date.now())}</small>
+              <small class="text-muted">${fmtTs(event.timestamp)}</small>
             </div>
             <div class="small text-muted mt-1">${event.details}</div>
           </div>
@@ -1017,25 +1153,50 @@ function analyzeTraffic() {
         eventCount++;
         updateCounters();
       }
-    }, index * 1000);
+    }, event.timestamp - analysisEvents[0].timestamp);
   });
   
-  // Add analysis results as alerts
+  // Add comprehensive analysis results
   setTimeout(() => {
     const analysisAlerts = [
       {
         type: 'ANALYSIS_RESULT',
         severity: 'INFO',
-        message: 'Traffic analysis completed - 5 issues detected',
+        message: 'Traffic analysis completed - Multiple issues detected',
         callId: null,
-        streamId: 'analysis-' + Date.now(),
+        streamId: `analysis-${analysisId}`,
         ts: Date.now(),
         details: { 
-          total_calls: 45, 
-          one_way_audio: 3, 
-          nat_issues: 2, 
-          high_latency: 0,
-          analysis_time: '2.3s'
+          total_calls: 45,
+          successful_calls: 39,
+          failed_calls: 6,
+          one_way_audio: 3,
+          nat_issues: 2,
+          high_latency: 1,
+          average_mos: 3.8,
+          packet_loss_avg: 2.3,
+          analysis_duration: '4.2s',
+          recommendations: [
+            'Fix NAT configuration for 2 endpoints',
+            'Investigate one-way audio in mobile network',
+            'Optimize routing for high-latency calls'
+          ]
+        }
+      },
+      {
+        type: 'QUALITY_METRICS',
+        severity: 'INFO',
+        message: 'Call quality summary for the period',
+        callId: null,
+        streamId: `quality-${analysisId}`,
+        ts: Date.now() + 500,
+        details: {
+          excellent_calls: 25,
+          good_calls: 14,
+          fair_calls: 4,
+          poor_calls: 2,
+          critical_calls: 0,
+          overall_score: 'B+'
         }
       }
     ];
@@ -1046,13 +1207,27 @@ function analyzeTraffic() {
     
     // Show completion notification
     showNotification(
-      currentLanguage === 'pt' ? '✅ Análise concluída! 5 problemas encontrados' : '✅ Analysis complete! 5 issues found',
+      currentLanguage === 'pt' ? '✅ Análise concluída! 6 problemas encontrados' : '✅ Analysis complete! 6 issues found',
       'success',
       4000
     );
-  }, 5000);
+  }, 6500);
   
-  console.log('📊 Traffic analysis simulated');
+  console.log('📊 Comprehensive traffic analysis simulated:', analysisId);
+}
+
+// Helper function to update call duration
+function updateCallDuration(callId) {
+  if (state.calls.has(callId)) {
+    const call = state.calls.get(callId);
+    const now = new Date();
+    const duration = Math.floor((now - call.startTime) / 1000);
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor((duration % 3600) / 60);
+    const seconds = duration % 60;
+    call.duration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    renderCalls();
+  }
 }
 
 // Add mock data for demonstration
@@ -1347,9 +1522,235 @@ function updateSystemStats() {
   }
 }
 
-function fmtTs(ts) {
-  const d = new Date(ts);
-  return d.toLocaleTimeString();
+// Helper functions for call rendering
+function getStatusColor(status) {
+  const colors = {
+    'RINGING': '#ffc107',
+    'ACTIVE': '#28a745',
+    'ON_HOLD': '#17a2b8',
+    'ENDING': '#dc3545'
+  };
+  return colors[status] || '#6c757d';
+}
+
+function getQualityColor(quality) {
+  const colors = {
+    'Excellent': 'bg-success',
+    'Good': 'bg-info',
+    'Fair': 'bg-warning',
+    'Poor': 'bg-danger',
+    'Critical': 'bg-danger'
+  };
+  return colors[quality] || 'bg-secondary';
+}
+
+function getQualityIcon(quality) {
+  const icons = {
+    'Excellent': 'bi-emoji-smile-fill',
+    'Good': 'bi-emoji-smile',
+    'Fair': 'bi-emoji-neutral',
+    'Poor': 'bi-emoji-frown',
+    'Critical': 'bi-emoji-dizzy-fill'
+  };
+  return icons[quality] || 'bi-dash-circle';
+}
+
+function getLatencyColor(latency) {
+  if (latency < 50) return 'bg-success';
+  if (latency < 150) return 'bg-warning';
+  return 'bg-danger';
+}
+
+function getJitterColor(jitter) {
+  if (jitter < 5) return 'bg-success';
+  if (jitter < 15) return 'bg-warning';
+  return 'bg-danger';
+}
+
+function getLossColor(loss) {
+  if (loss < 1) return 'bg-success';
+  if (loss < 3) return 'bg-warning';
+  return 'bg-danger';
+}
+
+function getMOSColor(mos) {
+  if (mos >= 4.0) return 'bg-success';
+  if (mos >= 3.0) return 'bg-warning';
+  return 'bg-danger';
+}
+
+function getCallTooltip(call) {
+  const scenarioTip = call.scenario === 'normal'
+    ? (currentLanguage === 'pt' ? 'Fluxo esperado: SIP completa + RTP bidirecional' : 'Expected flow: Complete SIP + bidirectional RTP')
+    : (call.scenario === 'one_way_audio'
+      ? (currentLanguage === 'pt' ? 'One-way audio: Áudio apenas em uma direção' : 'One-way audio: Audio in one direction only')
+      : (currentLanguage === 'pt' ? 'NAT incorreto: Problemas de configuração de rede' : 'NAT incorrect: Network configuration issues'));
+  
+  return `${scenarioTip}\n${currentLanguage === 'pt' ? 'Qualidade:' : 'Quality:'} ${call.quality || 'Unknown'}\n${currentLanguage === 'pt' ? 'Duração:' : 'Duration:'} ${call.duration}`;
+}
+
+// Call control functions
+function showCallDetails(callId) {
+  const call = state.calls.get(callId);
+  if (!call) return;
+  
+  const details = `
+    ${currentLanguage === 'pt' ? 'ID da Chamada:' : 'Call ID:'} ${callId}
+    ${currentLanguage === 'pt' ? 'De:' : 'From:'} ${call.from}
+    ${currentLanguage === 'pt' ? 'Para:' : 'To:'} ${call.to}
+    ${currentLanguage === 'pt' ? 'Status:' : 'Status:'} ${call.status}
+    ${currentLanguage === 'pt' ? 'Duração:' : 'Duration:'} ${call.duration}
+    ${currentLanguage === 'pt' ? 'Codec:' : 'Codec:'} ${call.codec || 'PCMU'}
+    ${currentLanguage === 'pt' ? 'Qualidade:' : 'Quality:'} ${call.quality || 'Unknown'}
+    ${currentLanguage === 'pt' ? 'Cenário:' : 'Scenario:'} ${call.scenario}
+    ${currentLanguage === 'pt' ? 'Início:' : 'Start:'} ${call.startTime ? call.startTime.toLocaleTimeString() : 'N/A'}
+    ${currentLanguage === 'pt' ? 'Latência:' : 'Latency:'} ${call.latency || 25}ms
+    ${currentLanguage === 'pt' ? 'Jitter:' : 'Jitter:'} ${call.jitter || 1}ms
+    ${currentLanguage === 'pt' ? 'Perda de Pacotes:' : 'Packet Loss:'} ${call.packetLoss || 0}%
+    MOS: ${call.mos || 4.5}
+  `;
+  
+  showNotification(
+    `📞 ${currentLanguage === 'pt' ? 'Detalhes da Chamada:' : 'Call Details:'} ${callId}`,
+    'info',
+    8000
+  );
+  
+  console.log('📞 Call Details:', details);
+}
+
+function muteCall(callId) {
+  const call = state.calls.get(callId);
+  if (!call) return;
+  
+  call.isMuted = !call.isMuted;
+  
+  showNotification(
+    call.isMuted ? 
+      `🔇 ${currentLanguage === 'pt' ? 'Chamada' : 'Call'} ${callId} ${currentLanguage === 'pt' ? 'silenciada' : 'muted'}` : 
+      `🔊 ${currentLanguage === 'pt' ? 'Chamada' : 'Call'} ${callId} ${currentLanguage === 'pt' ? 'ativada' : 'unmuted'}`,
+    'info',
+    2000
+  );
+  
+  // Add event
+  const html = `
+    <div class="event-row border-bottom pb-2 mb-2">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+          <span class="badge bg-warning me-2">CONTROL</span>
+          <strong>${currentLanguage === 'pt' ? 'Chamada' : 'Call'} ${call.isMuted ? (currentLanguage === 'pt' ? 'SILENCIADA' : 'MUTED') : (currentLanguage === 'pt' ? 'ATIVADA' : 'UNMUTED')}</strong>
+          <span class="text-muted ms-2">Call: ${callId}</span>
+        </div>
+        <small class="text-muted">${fmtTs(Date.now())}</small>
+      </div>
+      <div class="small text-muted mt-1">${currentLanguage === 'pt' ? 'Áudio' : 'Audio'} ${call.isMuted ? (currentLanguage === 'pt' ? 'desabilitado' : 'disabled') : (currentLanguage === 'pt' ? 'habilitado' : 'enabled')} ${currentLanguage === 'pt' ? 'para participantes' : 'for call participants'}</div>
+    </div>
+  `;
+  appendEvent(html);
+  eventCount++;
+  updateCounters();
+  
+  console.log('🔇 Call muted/unmuted:', callId, call.isMuted);
+}
+
+function hangupCall(callId) {
+  const call = state.calls.get(callId);
+  if (!call) return;
+  
+  // Update call status
+  call.status = 'ENDING';
+  call.endTime = new Date();
+  renderCalls();
+  
+  // Show notification
+  showNotification(
+    `📞 ${currentLanguage === 'pt' ? 'Chamada' : 'Call'} ${callId} ${currentLanguage === 'pt' ? 'encerrada' : 'ended'}`,
+    'warning',
+    3000
+  );
+  
+  // Add hangup events
+  const events = [
+    { type: 'SIP', message: `BYE sip:${call.to}@voip.com SIP/2.0`, details: `Call-ID: ${callId}@voip.com` },
+    { type: 'SIP', message: 'SIP/2.0 200 OK', details: `Call-ID: ${callId}@voip.com` },
+    { type: 'ESL', message: 'CHANNEL_HANGUP', details: `Channel: SIP/${call.to}-00000001, Cause: normal_clearing` },
+    { type: 'SYSTEM', message: `${currentLanguage === 'pt' ? 'Chamada concluída' : 'Call completed'}`, details: `${currentLanguage === 'pt' ? 'Duração:' : 'Duration:'} ${call.duration}, ${currentLanguage === 'pt' ? 'Qualidade:' : 'Quality:'} ${call.quality}` }
+  ];
+  
+  events.forEach((event, index) => {
+    setTimeout(() => {
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+                <strong>${event.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
+            </div>
+            <div class="small text-muted mt-1">${event.details}</div>
+          </div>
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
+    }, index * 300);
+  });
+  
+  // Remove call after events
+  setTimeout(() => {
+    state.calls.delete(callId);
+    renderCalls();
+    updateCounters();
+    
+    showNotification(
+      `✅ ${currentLanguage === 'pt' ? 'Chamada' : 'Call'} ${callId} ${currentLanguage === 'pt' ? 'removida da lista ativa' : 'removed from active list'}`,
+      'success',
+      2000
+    );
+  }, 1500);
+  
+  console.log('📞 Call ended:', callId);
+}
+
+// Add real-time metrics simulation
+function simulateCallMetrics(callId) {
+  const call = state.calls.get(callId);
+  if (!call || call.status !== 'ACTIVE') return;
+  
+  // Simulate realistic metrics changes
+  const metricsInterval = setInterval(() => {
+    if (!state.calls.has(callId) || call.status !== 'ACTIVE' || eventsPaused) {
+      clearInterval(metricsInterval);
+      return;
+    }
+    
+    // Update metrics based on scenario
+    if (call.scenario === 'normal') {
+      call.latency = 20 + Math.random() * 10;
+      call.jitter = 0.5 + Math.random() * 2;
+      call.packetLoss = Math.random() * 0.5;
+      call.mos = 4.3 + Math.random() * 0.4;
+    } else if (call.scenario === 'one_way_audio') {
+      call.latency = 50 + Math.random() * 20;
+      call.jitter = 5 + Math.random() * 10;
+      call.packetLoss = 80 + Math.random() * 20;
+      call.mos = 1.0 + Math.random() * 0.5;
+    } else if (call.scenario === 'nat_wrong') {
+      call.latency = 150 + Math.random() * 100;
+      call.jitter = 10 + Math.random() * 15;
+      call.packetLoss = 5 + Math.random() * 10;
+      call.mos = 2.5 + Math.random() * 1.0;
+    }
+    
+    renderCalls();
+  }, 2000);
+  
+  return metricsInterval;
 }
 
 function appendEvent(html) {
@@ -1371,32 +1772,123 @@ function renderCalls() {
   
   const calls = Array.from(state.calls.values());
   if (calls.length === 0) {
-    elCalls.innerHTML = '<div class="text-muted">Nenhuma chamada ativa</div>';
+    elCalls.innerHTML = '<div class="text-muted p-3 text-center">' + 
+      (currentLanguage === 'pt' ? 'Nenhuma chamada ativa' : 'No active calls') + '</div>';
     return;
   }
 
   elCalls.innerHTML = calls
-    .map((c) => {
-      const badge = c.scenario === 'normal' ? 'bg-success' : (c.scenario === 'one_way_audio' ? 'bg-warning text-dark' : 'bg-danger');
-
-      const scenarioTip =
-        c.scenario === 'normal'
-          ? 'Fluxo esperado: SIP completa + RTP bidirecional.'
-          : (c.scenario === 'one_way_audio'
-            ? 'One-way audio: A envia RTP mas B não recebe. Em produção, investigue NAT/Firewall, SDP (c=/m=) e pinholes.'
-            : 'NAT incorreto: SDP pode anunciar IP privado (c=10.x.x.x). Sintoma típico: sem áudio e/ou latência alta.');
-
+    .map((call) => {
+      const statusColor = getStatusColor(call.status);
+      const qualityColor = getQualityColor(call.quality);
+      const qualityIcon = getQualityIcon(call.quality);
+      
       return `
-        <div class="border rounded p-2 mb-2 bg-white" data-bs-toggle="tooltip" data-bs-placement="right" title="${escapeHtml(scenarioTip)}">
-          <div><strong>${c.from}</strong> → <strong>${c.to}</strong> <span class="badge ${badge}">${c.scenario}</span></div>
-          <div class="text-muted">Call-ID: ${c.id}</div>
-          <div>Status: <strong>${c.status || 'N/A'}</strong></div>
+        <div class="call-item mb-3 p-3 border rounded-3 position-relative bg-white" 
+             style="border-left: 4px solid ${statusColor};"
+             data-bs-toggle="tooltip" data-bs-placement="right" 
+             title="${escapeHtml(getCallTooltip(call))}">
+          
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <div class="d-flex align-items-center mb-2">
+                <div class="call-status-indicator me-2" 
+                     style="background-color: ${statusColor}; width: 8px; height: 8px; border-radius: 50%;"></div>
+                <strong class="me-2">${call.from}</strong>
+                <i class="bi bi-arrow-right text-muted me-2"></i>
+                <strong>${call.to}</strong>
+                <span class="badge bg-secondary ms-2">${call.scenario.replace('_', ' ').toUpperCase()}</span>
+              </div>
+              
+              <div class="d-flex align-items-center text-muted small mb-1">
+                <i class="bi bi-telephone-fill me-1"></i>
+                <span class="badge ${statusColor} me-2">${call.status}</span>
+                <i class="bi bi-clock-fill me-1"></i>
+                <span>${call.duration}</span>
+                <i class="bi bi-hdd-network-fill ms-3 me-1"></i>
+                <span>${call.codec || 'PCMU'}</span>
+              </div>
+              
+              <div class="d-flex align-items-center">
+                <span class="badge ${qualityColor} me-2">
+                  <i class="bi ${qualityIcon}"></i> ${call.quality || 'Unknown'}
+                </span>
+                <small class="text-muted">ID: ${call.id}</small>
+              </div>
+            </div>
+            
+            <div class="col-md-4 text-end">
+              <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-outline-info" onclick="showCallDetails('${call.id}')" 
+                        title="${currentLanguage === 'pt' ? 'Ver Detalhes' : 'View Details'}">
+                  <i class="bi bi-info-circle"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-warning" onclick="muteCall('${call.id}')" 
+                        title="${currentLanguage === 'pt' ? 'Mutar/Desmutar' : 'Mute/Unmute'}">
+                  <i class="bi bi-mic-mute-fill"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="hangupCall('${call.id}')" 
+                        title="${currentLanguage === 'pt' ? 'Encerrar Chamada' : 'End Call'}">
+                  <i class="bi bi-telephone-x"></i>
+                </button>
+              </div>
+              <div class="mt-2">
+                <small class="text-muted">
+                  ${currentLanguage === 'pt' ? 'Início:' : 'Started:'} ${call.startTime ? call.startTime.toLocaleTimeString() : 'N/A'}
+                </small>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Real-time metrics -->
+          <div class="row mt-2 pt-2 border-top">
+            <div class="col-md-3">
+              <small class="text-muted">${currentLanguage === 'pt' ? 'Latência' : 'Latency'}</small>
+              <div class="progress" style="height: 4px;">
+                <div class="progress-bar ${getLatencyColor(call.latency || 25)}" 
+                     style="width: ${Math.min((call.latency || 25) * 2, 100)}%"></div>
+              </div>
+              <small>${call.latency || 25}ms</small>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">Jitter</small>
+              <div class="progress" style="height: 4px;">
+                <div class="progress-bar ${getJitterColor(call.jitter || 1)}" 
+                     style="width: ${Math.min((call.jitter || 1) * 10, 100)}%"></div>
+              </div>
+              <small>${call.jitter || 1}ms</small>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">${currentLanguage === 'pt' ? 'Perda' : 'Loss'}</small>
+              <div class="progress" style="height: 4px;">
+                <div class="progress-bar ${getLossColor(call.packetLoss || 0)}" 
+                     style="width: ${call.packetLoss || 0}%"></div>
+              </div>
+              <small>${call.packetLoss || 0}%</small>
+            </div>
+            <div class="col-md-3">
+              <small class="text-muted">MOS</small>
+              <div class="progress" style="height: 4px;">
+                <div class="progress-bar ${getMOSColor(call.mos || 4.5)}" 
+                     style="width: ${(call.mos || 4.5) * 20}%"></div>
+              </div>
+              <small>${call.mos || 4.5}</small>
+            </div>
+          </div>
         </div>
       `;
     })
     .join('');
 
   initTooltips(elCalls);
+  
+  // Update call counter
+  const callsCount = document.getElementById('activeCallsCount');
+  if (callsCount) {
+    callsCount.textContent = calls.length;
+  }
+  
+  console.log('📞 Calls rendered:', calls.length, 'calls');
 }
 
 function renderAlerts() {
