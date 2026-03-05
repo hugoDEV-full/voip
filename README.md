@@ -2,6 +2,21 @@
 
 Plataforma de monitoramento e análise de tráfego VoIP em tempo real com demonstração de problemas comuns (one-way audio, NAT, latência).
 
+## 🔐 Acesso ao Sistema
+
+O sistema possui uma tela de login simulada para proteção básica:
+
+### Credenciais de Demonstração
+- **Usuário**: `admin`
+- **Senha**: `admin123`
+- **Ou**: Use qualquer combinação de usuário/senha não vazia
+
+### Funcionalidades de Segurança
+- Login simulado com sessão persistente
+- Opção "Lembrar-me" (localStorage vs sessionStorage)
+- Logout com limpeza de sessão
+- Interface bilíngue na tela de login (PT/EN)
+
 ## Deploy no Railway
 
 ### Pré-requisitos

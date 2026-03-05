@@ -11,11 +11,49 @@ const { parseSipLogFile } = require('./modules/pcapParser');
 const { startEventSimulator } = require('./modules/eventSimulator');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const server = http.createServer(app);
-const io = new Server(server);
+// Authentication middleware
+function requireAuth(req, res, next) {
+  const session = req.headers.cookie?.match(/voipSession=([^;]+)/);
+  const sessionData = session ? decodeURIComponent(session[1]) : null;
+  
+  if (!sessionData) {
+    // Check if requesting login page or static assets
+    if (req.path === '/login.html' || req.path === '/login.js' || 
+        req.path.startsWith('/node_modules/') || 
+        req.path.endsWith('.css') || 
+        req.path.endsWith('.js') && req.path !== '/login.js') {
+      return next();
+    }
+    return res.redirect('/login.html');
+  }
+  
+  try {
+    const parsedSession = JSON.parse(sessionData);
+    if (parsedSession.username) {
+      return next();
+    }
+  } catch (e) {
+    // Invalid session
+  }
+  
+  res.redirect('/login.html');
+}
+
+// Apply auth middleware to all routes except login
+app.use(requireAuth);
+
+// Logout route
+app.post('/logout', (req, res) => {
+  res.clearCookie('voipSession');
+  res.json({ success: true });
+});
 
 const state = {
   calls: new Map(),

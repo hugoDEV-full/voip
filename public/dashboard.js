@@ -53,6 +53,10 @@ const i18n = {
     statsTooltip: 'Métricas do backend (CPU/memória/calls ativas). Ajuda a demonstrar monitoramento básico em produção.',
     eventsHeader: 'Eventos em tempo real (SIP / RTP / ESL)',
     eventsTooltip: 'Feed em tempo real: SIP (mensagens completas), métricas RTP (esperado/recebido/latência) e eventos ESL simulados (CHANNEL_CREATE/ANSWER/HANGUP).',
+    // User and logout
+    userInfo: 'Informações do Usuário',
+    logout: 'Sair',
+    logoutSuccess: 'Logout realizado com sucesso',
     // General tab
     generalWhyTitle: '🎯 Por que isso importa para o negócio?',
     generalWhyText: 'Em ambientes de call center, suporte ou vendas, cada minuto com áudio ruim ou sem áudio representa perda de receita, insatisfação do cliente e retrabalho da equipe. Esta plataforma permite detectar e diagnosticar rapidamente problemas de mídia (RTP) e sinalização (SIP), reduzindo o MTTR (Mean Time to Repair) e melhorando a experiência do cliente.',
@@ -225,6 +229,10 @@ const i18n = {
     statsTooltip: 'Backend metrics (CPU/memory/active calls). Helps demonstrate basic monitoring in production.',
     eventsHeader: 'Real-time Events (SIP / RTP / ESL)',
     eventsTooltip: 'Real-time feed: SIP (complete messages), RTP metrics (expected/received/latency) and simulated ESL events (CHANNEL_CREATE/ANSWER/HANGUP).',
+    // User and logout
+    userInfo: 'User Information',
+    logout: 'Logout',
+    logoutSuccess: 'Logout successful',
     // General tab
     generalWhyTitle: '🎯 Why this matters for the business',
     generalWhyText: 'In call center, support or sales environments, every minute with poor or no audio means lost revenue, customer dissatisfaction and team rework. This platform enables fast detection and diagnosis of media (RTP) and signaling (SIP) problems, reducing MTTR and improving customer experience.',
@@ -404,9 +412,77 @@ document.querySelectorAll('[data-lang]').forEach(item => {
   item.addEventListener('click', (e) => {
     e.preventDefault();
     const lang = e.target.getAttribute('data-lang');
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
     applyLanguage(lang);
   });
 });
+
+// User session management
+function getUserSession() {
+  const session = localStorage.getItem('voipSession') || sessionStorage.getItem('voipSession');
+  if (session) {
+    try {
+      return JSON.parse(session);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+// Display user info
+function displayUserInfo() {
+  const session = getUserSession();
+  if (session && session.username) {
+    const userDisplay = document.getElementById('userDisplay');
+    if (userDisplay) {
+      userDisplay.textContent = session.username;
+    }
+  }
+}
+
+// Logout functionality
+document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  try {
+    // Call logout API
+    const response = await fetch('/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // Clear local session
+    localStorage.removeItem('voipSession');
+    sessionStorage.removeItem('voipSession');
+    
+    // Show success message
+    const dict = i18n[currentLang];
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
+    alert.style.zIndex = '9999';
+    alert.textContent = dict.logoutSuccess;
+    document.body.appendChild(alert);
+    
+    // Redirect to login after delay
+    setTimeout(() => {
+      window.location.href = '/login.html';
+    }, 1000);
+    
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Fallback: clear session and redirect anyway
+    localStorage.removeItem('voipSession');
+    sessionStorage.removeItem('voipSession');
+    window.location.href = '/login.html';
+  }
+});
+
+// Initialize user display on page load
+displayUserInfo();
 
 // Apply saved language on load
 applyLanguage(currentLang);
