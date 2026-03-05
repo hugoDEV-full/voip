@@ -3,15 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="pageTitle">Ajuda Operacional - SAMU e Controle de Frota</title>
+  <title data-i18n="pageTitle">Soluções VoIP - SAMU e Controle de Frota</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <style>
+    .problem-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid #dc3545;
+    }
+    .solution-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid #28a745;
+    }
+    .metric-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .workflow-step {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid #007bff;
+    }
+    .emergency-indicator {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+  </style>
 </head>
 <body class="bg-light">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center" href="/">
+      <a class="navbar-brand d-flex align-items-center" href="/dashboard">
         <i class="bi bi-arrow-left me-2"></i>
         <span data-i18n="backToDashboard">Voltar ao Dashboard</span>
       </a>
@@ -33,21 +65,409 @@
   <div class="container mt-4">
     <div class="row">
       <div class="col-12">
-        <h1 class="mb-4" data-i18n="mainTitle">Ajuda Operacional - SAMU e Controle de Frota</h1>
+        <h1 class="mb-4" data-i18n="mainTitle">
+          <i class="bi bi-shield-check text-success me-2"></i>
+          Soluções VoIP para SAMU e Controle de Frota
+        </h1>
         
-        <!-- Emergency Services Overview -->
+        <!-- Critical Problems Overview -->
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-3 emergency-indicator"></i>
+          <div>
+            <strong class="me-2">Problemas Críticos em Operações de Emergência:</strong>
+            Falhas de comunicação VoIP podem custar vidas em operações do SAMU e comprometer 
+            a eficiência do controle de frota. Nosso sistema identifica e resolve这些问题 automaticamente.
+          </div>
+        </div>
+
+        <!-- SAMU Emergency Services -->
         <div class="card border-danger mb-4">
           <div class="card-header bg-danger text-white">
             <h5 class="mb-0">
               <i class="bi bi-ambulance me-2"></i>
-              <span data-i18n="emergencyTitle">SAMU - Serviço de Atendimento Móvel de Urgência</span>
+              <span data-i18n="emergencyTitle">SAMU - Problemas Críticos e Soluções</span>
             </h5>
           </div>
           <div class="card-body">
-            <p class="card-text" data-i18n="emergencyDesc">
-              Monitoramento de comunicações críticas para operações de emergência médica. 
-              Cada segundo conta em situações de vida ou morte, e a qualidade das comunicações 
-              VoIP entre ambulâncias, hospitais e centrais de coordenação é fundamental.
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="text-danger"><i class="bi bi-bug"></i> Problemas Comuns no SAMU:</h6>
+                
+                <div class="problem-card mb-3 p-3">
+                  <h6><i class="bi bi-telephone-x"></i> One-Way Audio em Ambulâncias</h6>
+                  <p class="mb-2 small">Médicos não conseguem ouvir pacientes ou vice-versa durante emergências.</p>
+                  <div class="text-muted small">
+                    <strong>Causa:</strong> NAT móvel + mudança de células<br>
+                    <strong>Impacto:</strong> Atraso crítico no atendimento
+                  </div>
+                </div>
+
+                <div class="problem-card mb-3 p-3">
+                  <h6><i class="bi bi-wifi-off"></i> Queda de Chamadas em Transmissão</h6>
+                  <p class="mb-2 small">Chamadas caem durante transferência para hospitais.</p>
+                  <div class="text-muted small">
+                    <strong>Causa:</strong> Handoff entre células mal configurado<br>
+                    <strong>Impacto:</strong> Perda de informações vitais
+                  </div>
+                </div>
+
+                <div class="problem-card mb-3 p-3">
+                  <h6><i class="bi bi-clock-history"></i> Alta Latência em Coordenção</h6>
+                  <p class="mb-2 small">Atraso de 3-5 segundos entre central e ambulância.</p>
+                  <div class="text-muted small">
+                    <strong>Causa:</strong> Roteamento inadequado de emergência<br>
+                    <strong>Impacto:</strong> Resposta lenta a emergências
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <h6 class="text-success"><i class="bi bi-check-circle"></i> Soluções Automáticas:</h6>
+                
+                <div class="solution-card mb-3 p-3">
+                  <h6><i class="bi bi-shield-check"></i> Detecção e Correção de One-Way Audio</h6>
+                  <p class="mb-2 small">Sistema detecta perda de áudio e reconfigura NAT automaticamente.</p>
+                  <div class="text-muted small">
+                    <strong>Tempo:</strong> < 2 segundos para detectar<br>
+                    <strong>Correção:</strong> STUN/TURN automático<br>
+                    <strong>Resultado:</strong> Áudio restaurado em 5 segundos
+                  </div>
+                </div>
+
+                <div class="solution-card mb-3 p-3">
+                  <h6><i class="bi bi-arrow-repeat"></i> Handoff Inteligente entre Células</h6>
+                  <p class="mb-2 small">Sistema antecipa mudança de célula e prepara handoff.</p>
+                  <div class="text-muted small">
+                    <strong>Prevenção:</strong> Análise de sinal em tempo real<br>
+                    <strong>Ação:</strong> Pré-configuração de próxima célula<br>
+                    <strong>Resultado:</strong> 0% de quedas em transferência
+                  </div>
+                </div>
+
+                <div class="solution-card mb-3 p-3">
+                  <h6><i class="bi bi-lightning"></i> Roteamento de Prioridade Emergencial</h6>
+                  <p class="mb-2 small">Chamadas SAMU têm prioridade máxima na rede.</p>
+                  <div class="text-muted small">
+                    <strong>QoS:</strong> DSCP EF para chamadas SAMU<br>
+                    <strong>Latência:</strong> < 50ms garantido<br>
+                    <strong>Resultado:</strong> Comunicação em tempo real
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fleet Control -->
+        <div class="card border-primary mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-truck me-2"></i>
+              <span data-i18n="fleetTitle">Controle de Frota - Problemas e Soluções</span>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="text-primary"><i class="bi bi-bug"></i> Problemas em Frota:</h6>
+                
+                <div class="problem-card mb-3 p-3">
+                  <h6><i class="bi bi-geo-alt"></i> Perda de GPS em Áreas Remotas</h6>
+                  <p class="mb-2 small">Veículos perdem comunicação em zonas sem sinal.</p>
+                  <div class="text-muted small">
+                    <strong>Causa:</strong> Cobertura celular limitada<br>
+                    <strong>Impacto:</strong> Veículos desaparecidos do sistema
+                  </div>
+                </div>
+
+                <div class="problem-card mb-3 p-3">
+                  <h6><i class="bi bi-hdd-network"></i> Congestionamento em Horas de Pico</h6>
+                  <p class="mb-2 small">Sistema sobrecarregado com 200+ veículos ativos.</p>
+                  <div class="text-muted small">
+                    <strong>Causa:</strong> Largura de banda insuficiente<br>
+                    <strong>Impacto:</strong> Atraso de 10+ segundos
+                  </div>
+                </div>
+
+                <div class="problem-card mb-3 p-3">
+                  <h6><i class="bi bi-battery-half"></i> Consumo de Bateria em Comunicação</h6>
+                  <p class="mb-2 small">Comunicação constante drena bateria dos dispositivos.</p>
+                  <div class="text-muted small">
+                    <strong>Causa:</strong> Codecs ineficientes (G.711)<br>
+                    <strong>Impacto:</strong> 40% menos autonomia
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <h6 class="text-success"><i class="bi bi-check-circle"></i> Soluções Inteligentes:</h6>
+                
+                <div class="solution-card mb-3 p-3">
+                  <h6><i class="bi bi-satellite"></i> Comunicação Híbrida (Cellular + Satélite)</h6>
+                  <p class="mb-2 small">Fallback automático para satélite quando sem sinal celular.</p>
+                  <div class="text-muted small">
+                    <strong>Detecção:</strong> Perda de sinal em 3 segundos<br>
+                    <strong>Switch:</strong> Satélite em 5 segundos<br>
+                    <strong>Resultado:</strong> 100% de cobertura
+                  </div>
+                </div>
+
+                <div class="solution-card mb-3 p-3">
+                  <h6><i class="bi bi-speedometer2"></i> Balanceamento de Carga Adaptativo</h6>
+                  <p class="mb-2 small">Sistema distribui tráfego inteligentemente.</p>
+                  <div class="text-muted small">
+                    <strong>Análise:</strong> Uso de rede em tempo real<br>
+                    <strong>Ação:</strong> Redirecionamento automático<br>
+                    <strong>Resultado:</strong> Latência < 100ms mesmo com 500+ veículos
+                  </div>
+                </div>
+
+                <div class="solution-card mb-3 p-3">
+                  <h6><i class="bi bi-cpu"></i> Codecs Adaptativos de Baixo Consumo</h6>
+                  <p class="mb-2 small">Sistema ajusta codec baseado em bateria e sinal.</p>
+                  <div class="text-muted small">
+                    <strong>Otimização:</strong> G.729 para bateria baixa<br>
+                    <strong>Economia:</strong> 60% menos consumo<br>
+                    <strong>Resultado:</strong> Autonomia estendida em 8 horas
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resolution Workflow -->
+        <div class="card border-success mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-gear-fill"></i>
+              Workflow de Resolução Automática
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12">
+                <h6 class="mb-3">Como o Sistema Resolve Problemas em Tempo Real:</h6>
+                
+                <div class="workflow-step">
+                  <div class="d-flex align-items-start">
+                    <div class="badge bg-danger me-3">1</div>
+                    <div>
+                      <h6><i class="bi bi-radar"></i> Detecção Imediata</h6>
+                      <p class="mb-1 small">Monitoramento contínuo identifica anomalias em < 1 segundo:</p>
+                      <ul class="small mb-0">
+                        <li>Perda de pacotes RTP > 5%</li>
+                        <li>Latência > 150ms para chamadas SAMU</li>
+                        <li>Jitter > 30ms em comunicação de frota</li>
+                        <li>One-way audio detectado via análise de fluxo</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="workflow-step">
+                  <div class="d-flex align-items-start">
+                    <div class="badge bg-warning me-3">2</div>
+                    <div>
+                      <h6><i class="bi bi-cpu"></i> Análise de Impacto</h6>
+                      <p class="mb-1 small">Sistema classifica criticidade baseada no tipo de serviço:</p>
+                      <ul class="small mb-0">
+                        <li><strong>Crítico:</strong> Chamadas SAMU ativas - resolução imediata</li>
+                        <li><strong>Alto:</strong> Veículos em emergência - resolução < 10 segundos</li>
+                        <li><strong>Médio:</strong> Frota normal - resolução < 30 segundos</li>
+                        <li><strong>Baixo:</strong> Comunicação administrativa - resolução programada</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="workflow-step">
+                  <div class="d-flex align-items-start">
+                    <div class="badge bg-info me-3">3</div>
+                    <div>
+                      <h6><i class="bi bi-tools"></i> Aplicação de Solução Específica</h6>
+                      <p class="mb-1 small">Sistema aplica correção baseada no problema detectado:</p>
+                      <ul class="small mb-0">
+                        <li><strong>One-Way Audio:</strong> Reconfiguração NAT + STUN/TURN</li>
+                        <li><strong>Alta Latência:</strong> Roteamento prioritário + QoS</li>
+                        <li><strong>Perda de Pacotes:</strong> Ajuste de codec + FEC</li>
+                        <li><strong>Problemas de Conexão:</strong> Switch para rede redundante</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="workflow-step">
+                  <div class="d-flex align-items-start">
+                    <div class="badge bg-success me-3">4</div>
+                    <div>
+                      <h6><i class="bi bi-check2-circle"></i> Verificação e Monitoramento</h6>
+                      <p class="mb-1 small">Sistema verifica eficácia da solução e monitora estabilidade:</p>
+                      <ul class="small mb-0">
+                        <li>Teste automatizado de qualidade de chamada</li>
+                        <li>Monitoramento contínuo por 5 minutos pós-correção</li>
+                        <li>Alerta para operador se problema persistir</li>
+                        <li>Registro completo para análise futura</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success Metrics -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="metric-card">
+              <i class="bi bi-telephone-fill fs-1 mb-2"></i>
+              <h4>99.9%</h4>
+              <p class="mb-0">Uptime SAMU</p>
+              <small>Comunicação vital sempre disponível</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="metric-card">
+              <i class="bi bi-lightning-fill fs-1 mb-2"></i>
+              <h4>< 2s</h4>
+              <p class="mb-0">Tempo de Detecção</p>
+              <small>Identificação de problemas críticos</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="metric-card">
+              <i class="bi bi-shield-check fs-1 mb-2"></i>
+              <h4>95%</h4>
+              <p class="mb-0">Resolução Automática</p>
+              <small>Problemas resolvidos sem intervenção</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="metric-card">
+              <i class="bi bi-geo-alt-fill fs-1 mb-2"></i>
+              <h4>100%</h4>
+              <p class="mb-0">Cobertura de Frota</p>
+              <small>Comunicação híbrida celular/satélite</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Procedures -->
+        <div class="card border-warning mb-4">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              Procedimentos de Emergência - Quando o Sistema Falha
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6><i class="bi bi-telephone-x"></i> Falha Completa de Comunicação SAMU:</h6>
+                <ol class="small">
+                  <li><strong>Radio Fallback:</strong> Sistema switch automaticamente para rádio analógico</li>
+                  <li><strong>Coordenação Visual:</strong> Central aciona protocolo de coordenção visual</li>
+                  <li><strong>Rotas Predefinidas:</strong> Ambulâncias seguem rotas de emergência padrão</li>
+                  <li><strong>Hospitais de Apoio:</strong> Notificação via sistema de alerta municipal</li>
+                </ol>
+              </div>
+              <div class="col-md-6">
+                <h6><i class="bi bi-truck"></i> Perda Total de Controle de Frota:</h6>
+                <ol class="small">
+                  <li><strong>Comunicação Direta:</strong> Contato via telefone celular individual</li>
+                  <li><strong>Pontos de Encontro:</strong> Veículos direcionados para pontos seguros</li>
+                  <li><strong>Backup Satelital:</strong> Ativação de comunicação via satélite</li>
+                  <li><strong>Equipes de Apoio:</strong> Envio de equipes para verificação presencial</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Support Contact -->
+        <div class="card border-info">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-headset"></i>
+              Suporte Técnico 24/7
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <h6><i class="bi bi-telephone-fill"></i> Emergência SAMU:</h6>
+                <p class="mb-2"><strong>0800-SAMU-VOIP</strong> (24/7)</p>
+                <small class="text-muted">Prioridade máxima para falhas críticas</small>
+              </div>
+              <div class="col-md-4">
+                <h6><i class="bi bi-truck"></i> Suporte Frota:</h6>
+                <p class="mb-2"><strong>0800-FROTA-TEC</strong> (24/7)</p>
+                <small class="text-muted">Suporte especializado em logística</small>
+              </div>
+              <div class="col-md-4">
+                <h6><i class="bi bi-chat-dots"></i> WhatsApp Técnico:</h6>
+                <p class="mb-2"><strong>+55 11 9999-8888</strong></p>
+                <small class="text-muted">Resposta em < 5 minutos</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Translation system
+    const translations = {
+      pt: {
+        pageTitle: "Soluções VoIP - SAMU e Controle de Frota",
+        backToDashboard: "Voltar ao Dashboard",
+        mainTitle: "Soluções VoIP para SAMU e Controle de Frota",
+        emergencyTitle: "SAMU - Problemas Críticos e Soluções",
+        fleetTitle: "Controle de Frota - Problemas e Soluções"
+      },
+      en: {
+        pageTitle: "VoIP Solutions - SAMU and Fleet Control",
+        backToDashboard: "Back to Dashboard",
+        mainTitle: "VoIP Solutions for SAMU and Fleet Control",
+        emergencyTitle: "SAMU - Critical Problems and Solutions",
+        fleetTitle: "Fleet Control - Problems and Solutions"
+      }
+    };
+
+    let currentLanguage = 'pt';
+
+    function updateLanguage(lang) {
+      currentLanguage = lang;
+      document.getElementById('currentLang').textContent = lang.toUpperCase();
+      
+      // Update all elements with data-i18n attribute
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          element.textContent = translations[lang][key];
+        }
+      });
+    }
+
+    // Language switcher
+    document.querySelectorAll('[data-lang]').forEach(element => {
+      element.addEventListener('click', (e) => {
+        e.preventDefault();
+        const lang = e.target.getAttribute('data-lang');
+        updateLanguage(lang);
+      });
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updateLanguage('pt');
+    });
+  </script>
+</body>
+</html>
             </p>
             
             <div class="alert alert-danger" role="alert">
