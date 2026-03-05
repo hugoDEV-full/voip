@@ -267,11 +267,16 @@ async function startServer() {
 // Start the server
 startServer();
 
+// Help page route
+app.get('/ajuda', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'ajuda.html'));
+});
+
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🔄 SIGTERM received, shutting down gracefully...');
+  console.log(' SIGTERM received, shutting down gracefully...');
   server.close(() => {
-    console.log('✅ Server closed');
+    console.log(' Server closed');
     process.exit(0);
   });
 });

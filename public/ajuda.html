@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Como Funciona - VoIP Monitoring Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <i class="bi bi-arrow-left me-2"></i>
+        <span>Voltar ao Dashboard</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="mb-4">Como a Plataforma VoIP Monitor Ajuda sua Empresa</h1>
+        
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">🎯 Por que isso importa para o negócio?</h5>
+            <p class="card-text">Em ambientes de call center, suporte ou vendas, cada minuto com áudio ruim ou sem áudio representa perda de receita, insatisfação do cliente e retrabalho da equipe. Esta plataforma permite detectar e diagnosticar rapidamente problemas de mídia (RTP) e sinalização (SIP), reduzindo o MTTR (Mean Time to Repair) e melhorando a experiência do cliente.</p>
+            
+            <div class="alert alert-info mt-3" role="alert">
+              <strong>Exemplo prático:</strong> Um call center percebeu que 15% das chamadas de vendas eram perdidas por "áudio cortado". Com esta plataforma, o time de TI identificou que o problema ocorria sempre que o cliente usava WiFi corporativo com NAT restritivo. A solução foi ajustar o firewall para permitir RTP dinâmico, reduzindo as perdas em 80%.
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title">📋 Como usar a plataforma</h5>
+            <ol>
+              <li><strong>Monitoramento em tempo real</strong> — O painel mostra chamadas ativas, eventos SIP/RTP e alertas de rede, permitindo que operadores e engenheiros vejam o status atual e histórico recente.</li>
+              <li><strong>Análise de tráfego SIP</strong> — A plataforma analisa mensagens SIP e métricas RTP em tempo real, detectando problemas como one-way audio e configurações de NAT incorretas.</li>
+              <li><strong>Alertas automáticos</strong> — O sistema gera alertas quando detecta anomalias como latência elevada, perda de pacotes ou fluxos de mídia quebrados.</li>
+              <li><strong>Relatórios e diagnóstico</strong> — Gera relatórios detalhados para análise pós-mortem e ajuda na identificação da causa raiz de problemas.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title">🛠️ Como isso ajuda a equipe técnica</h5>
+            <ul>
+              <li><strong>Detecta one-way audio automaticamente</strong> — Em vez de depender de reclamações de clientes, a plataforma alerta quando RTP recebido é muito abaixo do esperado, indicando fluxo quebrado.</li>
+              <li><strong>Aponta NAT/Firewall</strong> — Quando o SDP anuncia IP privado ou há perda severa de RTP, o sistema sugere investigar NAT, regras de firewall ou pinholes.</li>
+              <li><strong>Mede latência</strong> — Alerta se a latência ultrapassar 150 ms, ajudando a identificar gargalos de rede ou congestionamento.</li>
+              <li><strong>Centraliza eventos SIP/RTP</strong> — Em um único feed, você vê mensagens SIP completas e métricas RTP, sem precisar alternar entre Wireshark e logs.</li>
+              <li><strong>Facilita pós-mortem</strong> — A análise de tráfego SIP gera diagnóstico estruturado, útil para relatórios de incidente e melhoria contínua.</li>
+            </ul>
+            
+            <div class="alert alert-success mt-3" role="alert">
+              <strong>Exemplo prático:</strong> Durante um pico de chamadas, o sistema detectou "one-way audio" apenas para usuários da filial de São Paulo. O time viu no dashboard que o SDP continha IP 10.1.2.x (privado). Corrigiram o NAT do gateway da filial em 10 minutos, evitando impacto nas vendas.
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title">💰 Impacto no negócio</h5>
+            <ul>
+              <li><strong>Redução de chamadas com áudio ruim</strong> — Detectar e corrigir rapidamente one-way audio e problemas de NAT diminui o número de chamadas ineficazes.</li>
+              <li><strong>Menor tempo de inatividade</strong> — Alertas proativos permitem que a equipe de infra atue antes que o problema afete muitos usuários.</li>
+              <li><strong>Melhoria da satisfação do cliente</strong> — Menos quedas de áudio e menos necessidade de repetir informações aumentam a percepção de qualidade.</li>
+              <li><strong>Economia operacional</strong> — Menos chamadas de suporte sobre problemas de áudio e diagnósticos mais rápidos reduzem custos operacionais.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-body">
+            <h5 class="card-title">📊 Principais funcionalidades</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <h6><i class="bi bi-telephone-fill text-primary"></i> Chamadas Ativas</h6>
+                <p>Visualização em tempo real de todas as chamadas ativas com status, duração e informações de diagnóstico.</p>
+              </div>
+              <div class="col-md-6">
+                <h6><i class="bi bi-exclamation-triangle-fill text-warning"></i> Alertas de Rede</h6>
+                <p>Detecte automaticamente problemas como one-way audio, NAT incorreto e alta latência.</p>
+              </div>
+              <div class="col-md-6">
+                <h6><i class="bi bi-activity text-success"></i> Eventos em Tempo Real</h6>
+                <p>Feed completo de mensagens SIP e métricas RTP para análise detalhada.</p>
+              </div>
+              <div class="col-md-6">
+                <h6><i class="bi bi-speedometer2 text-info"></i> System Stats</h6>
+                <p>Monitoramento de CPU, memória e performance do sistema.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-5">
+          <a href="/" class="btn btn-primary btn-lg">
+            <i class="bi bi-arrow-left"></i> Voltar ao Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
