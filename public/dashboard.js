@@ -510,31 +510,66 @@ document.addEventListener('DOMContentLoaded', () => {
     alerts: !!elAlertsCheck,
     stats: !!elStatsCheck
   });
+
+  // Check button visibility
+  console.log('🔍 Checking button visibility:');
+  console.log('btnSimNormal:', {
+    exists: !!btnSimNormal,
+    visible: btnSimNormal ? btnSimNormal.offsetParent !== null : false,
+    display: btnSimNormal ? window.getComputedStyle(btnSimNormal).display : 'N/A'
+  });
+  console.log('btnSimOneWay:', {
+    exists: !!btnSimOneWay,
+    visible: btnSimOneWay ? btnSimOneWay.offsetParent !== null : false,
+    display: btnSimOneWay ? window.getComputedStyle(btnSimOneWay).display : 'N/A'
+  });
+  console.log('btnSimNat:', {
+    exists: !!btnSimNat,
+    visible: btnSimNat ? btnSimNat.offsetParent !== null : false,
+    display: btnSimNat ? window.getComputedStyle(btnSimNat).display : 'N/A'
+  });
+  console.log('btnAnalyze:', {
+    exists: !!btnAnalyze,
+    visible: btnAnalyze ? btnAnalyze.offsetParent !== null : false,
+    display: btnAnalyze ? window.getComputedStyle(btnAnalyze).display : 'N/A'
+  });
   
   // Add event listeners with error handling
   if (btnSimNormal) {
-    btnSimNormal.addEventListener('click', () => placeCall('normal'));
+    btnSimNormal.addEventListener('click', () => {
+      console.log('🖱️ btnSimNormal clicked!');
+      placeCall('normal');
+    });
     console.log('✅ btnSimNormal listener added');
   } else {
     console.error('❌ btnSimNormal not found');
   }
 
   if (btnSimOneWay) {
-    btnSimOneWay.addEventListener('click', () => placeCall('one_way_audio'));
+    btnSimOneWay.addEventListener('click', () => {
+      console.log('🖱️ btnSimOneWay clicked!');
+      placeCall('one_way_audio');
+    });
     console.log('✅ btnSimOneWay listener added');
   } else {
     console.error('❌ btnSimOneWay not found');
   }
 
   if (btnSimNat) {
-    btnSimNat.addEventListener('click', () => placeCall('nat_wrong'));
+    btnSimNat.addEventListener('click', () => {
+      console.log('🖱️ btnSimNat clicked!');
+      placeCall('nat_wrong');
+    });
     console.log('✅ btnSimNat listener added');
   } else {
     console.error('❌ btnSimNat not found');
   }
 
   if (btnAnalyze) {
-    btnAnalyze.addEventListener('click', () => analyzePcap());
+    btnAnalyze.addEventListener('click', () => {
+      console.log('🖱️ btnAnalyze clicked!');
+      analyzePcap();
+    });
     console.log('✅ btnAnalyze listener added');
   } else {
     console.error('❌ btnAnalyze not found');
