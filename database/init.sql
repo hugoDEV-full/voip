@@ -67,9 +67,9 @@ END //
 DELIMITER ;
 
 -- Insert default users with bcrypt hashes
--- admin123 -> $2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6hsxq9w5GS
+-- Bento1617 -> $2b$12$/zuAlv1IH7jntdR0FQppQeQ/U/mPRz/a9INXrYlZdfLtCy4I8hNc.
 INSERT INTO users (username, password_hash, email, role) VALUES 
-('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6hsxq9w5GS', 'admin@voip.com', 'admin');
+('admin', '$2b$12$/zuAlv1IH7jntdR0FQppQeQ/U/mPRz/a9INXrYlZdfLtCy4I8hNc.', 'admin@voip.com', 'admin');
 
 -- monitor2024 -> $2b$12$8KxO3OJhKIOAOk8fHO5L/.9dR8hQqB5fQzB7f9M5wK8xO3OJhKIOA
 INSERT INTO users (username, password_hash, email, role) VALUES 

@@ -7,7 +7,7 @@ Plataforma de monitoramento e análise de tráfego VoIP em tempo real com demons
 O sistema possui uma tela de login simulada para proteção básica:
 
 ### Credenciais de Demonstração
-- **Principal**: `admin` / `admin123`
+- **Principal**: `admin` / `Bento1617`
 - **Alternativas**: 
   - `voip` / `monitor2024`
   - `demo` / `demo123`
@@ -96,7 +96,7 @@ O sistema criará automaticamente:
 
 | Usuário | Senha | Role | Descrição |
 |---------|-------|------|-----------|
-| admin | admin123 | admin | Acesso total |
+| admin | Bento1617 | admin | Acesso total |
 | voip | monitor2024 | operator | Operações VoIP |
 | demo | demo123 | viewer | Apenas visualização |
 
