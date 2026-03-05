@@ -14,11 +14,20 @@ const { initDatabase, verifyDatabaseSetup } = require('../modules/database');
 async function deploy() {
   console.log('🚀 Starting VoIP Monitoring Platform deployment...');
   console.log('================================================');
+  console.log('📍 Working directory:', process.cwd());
+  console.log('📍 Node version:', process.version);
+  console.log('📍 Environment:', process.env.NODE_ENV || 'development');
   
   try {
     // Step 1: Initialize database
     console.log('\n📊 Step 1: Database Initialization');
     console.log('----------------------------------------');
+    
+    console.log('🔍 Checking database configuration...');
+    console.log('🔍 DB_HOST:', process.env.DB_HOST || 'not set');
+    console.log('🔍 DB_PORT:', process.env.DB_PORT || 'not set');
+    console.log('🔍 DB_USER:', process.env.DB_USER || 'not set');
+    console.log('🔍 DB_NAME:', process.env.DB_NAME || 'not set');
     
     const dbInitialized = await initDatabase();
     
@@ -54,10 +63,11 @@ async function deploy() {
     console.log('✅ Internationalization: Ready');
     
     console.log('\n🎉 Deployment completed successfully!');
-    console.log('🌐 Application is ready to start...');
+    console.log('🌐 Starting application server...');
     
-    // Success exit
-    process.exit(0);
+    // Start the server after successful initialization
+    console.log('🚀 Starting server.js...');
+    require('../server.js');
     
   } catch (error) {
     console.error('\n❌ Deployment failed:', error.message);
