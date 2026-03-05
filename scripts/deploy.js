@@ -24,10 +24,20 @@ async function deploy() {
     console.log('----------------------------------------');
     
     console.log('🔍 Checking database configuration...');
-    console.log('🔍 DB_HOST:', process.env.DB_HOST || 'not set');
-    console.log('🔍 DB_PORT:', process.env.DB_PORT || 'not set');
-    console.log('🔍 DB_USER:', process.env.DB_USER || 'not set');
-    console.log('🔍 DB_NAME:', process.env.DB_NAME || 'not set');
+    console.log('🔍 DB_HOST:', process.env.DB_HOST || process.env.MYSQLHOST || 'not set');
+    console.log('🔍 DB_PORT:', process.env.DB_PORT || process.env.MYSQLPORT || 'not set');
+    console.log('🔍 DB_USER:', process.env.DB_USER || process.env.MYSQLUSER || 'not set');
+    console.log('🔍 DB_NAME:', process.env.DB_NAME || process.env.MYSQLDATABASE || 'not set');
+    
+    // Check if MySQL is available
+    const hasMySQL = process.env.DB_HOST || process.env.MYSQLHOST;
+    
+    if (!hasMySQL) {
+      console.log('⚠️ MySQL not available - using fallback mode');
+      console.log('📝 Starting server without database...');
+      require('../server.js');
+      return;
+    }
     
     const dbInitialized = await initDatabase();
     
