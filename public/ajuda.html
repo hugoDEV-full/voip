@@ -217,7 +217,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6">
-                <h6 class="text-primary"><i class="bi bi-bug"></i> Problemas em Frota:</h6>
+                <h6 class="text-primary"><i class="bi bi-bug"></i> <span data-i18n="fleetProblems">Problemas em Frota</span>:</h6>
                 
                 <div class="problem-card mb-3 p-3">
                   <h6><i class="bi bi-geo-alt"></i> Perda de GPS em Áreas Remotas</h6>
@@ -248,7 +248,7 @@
               </div>
               
               <div class="col-md-6">
-                <h6 class="text-success"><i class="bi bi-check-circle"></i> Soluções Inteligentes:</h6>
+                <h6 class="text-success"><i class="bi bi-check-circle"></i> <span data-i18n="intelligentSolutions">Soluções Inteligentes</span>:</h6>
                 
                 <div class="solution-card mb-3 p-3">
                   <h6><i class="bi bi-satellite"></i> Comunicação Híbrida (Cellular + Satélite)</h6>
@@ -1446,7 +1446,15 @@
       document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[lang] && translations[lang][key]) {
-          element.textContent = translations[lang][key];
+          // Check if element has HTML content (icons, etc.)
+          if (element.innerHTML.includes('<i class=')) {
+            // Preserve HTML, only update text content
+            const iconHtml = element.innerHTML.match(/<i[^>]*><\/i>/)?.[0] || '';
+            element.innerHTML = iconHtml + ' ' + translations[lang][key];
+          } else {
+            // Simple text element
+            element.textContent = translations[lang][key];
+          }
         }
       });
     }
