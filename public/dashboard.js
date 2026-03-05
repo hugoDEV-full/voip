@@ -491,6 +491,200 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   }
 });
 
+// Add mock events for real-time feed
+function addMockEvents() {
+  const mockEvents = [
+    {
+      type: 'SIP',
+      callId: 'call-001',
+      ts: Date.now() - 5000,
+      message: 'INVITE sip:+5511987654321@voip.com SIP/2.0',
+      details: 'From: +5511912345678;tag=12345'
+    },
+    {
+      type: 'SIP',
+      callId: 'call-001', 
+      ts: Date.now() - 4000,
+      message: 'SIP/2.0 100 Trying',
+      details: 'Call-ID: call-001@voip.com'
+    },
+    {
+      type: 'SIP',
+      callId: 'call-001',
+      ts: Date.now() - 3000,
+      message: 'SIP/2.0 180 Ringing',
+      details: 'Call-ID: call-001@voip.com'
+    },
+    {
+      type: 'SIP',
+      callId: 'call-001',
+      ts: Date.now() - 2000,
+      message: 'SIP/2.0 200 OK',
+      details: 'Call-ID: call-001@voip.com'
+    },
+    {
+      type: 'RTP',
+      callId: 'call-001',
+      ts: Date.now() - 1000,
+      message: 'RTP flow established',
+      details: 'Codec: PCMU, Payload: 8, SSRC: 12345678'
+    },
+    {
+      type: 'ALERT',
+      callId: 'call-002',
+      ts: Date.now() - 30000,
+      message: 'ONE_WAY_AUDIO detected',
+      details: 'RTP expected: 50, Received: 0, Loss: 100%'
+    },
+    {
+      type: 'SYSTEM',
+      callId: null,
+      ts: Date.now() - 60000,
+      message: 'System health check',
+      details: 'CPU: 23.4%, Memory: 40MB, Calls: 3'
+    }
+  ];
+
+  // Add mock events to the display
+  mockEvents.forEach(event => {
+    const html = `
+      <div class="event-row border-bottom pb-2 mb-2">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <span class="badge bg-${getEventColor(event.type)} me-2">${event.type}</span>
+            <strong>${event.message}</strong>
+            ${event.callId ? `<span class="text-muted ms-2">Call: ${event.callId}</span>` : ''}
+          </div>
+          <small class="text-muted">${fmtTs(event.ts)}</small>
+        </div>
+        ${event.details ? `<div class="small text-muted mt-1">${event.details}</div>` : ''}
+      </div>
+    `;
+    appendEvent(html);
+  });
+
+  console.log('📊 Mock events added:', mockEvents.length);
+}
+
+function getEventColor(type) {
+  switch (type) {
+    case 'SIP': return 'info';
+    case 'RTP': return 'success';
+    case 'ALERT': return 'danger';
+    case 'SYSTEM': return 'secondary';
+    default: return 'primary';
+  }
+}
+
+// Add mock system stats
+function addMockStats() {
+  const mockStats = {
+    cpu: {
+      percent: 23.45,
+      cores: 4,
+      loadavg: [0.5, 0.8, 1.2]
+    },
+    memory: {
+      rss: 134217728,      // 128MB
+      heapTotal: 67108864, // 64MB
+      heapUsed: 41943040,  // 40MB
+      external: 2097152    // 2MB
+    },
+    calls: {
+      active: state.calls.size
+    },
+    uptimeSec: Math.floor(process.uptime() || 3600)
+  };
+
+  // Update stats display with mock data
+  if (elStats) {
+    elStats.innerHTML = JSON.stringify(mockStats, null, 2);
+  }
+
+  console.log('📊 Mock stats added:', mockStats);
+}
+
+// Add mock data for demonstration
+function addMockData() {
+  // Mock active calls
+  const mockCalls = [
+    {
+      id: 'call-001',
+      from: '+5511912345678',
+      to: '+5511987654321',
+      scenario: 'normal',
+      status: 'ACTIVE',
+      duration: '00:02:45'
+    },
+    {
+      id: 'call-002', 
+      from: '+5511333444555',
+      to: '+5511555666777',
+      scenario: 'one_way_audio',
+      status: 'ACTIVE',
+      duration: '00:01:12'
+    },
+    {
+      id: 'call-003',
+      from: '1001',
+      to: '2002',
+      scenario: 'normal',
+      status: 'RINGING',
+      duration: '00:00:15'
+    }
+  ];
+
+  // Add mock calls to state
+  mockCalls.forEach(call => {
+    state.calls.set(call.id, call);
+  });
+
+  // Mock network alerts
+  const mockAlerts = [
+    {
+      type: 'ONE_WAY_AUDIO',
+      severity: 'ALERT',
+      message: 'RTP flow detected broken - no audio received from remote',
+      callId: 'call-002',
+      streamId: 'audio-0',
+      ts: Date.now() - 30000,
+      details: { rtp_expected: 50, rtp_received: 0, loss_percent: 100 }
+    },
+    {
+      type: 'HIGH_LATENCY',
+      severity: 'WARNING',
+      message: 'Elevated latency detected on call',
+      callId: 'call-001',
+      streamId: 'audio-1',
+      ts: Date.now() - 120000,
+      details: { latency_ms: 180, jitter_ms: 25 }
+    },
+    {
+      type: 'NAT_SUSPECTED',
+      severity: 'WARNING',
+      message: 'Private IP detected in SDP - NAT configuration issue',
+      callId: 'call-001',
+      streamId: 'sip-0',
+      ts: Date.now() - 180000,
+      details: { sdp_ip: '192.168.1.100', public_ip: '200.150.10.20' }
+    }
+  ];
+
+  // Add mock alerts to state
+  state.alerts.push(...mockAlerts);
+
+  // Add mock stats
+  addMockStats();
+
+  // Add mock events
+  addMockEvents();
+
+  console.log('📊 Mock data added:', {
+    calls: state.calls.size,
+    alerts: state.alerts.length
+  });
+}
+
 // Wait for DOM to be ready before initializing
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 DOM Content Loaded');
@@ -506,14 +700,17 @@ document.addEventListener('DOMContentLoaded', () => {
     stats: !!elStatsCheck
   });
   
+  // Add mock data for demonstration
+  addMockData();
+  
   // Initialize user display on page load
   displayUserInfo();
 
-  // Initial render to show empty states (only if elements exist)
+  // Initial render to show mock data
   if (elCallsCheck && elAlertsCheck) {
     renderCalls();
     renderAlerts();
-    console.log('✅ Initial render completed');
+    console.log('✅ Initial render completed with mock data');
   } else {
     console.error('❌ Cannot render - missing elements');
   }
