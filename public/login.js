@@ -1,3 +1,10 @@
+// Valid credentials (in production, these should be stored securely)
+const VALID_CREDENTIALS = [
+  { username: 'admin', password: 'admin123' },
+  { username: 'voip', password: 'monitor2024' },
+  { username: 'demo', password: 'demo123' }
+];
+
 // Translation dictionary
 const i18n = {
   pt: {
@@ -13,7 +20,7 @@ const i18n = {
     demoTitle: 'Credenciais de Demonstração',
     demoUser: 'Usuário:',
     demoPassword: 'Senha:',
-    demoNote: 'Use qualquer combinação de usuário/senha para acessar',
+    demoNote: 'Use as credenciais acima para acessar o sistema',
     loginSuccess: 'Login realizado com sucesso!',
     loginError: 'Usuário ou senha incorretos',
     loggingIn: 'Autenticando...'
@@ -31,7 +38,7 @@ const i18n = {
     demoTitle: 'Demo Credentials',
     demoUser: 'Username:',
     demoPassword: 'Password:',
-    demoNote: 'Use any username/password combination to access',
+    demoNote: 'Use the credentials above to access the system',
     loginSuccess: 'Login successful!',
     loginError: 'Incorrect username or password',
     loggingIn: 'Authenticating...'
@@ -120,8 +127,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   // Simulate authentication delay
   await new Promise(resolve => setTimeout(resolve, 1000));
   
-  // Simulated authentication (accepts any non-empty credentials)
-  if (username.trim() && password.trim()) {
+  // Validate credentials against the list
+  const isValid = VALID_CREDENTIALS.some(cred => 
+    cred.username === username.trim() && cred.password === password.trim()
+  );
+  
+  if (isValid) {
     // Store session
     const session = {
       username: username,

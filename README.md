@@ -7,15 +7,17 @@ Plataforma de monitoramento e análise de tráfego VoIP em tempo real com demons
 O sistema possui uma tela de login simulada para proteção básica:
 
 ### Credenciais de Demonstração
-- **Usuário**: `admin`
-- **Senha**: `admin123`
-- **Ou**: Use qualquer combinação de usuário/senha não vazia
+- **Principal**: `admin` / `admin123`
+- **Alternativas**: 
+  - `voip` / `monitor2024`
+  - `demo` / `demo123`
 
 ### Funcionalidades de Segurança
-- Login simulado com sessão persistente
-- Opção "Lembrar-me" (localStorage vs sessionStorage)
+- Login com validação de credenciais específicas
+- Sessão persistente com opção "Lembrar-me"
 - Logout com limpeza de sessão
 - Interface bilíngue na tela de login (PT/EN)
+- Proteção de rotas no servidor
 
 ## Deploy no Railway
 
