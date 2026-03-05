@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n="title">VoIP Monitoring Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <span class="navbar-brand" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="brandTooltip" title="Plataforma de monitoramento e análise de tráfego VoIP: captura eventos SIP/RTP em tempo real e detecta problemas comuns (NAT/one-way/latência)." data-i18n="brand">VoIP Monitoring Platform</span>
+        <div class="d-flex gap-2 align-items-center">
+          <!-- Language selector -->
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <span id="currentLang">PT</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="langDropdown">
+              <li><a class="dropdown-item" href="#" data-lang="pt">Português</a></li>
+              <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
+            </ul>
+          </div>
+          <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#howItWorksModal" data-i18n="howItWorks">Como funciona?</button>
+          <button id="btnSimNormal" class="btn btn-outline-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnNormalTooltip" title="Inicia uma chamada com fluxo SIP completo e RTP bidirecional (baseline sem problemas)." data-i18n="btnNormal">Iniciar chamada (normal)</button>
+          <button id="btnSimOneWay" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnOneWayTooltip" title="Gera um cenário de one-way audio: A envia RTP mas B não recebe. O sistema detecta 'RTP flow broken' e aponta NAT/Firewall." data-i18n="btnOneWay">Iniciar chamada (one-way audio)</button>
+          <button id="btnSimNat" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnNatTooltip" title="Gera um cenário de NAT incorreto: SDP de A anuncia IP privado (c=10.x.x.x), causando falha de mídia e latência elevada." data-i18n="btnNat">Iniciar chamada (NAT incorreto)</button>
+          <button id="btnAnalyze" class="btn btn-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" data-i18n-title="btnAnalyzeTooltip" title="Lê /pcap/traffic_log.txt e gera diagnóstico de tráfego SIP/RTP (estilo análise rápida de Wireshark/sngrep)." data-i18n="btnAnalyze">Analisar tráfego SIP</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Modal Como funciona? -->
+    <div class="modal fade" id="howItWorksModal" tabindex="-1" aria-labelledby="howItWorksLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="howItWorksLabel" data-i18n="modalTitle">Como a plataforma ajuda a empresa</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="howItWorksTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true" data-i18n="tabGeneral">Geral</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="samu-tab" data-bs-toggle="tab" data-bs-target="#samu" type="button" role="tab" aria-controls="samu" aria-selected="false" data-i18n="tabSamu">SAMU DF</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="fleet-tab" data-bs-toggle="tab" data-bs-target="#fleet" type="button" role="tab" aria-controls="fleet" aria-selected="false" data-i18n="tabFleet">Controle de Frota</button>
+              </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content mt-3" id="howItWorksTabsContent">
+              <!-- Geral -->
+              <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                <section class="mb-4">
+                  <h6 data-i18n="generalWhyTitle">🎯 Por que isso importa para o negócio?</h6>
+                  <p data-i18n="generalWhyText">Em ambientes de call center, suporte ou vendas, cada minuto com áudio ruim ou sem áudio representa perda de receita, insatisfação do cliente e retrabalho da equipe. Esta plataforma permite detectar e diagnosticar rapidamente problemas de mídia (RTP) e sinalização (SIP), reduzindo o MTTR (Mean Time to Repair) e melhorando a experiência do cliente.</p>
+                  <div class="alert alert-info mt-3" role="alert">
+                    <strong data-i18n="generalWhyExample">Exemplo prático:</strong> <span data-i18n="generalWhyExampleText">Um call center percebeu que 15% das chamadas de vendas eram perdidas por "áudio cortado". Com esta plataforma, o time de TI identificou que o problema ocorria sempre que o cliente usava WiFi corporativo com NAT restritivo. A solução foi ajustar o firewall para permitir RTP dinâmico, reduzindo as perdas em 80%.</span>
+                  </div>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="generalStepsTitle">📋 Passo a passo de uso</h6>
+                  <ol>
+                    <li><strong data-i18n="generalStep1">Iniciar chamada (normal)</strong> — <span data-i18n="generalStep1Desc">Gera um fluxo SIP completo (INVITE/100/180/200/ACK) e RTP bidirecional. Serve como baseline para comparar com cenários problemáticos.</span></li>
+                    <li><strong data-i18n="generalStep2">Iniciar chamada (one-way audio)</strong> — <span data-i18n="generalStep2Desc">Simula um cenário onde A envia RTP mas B não recebe. O sistema detecta “RTP flow broken” e aponta NAT/Firewall como causa provável.</span></li>
+                    <li><strong data-i18n="generalStep3">Iniciar chamada (NAT incorreto)</strong> — <span data-i18n="generalStep3Desc">Gera um SDP com IP privado (c=10.x.x.x), causando falha de mídia e latência elevada. O sistema alerta sobre NAT/Firewall e alta latência.</span></li>
+                    <li><strong data-i18n="generalStep4">Analisar tráfego SIP</strong> — <span data-i18n="generalStep4Desc">Lê um arquivo de log e gera diagnóstico rápido (estilo Wireshark/sngrep), útil para pós-mortem de incidentes.</span></li>
+                    <li><strong data-i18n="generalStep5">Monitoramento em tempo real</strong> — <span data-i18n="generalStep5Desc">O painel mostra chamadas ativas, eventos SIP/RTP e alertas de rede, permitindo que operadores e engenheiros vejam o status atual e histórico recente.</span></li>
+                  </ol>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="generalTechTitle">🛠️ Como isso ajuda a equipe técnica</h6>
+                  <ul>
+                    <li><strong data-i18n="generalTech1">Detecta one-way audio automaticamente</strong> — <span data-i18n="generalTech1Desc">Em vez de depender de reclamações de clientes, a plataforma alerta quando RTP recebido é muito abaixo do esperado, indicando fluxo quebrado.</span></li>
+                    <li><strong data-i18n="generalTech2">Aponta NAT/Firewall</strong> — <span data-i18n="generalTech2Desc">Quando o SDP anuncia IP privado ou há perda severa de RTP, o sistema sugere investigar NAT, regras de firewall ou pinholes.</span></li>
+                    <li><strong data-i18n="generalTech3">Mede latência</strong> — <span data-i18n="generalTech3Desc">Alerta se a latência ultrapassar 150 ms, ajudando a identificar gargalos de rede ou congestionamento.</span></li>
+                    <li><strong data-i18n="generalTech4">Centraliza eventos SIP/RTP</strong> — <span data-i18n="generalTech4Desc">Em um único feed, você vê mensagens SIP completas e métricas RTP, sem precisar alternar entre Wireshark e logs.</span></li>
+                    <li><strong data-i18n="generalTech5">Facilita pós-mortem</strong> — <span data-i18n="generalTech5Desc">A análise de tráfego SIP gera diagnóstico estruturado, útil para relatórios de incidente e melhoria contínua.</span></li>
+                  </ul>
+                  <div class="alert alert-success mt-3" role="alert">
+                    <strong data-i18n="generalTechExample">Exemplo prático:</strong> <span data-i18n="generalTechExampleText">Durante um pico de chamadas, o sistema detectou “one-way audio” apenas para usuários da filial de São Paulo. O time viu no dashboard que o SDP continha IP 10.1.2.x (privado). Corrigiram o NAT do gateway da filial em 10 minutos, evitando impacto nas vendas.</span>
+                  </div>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="generalBizTitle">💰 Impacto no negócio</h6>
+                  <ul>
+                    <li><strong data-i18n="generalBiz1">Redução de chamadas com áudio ruim</strong> — <span data-i18n="generalBiz1Desc">Detectar e corrigir rapidamente one-way audio e problemas de NAT diminui o número de chamadas ineficazes.</span></li>
+                    <li><strong data-i18n="generalBiz2">Menor tempo de inatividade</strong> — <span data-i18n="generalBiz2Desc">Alertas proativos permitem que a equipe de infra atue antes que o problema afete muitos usuários.</span></li>
+                    <li><strong data-i18n="generalBiz3">Melhoria da satisfação do cliente</strong> — <span data-i18n="generalBiz3Desc">Menos quedas de áudio e menos necessidade de repetir informações aumentam a percepção de qualidade.</span></li>
+                    <li><strong data-i18n="generalBiz4">Otimização da equipe</strong> — <span data-i18n="generalBiz4Desc">Engenheiros gastam menos tempo caçando logs e mais tempo resolvendo problemas, graças aos alertas contextuais.</span></li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h6 data-i18n="generalProdTitle">🚀 Como levar isso para produção</h6>
+                  <p data-i18n="generalProdText">Este demo pode ser integrado com PBXs reais (FreeSWITCH, Asterisk) via ESL ou AMI, e com fontes de tráfego real (SIPp, softphones). Em produção, a plataforma pode:</p>
+                  <ul>
+                    <li data-i18n="generalProd1">Consumir eventos ESL em tempo real do FreeSWITCH.</li>
+                    <li data-i18n="generalProd2">Capturar pacotes SIP/RTP via espelhamento de porta ou TAP e analisar com suricata/Zeek.</li>
+                    <li data-i18n="generalProd3">Integrar com sistemas de ticketing e alertas (Slack, PagerDuty, Zabbix).</li>
+                    <li data-i18n="generalProd4">Armazenar métricas em TSDB (Prometheus/InfluxDB) para dashboards de longo prazo.</li>
+                  </ul>
+                </section>
+              </div>
+
+              <!-- SAMU DF -->
+              <div class="tab-pane fade" id="samu" role="tabpanel" aria-labelledby="samu-tab">
+                <section class="mb-4">
+                  <h6 data-i18n="samuTitle">🚑 SAMU DF: VoIP em emergências médicas</h6>
+                  <p data-i18n="samuIntro">O Serviço de Atendimento Móvel de Urgência do Distrito Federal depende de comunicação de áudio confiável entre centrais de regulação, ambulâncias e hospitais. Problemas de one-way audio, latência ou falha de sinalização podem atrasar despachos e colocar vidas em risco. Esta plataforma permite monitorar e diagnosticar rapidamente esses problemas.</p>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="samuScenariosTitle">📞 Cenários típicos no SAMU DF</h6>
+                  <ul>
+                    <li><strong data-i18n="samuScenario1">Central de regulação ↔ Ambulância</strong> — <span data-i18n="samuScenario1Desc">Chamadas via rádio IP ou celular VoIP; NAT móvel e redes instáveis podem causar one-way audio.</span></li>
+                    <li><strong data-i18n="samuScenario2">Ambulância ↔ Hospital</strong> — <span data-i18n="samuScenario2Desc">Transferência de áudio para equipe médica; latência elevada pode prejudicar entendimento do quadro clínico.</span></li>
+                    <li><strong data-i18n="samuScenario3">Múltiplos despachos simultâneos</strong> — <span data-i18n="samuScenario3Desc">Picos de tráfego podem sobrecarregar links e gerar perda de pacotes (jitter/loss).</span></li>
+                    <li><strong data-i18n="samuScenario4">Handoff entre células</strong> — <span data-i18n="samuScenario4Desc">Mudança de antena durante deslocamento pode interromper brevemente o fluxo RTP.</span></li>
+                  </ul>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="samuHelpTitle">🛠️ Como a plataforma ajuda o SAMU DF</h6>
+                  <ul>
+                    <li><strong data-i18n="samuHelp1">Alerta one-way audio em tempo real</strong> — <span data-i18n="samuHelp1Desc">Se a ambulância não recebe áudio da central, o sistema notifica imediatamente a equipe de TI.</span></li>
+                    <li><strong data-i18n="samuHelp2">Detecção de NAT móvel</strong> — <span data-i18n="samuHelp2Desc">Identifica quando o SDP anuncia IPs privados de redes móveis e sugere ajustes de firewall ou VPN.</span></li>
+                    <li><strong data-i18n="samuHelp3">Medição de latência por link</strong> — <span data-i18n="samuHelp3Desc">Diferencia latência entre central-ambulância e ambulância-hospital, apontando gargalos.</span></li>
+                    <li><strong data-i18n="samuHelp4">Correlação de eventos SIP</strong> — <span data-i18n="samuHelp4Desc">Mostra INVITE/180/200 OK e falhas de ACK, ajudando a identificar se o problema é de sinalização ou mídia.</span></li>
+                    <li><strong data-i18n="samuHelp5">Histórico por veículo</strong> — <span data-i18n="samuHelp5Desc">Permite analisar padrões por ambulância (ex: “Ambulância 12 com recorrentes one-way audio na região da Asa Norte”).</span></li>
+                  </ul>
+                  <div class="alert alert-danger mt-3" role="alert">
+                    <strong data-i18n="samuHelpExample">Exemplo prático:</strong> <span data-i18n="samuHelpExampleText">Durante uma emergência cardíaca na Asa Sul, a ambulância não conseguia ouvir as instruções do médico regulador. O sistema detectou one-way audio e alertou a TI, que identificou falha de NAT no rádio IP da ambulância. A correção remota foi feita em 3 minutos, permitindo que a equipe recebesse o protocolo de RCP e salvasse o paciente.</span>
+                  </div>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="samuImpactTitle">📈 Impacto operacional no SAMU DF</h6>
+                  <ul>
+                    <li><strong data-i18n="samuImpact1">Redução do tempo de despacho</strong> — <span data-i18n="samuImpact1Desc">Menos retrabalho por “não ouvi” ou “áudio cortado”.</span></li>
+                    <li><strong data-i18n="samuImpact2">Melhoria na segurança do paciente</strong> — <span data-i18n="samuImpact2Desc">Comunicação clara entre regulação, equipes de socorro e hospitais.</span></li>
+                    <li><strong data-i18n="samuImpact3">Base para SLA de áudio</strong> — <span data-i18n="samuImpact3Desc">Métricas de latência e perda de pacotes podem alimentar acordos de nível de serviço com operadoras.</span></li>
+                    <li><strong data-i18n="samuImpact4">Relatórios para auditoria</strong> — <span data-i18n="samuImpact4Desc">Histórico de incidentes de áudio para análises de melhoria contínua e respostas a ocorrências.</span></li>
+                  </ul>
+                  <div class="alert alert-warning mt-3" role="alert">
+                    <strong data-i18n="samuImpactExample">Exemplo prático:</strong> <span data-i18n="samuImpactExampleText">Após implementar a plataforma, o SAMU DF reduziu o tempo médio de despacho em 45 segundos por chamada. Em um mês, isso representou 120 horas economizadas e 23 emergências atendidas mais rapidamente, incluindo 3 casos de AVC onde o tempo é crítico.</span>
+                  </div>
+                </section>
+
+                <section class="mb-4">
+                  <h6>🧪 Demonstração prática (usando este demo)</h6>
+                  <ol>
+                    <li><strong data-i18n="samuDemo1">Iniciar chamada (normal)</strong> — <span data-i18n="samuDemo1Desc">Simula uma chamada ideal entre central e ambulância.</span></li>
+                    <li><strong data-i18n="samuDemo2">Iniciar chamada (one-way audio)</strong> — <span data-i18n="samuDemo2Desc">Simula problema clássico: a ambulância não ouve a central (NAT móvel ou firewall).</span></li>
+                    <li><strong>Iniciar chamada (NAT incorreto)</strong> — Simula SDP com IP privado da rede móvel, gerando falha de mídia e latência alta.</li>
+                    <li><strong data-i18n="samuDemo4">Analisar tráfego SIP</strong> — <span data-i18n="samuDemo4Desc">Gera um relatório rápido de um log de chamada, útil para pós-mortem de um despacho crítico.</span></li>
+                  </ol>
+                </section>
+
+                <section>
+                  <h6 data-i18n="samuProdTitle">🚀 Extensões para SAMU DF em produção</h6>
+                  <ul>
+                    <li data-i18n="samuProd1">Integração com o sistema de despacho existente via ESL (FreeSWITCH) ou AMI (Asterisk).</li>
+                    <li data-i18n="samuProd2">Mapa georreferenciado de chamadas com indicadores de qualidade por região.</li>
+                    <li data-i18n="samuProd3">Alertas via WhatsApp ou rádio para a equipe de TI em tempo real.</li>
+                    <li data-i18n="samuProd4">Dashboard específico para gestores do SAMU com KPIs: tempo médio de áudio, taxa de one-way, latência por bairro.</li>
+                    <li data-i18n="samuProd5">Export automático de relatórios para a Secretaria de Saúde.</li>
+                  </ul>
+                </section>
+              </div>
+
+              <!-- Controle de Frota -->
+              <div class="tab-pane fade" id="fleet" role="tabpanel" aria-labelledby="fleet-tab">
+                <section class="mb-4">
+                  <h6 data-i18n="fleetTitle">🚚 Controle de Frota: VoIP em logística e entregas</h6>
+                  <p data-i18n="fleetIntro">Empresas de transporte, logística e delivery usam VoIP para comunicação entre central operacional, motoristas e clientes. Problemas de áudio podem gerar atrasos, entregas erradas e insatisfação do cliente. Esta plataforma monitora a qualidade do áudio em tempo real e ajuda a garantir que a comunicação nunca falhe.</p>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="fleetScenariosTitle">📦 Cenários típicos em controle de frota</h6>
+                  <ul>
+                    <li><strong data-i18n="fleetScenario1">Central ↔ Motorista (entrega)</strong> — <span data-i18n="fleetScenario1Desc">Chamadas via VoIP em smartphones ou rádio IP; NAT móvel e mudança de célula podem causar one-way audio.</span></li>
+                    <li><strong data-i18n="fleetScenario2">Central ↔ Cliente (pós-venda)</strong> — <span data-i18n="fleetScenario2Desc">Confirmação de entrega ou coleta; áudio ruim pode levar a reclamações e retrabalho.</span></li>
+                    <li><strong data-i18n="fleetScenario3">Motorista ↔ Motorista (coordenação)</strong> — <span data-i18n="fleetScenario3Desc">Comunicação direta entre veículos; handoff entre antenas pode gerar cortes.</span></li>
+                    <li><strong data-i18n="fleetScenario4">Picos de chamadas em horários de pico</strong> — <span data-i18n="fleetScenario4Desc">Sobrecarga na central pode gerar perda de pacotes e jitter.</span></li>
+                    <li><strong data-i18n="fleetScenario5">Zonas de cobertura fraca</strong> — <span data-i18n="fleetScenario5Desc">Áreas rurais ou subterrâneas podem causar perda de sinal e alta latência.</span></li>
+                  </ul>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="fleetHelpTitle">🛠️ Como a plataforma ajuda o controle de frota</h6>
+                  <ul>
+                    <li><strong data-i18n="fleetHelp1">Alerta one-way audio em tempo real</strong> — <span data-i18n="fleetHelp1Desc">Se o motorista não ouve a central, a equipe de TI é notificada antes que a entrega seja atrasada.</span></li>
+                    <li><strong data-i18n="fleetHelp2">Detecção de NAT móvel</strong> — <span data-i18n="fleetHelp2Desc">Identifica IPs privados de redes móveis e sugere uso de VPN ou ajustes de firewall.</span></li>
+                    <li><strong data-i18n="fleetHelp3">Medição de latência por rota</strong> — <span data-i18n="fleetHelp3Desc">Diferencia latência entre central-motorista e central-cliente, apontando gargalos.</span></li>
+                    <li><strong data-i18n="fleetHelp4">Correlação de eventos SIP</strong> — <span data-i18n="fleetHelp4Desc">Mostra INVITE/180/200 OK e falhas de ACK, ajudando a distinguir problema de sinalização vs mídia.</span></li>
+                    <li><strong data-i18n="fleetHelp5">Histórico por veículo/motorista</strong> — <span data-i18n="fleetHelp5Desc">Permite analisar padrões (ex: “Veículo 45 com one-way audio na região do Gama”).</span></li>
+                  </ul>
+                  <div class="alert alert-warning mt-3" role="alert">
+                    <strong data-i18n="fleetHelpExample">Exemplo prático:</strong> <span data-i18n="fleetHelpExampleText">Uma empresa de delivery percebeu que 30% das reclamações eram sobre "motora não ouviu o endereço". O sistema detectou que motoristas com chip da operadora A tinham 70% mais one-way audio na região de Taguatinga. A solução foi trocar o chip dos 15 motoristas daquela região, reduzindo reclamações em 85% e economizando R$ 12.000/mês em multas por atraso.</span>
+                  </div>
+                </section>
+
+                <section class="mb-4">
+                  <h6 data-i18n="fleetImpactTitle">📈 Impacto operacional na frota</h6>
+                  <ul>
+                    <li><strong data-i18n="fleetImpact1">Redução de atrasos</strong> — <span data-i18n="fleetImpact1Desc">Menos “não ouvi” ou “áudio cortado” diminui retrabalho e atrasos nas entregas.</span></li>
+                    <li><strong data-i18n="fleetImpact2">Melhoria na satisfação do cliente</strong> — <span data-i18n="fleetImpact2Desc">Comunicação clara na confirmação de endereço e horário.</span></li>
+                    <li><strong data-i18n="fleetImpact3">Otimização da equipe</strong> — <span data-i18n="fleetImpact3Desc">Menos tempo gasto pelo operador tentando contatar motoristas com falha de áudio.</span></li>
+                    <li><strong data-i18n="fleetImpact4">Base para SLA com operadoras</strong> — <span data-i18n="fleetImpact4Desc">Métricas de latência e perda de pacotes para negociar qualidade de serviço.</span></li>
+                  </ul>
+                  <div class="alert alert-info mt-3" role="alert">
+                    <strong data-i18n="fleetImpactExample">Exemplo prático:</strong> <span data-i18n="fleetImpactExampleText">Uma transportadora de medicamentos usou a plataforma para mapear "zonas sem áudio" no perímetro urbano. Descobriram que a região do Lago Sul tinha 60% de falha devido a handoff entre células. Com essa informação, negociaram com a operadora a instalação de uma mini-célula na área, eliminando os atrasos e garantindo a entrega de vacinas em tempo hábil.</span>
+                  </div>
+                </section>
+
+                <section class="mb-4">
+                  <h6>🧪 Demonstração prática (usando este demo)</h6>
+                  <ol>
+                    <li><strong data-i18n="fleetDemo1">Iniciar chamada (normal)</strong> — <span data-i18n="fleetDemo1Desc">Simula uma chamada ideal entre central e motorista.</span></li>
+                    <li><strong data-i18n="fleetDemo2">Iniciar chamada (one-way audio)</strong> — <span data-i18n="fleetDemo2Desc">Simula problema clássico: motorista não ouve a central (NAT móvel).</span></li>
+                    <li><strong>Iniciar chamada (NAT incorreto)</strong> — Simula SDP com IP privado da rede móvel, gerando falha de mídia e latência alta.</li>
+                    <li><strong data-i18n="fleetDemo4">Analisar tráfego SIP</strong> — <span data-i18n="fleetDemo4Desc">Gera um relatório rápido de uma chamada de entrega, útil para pós-mortem.</span></li>
+                  </ol>
+                </section>
+
+                <section>
+                  <h6>🚀 Extensões para controle de frota em produção</h6>
+                  <ul>
+                    <li>Integração com sistema de gestão de frotas (TMS, ERP) via ESL/AMI.</li>
+                    <li>Mapa georreferenciado com indicadores de qualidade por rota e bairro.</li>
+                    <li>Alertas via Telegram ou WhatsApp para supervisores de frota.</li>
+                    <li>Dashboard para gestores com KPIs: taxa de one-way por veículo, latência média por região, horários de pico.</li>
+                    <li>Export de relatórios para auditorias de SLA com operadoras de telefonia.</li>
+                  </ul>
+                </section>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="modalClose">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="container-fluid py-3">
+      <div class="row g-3">
+        <div class="col-lg-4">
+          <div class="card shadow-sm">
+            <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" data-i18n-title="callsTooltip" title="Lista de calls ativas (como uma visão resumida do que você veria no sngrep). Passe o mouse para ver dicas de cenário/NAT/SDP." data-i18n="callsHeader">Chamadas ativas</div>
+            <div class="card-body">
+              <div id="calls" class="small"></div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm mt-3">
+            <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" data-i18n-title="alertsTooltip" title="Alertas gerados por regras: one-way audio (RTP abaixo do esperado), suspeita de NAT/Firewall e latência > 150ms." data-i18n="alertsHeader">Alertas de rede</div>
+            <div class="card-body">
+              <div id="alerts" class="small"></div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm mt-3">
+            <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="right" data-i18n-title="statsTooltip" title="Métricas do backend (CPU/memória/calls ativas). Ajuda a demonstrar monitoramento básico em produção." data-i18n="statsHeader">System Stats</div>
+            <div class="card-body">
+              <pre id="stats" class="mb-0 small"></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="card shadow-sm">
+            <div class="card-header" data-bs-toggle="tooltip" data-bs-placement="left" data-i18n-title="eventsTooltip" title="Feed em tempo real: SIP (mensagens completas), métricas RTP (esperado/recebido/latência) e eventos ESL simulados (CHANNEL_CREATE/ANSWER/HANGUP)." data-i18n="eventsHeader">Eventos em tempo real (SIP / RTP / ESL)</div>
+            <div class="card-body">
+              <div id="events" class="small" style="max-height: 70vh; overflow: auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/dashboard.js"></script>
+  </body>
+</html>
