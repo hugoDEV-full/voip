@@ -28,7 +28,23 @@ const translations = {
     events: 'Eventos',
     userInfo: 'Informações do Usuário',
     logout: 'Sair',
-    loading: 'Carregando...'
+    loading: 'Carregando...',
+    resolveProblems: 'Resolver Problemas VoIP',
+    autoResolve: 'Auto-Resolução',
+    stopAutoResolve: 'Parar Auto-Resolução',
+    notifications: {
+      normalCall: '📞 Chamada normal iniciada',
+      oneWayAudio: '⚠️ Problema de one-way audio detectado!',
+      natProblem: '🔴 Problema de NAT detectado!',
+      trafficAnalysis: '📊 Iniciando análise de tráfego...',
+      analysisComplete: '✅ Análise concluída!',
+      eventsCleared: '🧹 Eventos limpos',
+      eventsPaused: '⏸️ Eventos pausados',
+      eventsResumed: '▶️ Eventos retomados',
+      problemsResolved: '✅ Problemas VoIP resolvidos!',
+      autoResolutionEnabled: '🤖 Auto-resolução ativada',
+      autoResolutionDisabled: '🛑 Auto-resolução desativada'
+    }
   },
   en: {
     btnNormal: 'Start call (normal)',
@@ -45,7 +61,23 @@ const translations = {
     events: 'Events',
     userInfo: 'User Information',
     logout: 'Logout',
-    loading: 'Loading...'
+    loading: 'Loading...',
+    resolveProblems: 'Resolve VoIP Problems',
+    autoResolve: 'Auto-Resolution',
+    stopAutoResolve: 'Stop Auto-Resolution',
+    notifications: {
+      normalCall: '📞 Normal call started',
+      oneWayAudio: '⚠️ One-way audio problem detected!',
+      natProblem: '🔴 NAT problem detected!',
+      trafficAnalysis: '📊 Starting traffic analysis...',
+      analysisComplete: '✅ Analysis complete!',
+      eventsCleared: '🧹 Events cleared',
+      eventsPaused: '⏸️ Events paused',
+      eventsResumed: '▶️ Events resumed',
+      problemsResolved: '✅ VoIP problems resolved!',
+      autoResolutionEnabled: '🤖 Auto-resolution enabled',
+      autoResolutionDisabled: '🛑 Auto-resolution disabled'
+    }
   }
 };
 
@@ -1409,37 +1441,60 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add event control buttons
   const btnClearEvents = document.getElementById('btnClearEvents');
   const btnPauseEvents = document.getElementById('btnPauseEvents');
+  const btnResolveProblems = document.getElementById('btnResolveProblems');
+  const btnAutoResolve = document.getElementById('btnAutoResolve');
   
   if (btnClearEvents) {
-    btnClearEvents.addEventListener('click', function() {
-      const eventsContainer = document.getElementById('events');
-      if (eventsContainer) {
-        eventsContainer.innerHTML = '';
-        eventCount = 0;
-        updateCounters();
-        showNotification(
-          currentLanguage === 'pt' ? '🗑️ Eventos limpos' : '🗑️ Events cleared',
-          'info',
-          2000
-        );
-      }
+    btnClearEvents.addEventListener('click', () => {
+      elEvents.innerHTML = '<div class="text-muted p-3">' + 
+        (currentLanguage === 'pt' ? 'Eventos limpos' : 'Events cleared') + '</div>';
+      eventCount = 0;
+      updateCounters();
+      showNotification(
+        currentLanguage === 'pt' ? '🧹 Eventos limpos' : '🧹 Events cleared',
+        'info',
+        2000
+      );
     });
   }
   
   if (btnPauseEvents) {
-    btnPauseEvents.addEventListener('click', function() {
+    btnPauseEvents.addEventListener('click', () => {
       eventsPaused = !eventsPaused;
       btnPauseEvents.innerHTML = eventsPaused ? 
         '<i class="bi bi-play-fill"></i> ' + (currentLanguage === 'pt' ? 'Retomar' : 'Resume') :
         '<i class="bi bi-pause-fill"></i> ' + (currentLanguage === 'pt' ? 'Pausar' : 'Pause');
+      btnPauseEvents.className = eventsPaused ? 'btn btn-success btn-sm ms-2' : 'btn btn-secondary btn-sm ms-2';
       
       showNotification(
         eventsPaused ? 
           (currentLanguage === 'pt' ? '⏸️ Eventos pausados' : '⏸️ Events paused') :
           (currentLanguage === 'pt' ? '▶️ Eventos retomados' : '▶️ Events resumed'),
-        'info',
+        eventsPaused ? 'warning' : 'success',
         2000
       );
+    });
+  }
+  
+  if (btnResolveProblems) {
+    btnResolveProblems.addEventListener('click', () => {
+      resolveVoipProblems();
+    });
+  }
+  
+  if (btnAutoResolve) {
+    let autoResolveEnabled = false;
+    btnAutoResolve.addEventListener('click', () => {
+      autoResolveEnabled = !autoResolveEnabled;
+      if (autoResolveEnabled) {
+        enableAutoResolution();
+        btnAutoResolve.innerHTML = '🛑 Parar Auto-Resolução';
+        btnAutoResolve.className = 'btn btn-danger btn-sm ms-2';
+      } else {
+        disableAutoResolution();
+        btnAutoResolve.innerHTML = '🤖 Auto-Resolução';
+        btnAutoResolve.className = 'btn btn-warning btn-sm ms-2';
+      }
     });
   }
   
@@ -1715,6 +1770,536 @@ function hangupCall(callId) {
   }, 1500);
   
   console.log('📞 Call ended:', callId);
+}
+
+// VoIP Problem Resolution System
+function resolveVoipProblems() {
+  showNotification(
+    currentLanguage === 'pt' ? '🔧 Iniciando sistema de resolução de problemas VoIP...' : '🔧 Starting VoIP problem resolution system...',
+    'info',
+    3000
+  );
+  
+  // Analyze current calls for problems
+  const problems = analyzeCurrentProblems();
+  
+  if (problems.length === 0) {
+    showNotification(
+      currentLanguage === 'pt' ? '✅ Nenhum problema VoIP detectado no momento' : '✅ No VoIP problems detected at the moment',
+      'success',
+      3000
+    );
+    return;
+  }
+  
+  // Process each problem with specific solutions
+  problems.forEach((problem, index) => {
+    setTimeout(() => {
+      resolveSpecificProblem(problem);
+    }, index * 2000);
+  });
+}
+
+function analyzeCurrentProblems() {
+  const problems = [];
+  
+  state.calls.forEach((call, callId) => {
+    if (call.scenario === 'one_way_audio') {
+      problems.push({
+        type: 'ONE_WAY_AUDIO',
+        callId: callId,
+        severity: 'CRITICAL',
+        description: currentLanguage === 'pt' ? 
+          'Áudio unidirecional detectado - um lado não ouve' : 
+          'One-way audio detected - one side cannot hear',
+        solution: 'configure_nat_and_firewall'
+      });
+    }
+    
+    if (call.scenario === 'nat_wrong') {
+      problems.push({
+        type: 'NAT_INCORRECT',
+        callId: callId,
+        severity: 'WARNING',
+        description: currentLanguage === 'pt' ? 
+          'Configuração NAT incorreta - IP privado no SDP' : 
+          'Incorrect NAT configuration - Private IP in SDP',
+        solution: 'fix_nat_configuration'
+      });
+    }
+    
+    // Check for high latency in any call
+    if (call.latency && call.latency > 150) {
+      problems.push({
+        type: 'HIGH_LATENCY',
+        callId: callId,
+        severity: 'WARNING',
+        description: currentLanguage === 'pt' ? 
+          `Alta latência detectada: ${call.latency}ms` : 
+          `High latency detected: ${call.latency}ms`,
+        solution: 'optimize_routing'
+      });
+    }
+    
+    // Check for packet loss
+    if (call.packetLoss && call.packetLoss > 3) {
+      problems.push({
+        type: 'PACKET_LOSS',
+        callId: callId,
+        severity: 'WARNING',
+        description: currentLanguage === 'pt' ? 
+          `Perda de pacotes detectada: ${call.packetLoss}%` : 
+          `Packet loss detected: ${call.packetLoss}%`,
+        solution: 'check_network_quality'
+      });
+    }
+  });
+  
+  return problems;
+}
+
+function resolveSpecificProblem(problem) {
+  const { type, callId, severity, description, solution } = problem;
+  
+  // Add problem detection event
+  const problemEvent = `
+    <div class="event-row border-bottom pb-2 mb-2">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+          <span class="badge bg-${severity === 'CRITICAL' ? 'danger' : 'warning'} me-2">PROBLEM</span>
+          <strong>${type} detected</strong>
+          <span class="text-muted ms-2">Call: ${callId}</span>
+        </div>
+        <small class="text-muted">${fmtTs(Date.now())}</small>
+      </div>
+      <div class="small text-muted mt-1">${description}</div>
+    </div>
+  `;
+  appendEvent(problemEvent);
+  eventCount++;
+  updateCounters();
+  
+  // Execute specific solution based on problem type
+  switch (solution) {
+    case 'configure_nat_and_firewall':
+      resolveOneWayAudio(callId);
+      break;
+    case 'fix_nat_configuration':
+      resolveNatProblem(callId);
+      break;
+    case 'optimize_routing':
+      resolveHighLatency(callId);
+      break;
+    case 'check_network_quality':
+      resolvePacketLoss(callId);
+      break;
+  }
+}
+
+function resolveOneWayAudio(callId) {
+  const call = state.calls.get(callId);
+  if (!call) return;
+  
+  showNotification(
+    currentLanguage === 'pt' ? '🔧 Configurando NAT e Firewall para One-Way Audio...' : '🔧 Configuring NAT and Firewall for One-Way Audio...',
+    'warning',
+    4000
+  );
+  
+  // Simulate NAT/Firewall configuration steps
+  const resolutionSteps = [
+    { 
+      type: 'SYSTEM', 
+      message: 'Checking NAT configuration...', 
+      details: 'Analyzing firewall rules for RTP ports (10000-20000)',
+      delay: 500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Configuring STUN server...', 
+      details: 'STUN: stun.voip.com:3478 - Enabling NAT traversal',
+      delay: 1500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Configuring TURN server...', 
+      details: 'TURN: turn.voip.com:3478 - Fallback relay enabled',
+      delay: 2500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Opening RTP pinholes...', 
+      details: 'Firewall rules added: UDP 10000-20000 (bidirectional)',
+      delay: 3500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Updating SIP SDP...', 
+      details: 'SDP updated with public IP and external port mapping',
+      delay: 4500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'One-Way Audio RESOLVED', 
+      details: 'RTP flow restored to bidirectional - Quality improved',
+      delay: 5500
+    }
+  ];
+  
+  resolutionSteps.forEach(step => {
+    setTimeout(() => {
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-success me-2">FIX</span>
+                <strong>${step.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
+            </div>
+            <div class="small text-muted mt-1">${step.details}</div>
+          </div>
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
+    }, step.delay);
+  });
+  
+  // Update call metrics after resolution
+  setTimeout(() => {
+    if (state.calls.has(callId)) {
+      const call = state.calls.get(callId);
+      call.quality = 'Good';
+      call.latency = 30 + Math.random() * 20;
+      call.jitter = 1 + Math.random() * 3;
+      call.packetLoss = Math.random() * 1;
+      call.mos = 3.8 + Math.random() * 0.7;
+      renderCalls();
+      
+      // Remove the one-way audio alert
+      state.alerts = state.alerts.filter(alert => 
+        !(alert.type === 'ONE_WAY_AUDIO' && alert.callId === callId)
+      );
+      renderAlerts();
+      updateCounters();
+      
+      showNotification(
+        currentLanguage === 'pt' ? '✅ One-Way Audio resolvido com sucesso!' : '✅ One-Way Audio resolved successfully!',
+        'success',
+        4000
+      );
+    }
+  }, 6000);
+}
+
+function resolveNatProblem(callId) {
+  const call = state.calls.get(callId);
+  if (!call) return;
+  
+  showNotification(
+    currentLanguage === 'pt' ? '🔧 Corrigindo configuração NAT...' : '🔧 Fixing NAT configuration...',
+    'warning',
+    4000
+  );
+  
+  const resolutionSteps = [
+    { 
+      type: 'SYSTEM', 
+      message: 'Detecting private IP in SDP...', 
+      details: 'Found: 192.168.1.100 - Replacing with public IP',
+      delay: 500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Configuring NAT binding...', 
+      details: 'Binding internal:192.168.1.100:5060 → external:200.150.10.20:5060',
+      delay: 1500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Updating SDP c= line...', 
+      details: 'c=IN IP4 200.150.10.20 (public IP)',
+      delay: 2500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Updating SDP m= lines...', 
+      details: 'm=audio 10000 RTP/AVP 8 0 18 (external ports)',
+      delay: 3500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'NAT Configuration FIXED', 
+      details: 'SDP now contains public addresses - Connectivity restored',
+      delay: 4500
+    }
+  ];
+  
+  resolutionSteps.forEach(step => {
+    setTimeout(() => {
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-info me-2">FIX</span>
+                <strong>${step.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
+            </div>
+            <div class="small text-muted mt-1">${step.details}</div>
+          </div>
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
+    }, step.delay);
+  });
+  
+  setTimeout(() => {
+    if (state.calls.has(callId)) {
+      const call = state.calls.get(callId);
+      call.quality = 'Good';
+      call.latency = 40 + Math.random() * 30;
+      call.jitter = 2 + Math.random() * 4;
+      call.packetLoss = Math.random() * 2;
+      call.mos = 3.5 + Math.random() * 0.8;
+      renderCalls();
+      
+      // Remove NAT alerts
+      state.alerts = state.alerts.filter(alert => 
+        !(alert.type === 'NAT_SUSPECTED' && alert.callId === callId)
+      );
+      renderAlerts();
+      updateCounters();
+      
+      showNotification(
+        currentLanguage === 'pt' ? '✅ Problema NAT resolvido!' : '✅ NAT problem resolved!',
+        'success',
+        4000
+      );
+    }
+  }, 5000);
+}
+
+function resolveHighLatency(callId) {
+  const call = state.calls.get(callId);
+  if (!call) return;
+  
+  showNotification(
+    currentLanguage === 'pt' ? '🔧 Otimizando roteamento para alta latência...' : '🔧 Optimizing routing for high latency...',
+    'warning',
+    4000
+  );
+  
+  const resolutionSteps = [
+    { 
+      type: 'SYSTEM', 
+      message: 'Analyzing network path...', 
+      details: 'Current route: 12 hops, avg latency: 250ms',
+      delay: 500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Finding optimal route...', 
+      details: 'New route: 8 hops via premium backbone',
+      delay: 1500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Configuring QoS...', 
+      details: 'RTP traffic prioritized (DSCP: EF)',
+      delay: 2500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Enabling jitter buffer...', 
+      details: 'Adaptive jitter buffer: 30ms (dynamic)',
+      delay: 3500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'High Latency RESOLVED', 
+      details: 'New latency: 45ms - Improvement: 82%',
+      delay: 4500
+    }
+  ];
+  
+  resolutionSteps.forEach(step => {
+    setTimeout(() => {
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-primary me-2">FIX</span>
+                <strong>${step.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
+            </div>
+            <div class="small text-muted mt-1">${step.details}</div>
+          </div>
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
+    }, step.delay);
+  });
+  
+  setTimeout(() => {
+    if (state.calls.has(callId)) {
+      const call = state.calls.get(callId);
+      call.latency = 30 + Math.random() * 20;
+      call.jitter = 1 + Math.random() * 2;
+      call.packetLoss = Math.random() * 0.5;
+      call.mos = 4.0 + Math.random() * 0.5;
+      call.quality = call.mos >= 4.0 ? 'Excellent' : 'Good';
+      renderCalls();
+      
+      // Remove high latency alerts
+      state.alerts = state.alerts.filter(alert => 
+        !(alert.type === 'HIGH_LATENCY' && alert.callId === callId)
+      );
+      renderAlerts();
+      updateCounters();
+      
+      showNotification(
+        currentLanguage === 'pt' ? '✅ Alta latência resolvida!' : '✅ High latency resolved!',
+        'success',
+        4000
+      );
+    }
+  }, 5000);
+}
+
+function resolvePacketLoss(callId) {
+  const call = state.calls.get(callId);
+  if (!call) return;
+  
+  showNotification(
+    currentLanguage === 'pt' ? '🔧 Verificando qualidade da rede...' : '🔧 Checking network quality...',
+    'warning',
+    4000
+  );
+  
+  const resolutionSteps = [
+    { 
+      type: 'SYSTEM', 
+      message: 'Analyzing packet loss pattern...', 
+      details: 'Random loss detected - Possible congestion',
+      delay: 500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Increasing bandwidth...', 
+      details: 'RTP stream bandwidth: 128kbps → 256kbps',
+      delay: 1500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Enabling FEC (Forward Error Correction)...', 
+      details: 'Redundancy packets added: 20% overhead',
+      delay: 2500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Optimizing codec...', 
+      details: 'Switching to G.729 (lower bandwidth, better compression)',
+      delay: 3500
+    },
+    { 
+      type: 'SYSTEM', 
+      message: 'Packet Loss RESOLVED', 
+      details: 'Loss reduced to 0.5% - Quality improved',
+      delay: 4500
+    }
+  ];
+  
+  resolutionSteps.forEach(step => {
+    setTimeout(() => {
+      if (!eventsPaused) {
+        const html = `
+          <div class="event-row border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <span class="badge bg-secondary me-2">FIX</span>
+                <strong>${step.message}</strong>
+                <span class="text-muted ms-2">Call: ${callId}</span>
+              </div>
+              <small class="text-muted">${fmtTs(Date.now())}</small>
+            </div>
+            <div class="small text-muted mt-1">${step.details}</div>
+          </div>
+        `;
+        appendEvent(html);
+        eventCount++;
+        updateCounters();
+      }
+    }, step.delay);
+  });
+  
+  setTimeout(() => {
+    if (state.calls.has(callId)) {
+      const call = state.calls.get(callId);
+      call.packetLoss = 0.1 + Math.random() * 0.9;
+      call.latency = Math.max(20, call.latency - 20);
+      call.jitter = Math.max(1, call.jitter - 3);
+      call.mos = Math.min(4.5, call.mos + 0.5);
+      call.quality = call.mos >= 4.0 ? 'Excellent' : 'Good';
+      call.codec = 'G.729';
+      renderCalls();
+      
+      showNotification(
+        currentLanguage === 'pt' ? '✅ Perda de pacotes resolvida!' : '✅ Packet loss resolved!',
+        'success',
+        4000
+      );
+    }
+  }, 5000);
+}
+
+// Auto-resolution function
+function enableAutoResolution() {
+  showNotification(
+    currentLanguage === 'pt' ? '🤖 Auto-resolução de problemas ativada' : '🤖 Auto-problem resolution enabled',
+    'info',
+    3000
+  );
+  
+  // Check for problems every 10 seconds
+  const autoResolutionInterval = setInterval(() => {
+    const problems = analyzeCurrentProblems();
+    if (problems.length > 0) {
+      console.log('🤖 Auto-resolving problems:', problems);
+      problems.forEach(problem => {
+        resolveSpecificProblem(problem);
+      });
+    }
+  }, 10000);
+  
+  // Store interval for cleanup
+  window.autoResolutionInterval = autoResolutionInterval;
+}
+
+function disableAutoResolution() {
+  if (window.autoResolutionInterval) {
+    clearInterval(window.autoResolutionInterval);
+    window.autoResolutionInterval = null;
+    
+    showNotification(
+      currentLanguage === 'pt' ? '🛑 Auto-resolução desativada' : '🛑 Auto-resolution disabled',
+      'warning',
+      3000
+    );
+  }
 }
 
 // Add real-time metrics simulation
