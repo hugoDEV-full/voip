@@ -1,4 +1,4 @@
-const socket = io();
+const socket = (typeof window !== 'undefined' && typeof window.io === 'function') ? io() : null;
 
 const elCalls = document.getElementById('calls');
 const elEvents = document.getElementById('events');
@@ -2821,55 +2821,58 @@ function escapeHtml(s) {
     .replaceAll('>', '&gt;');
 }
 
-socket.on('connect', () => {
-  socket.emit('request_snapshot');
-  initTooltips();
-});
+if (socket) {
+  socket.on('connect', () => {
+    socket.emit('request_snapshot');
+    initTooltips();
+  });
 
-socket.on('call_event', (ev) => {
-  if (ev.type === 'SNAPSHOT' && Array.isArray(ev.calls)) {
-    state.calls.clear();
-    for (const c of ev.calls) state.calls.set(c.id, c);
+  socket.on('call_event', (ev) => {
+    if (ev.type === 'SNAPSHOT' && Array.isArray(ev.calls)) {
+      state.calls.clear();
+      for (const c of ev.calls) state.calls.set(c.id, c);
+      renderCalls();
+      return;
+    }
+
+    if (ev.type === 'CALL_STATUS') {
+      const existing = state.calls.get(ev.callId) || { id: ev.callId };
+      state.calls.set(ev.callId, { ...existing, status: ev.status });
+      renderCalls();
+    }
+
+    if (ev.type === 'RTP_START') {
+      const existing = state.calls.get(ev.callId) || { id: ev.callId };
+      state.calls.set(ev.callId, { ...existing, rtp: ev });
+      renderCalls();
+    }
+
+    if (ev.type === 'CALL_END') {
+      state.calls.delete(ev.callId);
+      renderCalls();
+    }
     renderCalls();
-    return;
-  }
+ 
+    const details =
+      ev.type === 'SIP'
+        ? `<pre class="mb-0 small bg-white border rounded p-2" style="white-space: pre-wrap;">${escapeHtml(ev.message || '')}</pre>`
+        : `<div class="text-muted">${escapeHtml(JSON.stringify(ev))}</div>`;
 
-  if (ev.type === 'CALL_STATUS') {
-    const existing = state.calls.get(ev.callId) || { id: ev.callId };
-    state.calls.set(ev.callId, { ...existing, status: ev.status });
-    renderCalls();
-  }
+    const content = `<div class="border-bottom py-1">
+      <div><span class="text-muted">[${fmtTs(ev.ts)}]</span> <strong>${escapeHtml(ev.type)}</strong>${ev.callId ? ` <span class="text-muted">(${escapeHtml(ev.callId)})</span>` : ''}</div>
+      ${details}
+    </div>`;
+    appendEvent(content);
+  });
 
-  if (ev.type === 'RTP_START') {
-    const existing = state.calls.get(ev.callId) || { id: ev.callId };
-    state.calls.set(ev.callId, { ...existing, rtp: ev });
-    renderCalls();
-  }
+  socket.on('rtp_problem', (problem) => {
+    pushAlert(problem);
+  });
 
-  if (ev.type === 'CALL_END') {
-    state.calls.delete(ev.callId);
-    renderCalls();
-  }
-
-  const details =
-    ev.type === 'SIP'
-      ? `<pre class="mb-0 small bg-white border rounded p-2" style="white-space: pre-wrap;">${escapeHtml(ev.message || '')}</pre>`
-      : `<div class="text-muted">${escapeHtml(JSON.stringify(ev))}</div>`;
-
-  const content = `<div class="border-bottom py-1">
-    <div><span class="text-muted">[${fmtTs(ev.ts)}]</span> <strong>${escapeHtml(ev.type)}</strong>${ev.callId ? ` <span class="text-muted">(${escapeHtml(ev.callId)})</span>` : ''}</div>
-    ${details}
-  </div>`;
-  appendEvent(content);
-});
-
-socket.on('rtp_problem', (problem) => {
-  pushAlert(problem);
-});
-
-socket.on('nat_detected', (problem) => {
-  pushAlert({ ...problem, message: (problem.message || '') + ' (NAT detected)' });
-});
+  socket.on('nat_detected', (problem) => {
+    pushAlert({ ...problem, message: (problem.message || '') + ' (NAT detected)' });
+  });
+ }
 
 async function refreshStats() {
   try {
