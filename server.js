@@ -31,6 +31,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const REQUIRE_AUTH = String(process.env.REQUIRE_AUTH || '').toLowerCase() === 'true';
+
 // Authentication middleware
 function requireAuth(req, res, next) {
   const token = req.cookies.voipSession;
@@ -69,6 +71,9 @@ function requireAuth(req, res, next) {
 
 // Apply auth middleware to all routes except login, auth API and help
 app.use((req, res, next) => {
+  if (!REQUIRE_AUTH) {
+    return next();
+  }
   if (req.path.startsWith('/auth/') || req.path === '/ajuda') {
     return next();
   }

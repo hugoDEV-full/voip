@@ -614,6 +614,7 @@ async function displayUserInfo() {
       if (userDisplay) {
         userDisplay.textContent = data.user.username;
       }
+      return;
     }
   } catch (error) {
     console.error('Error fetching user info:', error);
@@ -627,11 +628,17 @@ async function displayUserInfo() {
           if (userDisplay) {
             userDisplay.textContent = sessionData.username;
           }
+          return;
         }
       } catch (e) {
         // Invalid session
       }
     }
+  }
+
+  const userDisplay = document.getElementById('userDisplay');
+  if (userDisplay) {
+    userDisplay.textContent = currentLanguage === 'pt' ? 'Demo' : 'Demo';
   }
 }
 
@@ -641,31 +648,29 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   
   try {
     // Call logout API
-    const response = await fetch('/auth/logout', {
+    await fetch('/auth/logout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       }
     });
     
-    // Show success message
-    const dict = i18n[currentLang];
-    const alert = document.createElement('div');
-    alert.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
-    alert.style.zIndex = '9999';
-    alert.textContent = dict.logoutSuccess;
-    document.body.appendChild(alert);
-    
-    // Redirect to login after delay
-    setTimeout(() => {
-      window.location.href = '/login.html';
-    }, 1000);
-    
   } catch (error) {
     console.error('Logout error:', error);
-    // Fallback: redirect anyway
-    window.location.href = '/login.html';
   }
+
+  try {
+    localStorage.removeItem('voipSession');
+    sessionStorage.removeItem('voipSession');
+  } catch {
+    // ignore
+  }
+
+  const msg = (currentLanguage === 'pt') ? 'Sessão encerrada' : 'Signed out';
+  showNotification(msg, 'success', 2000);
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 600);
 });
 
 // Add mock events for real-time feed
