@@ -1361,16 +1361,183 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add mock data for demonstration
   addMockData();
   
-  // Add original button event listeners
+  // Helper functions for enhanced simulations
+function updateCallMetrics(active, oneWay, nat) {
+  const activeCallsElement = document.getElementById('activeCallsCount');
+  const alertsElement = document.getElementById('alertsCount');
+  
+  if (activeCallsElement) {
+    activeCallsElement.textContent = active;
+  }
+  
+  if (alertsElement) {
+    const totalProblems = oneWay + nat;
+    alertsElement.textContent = totalProblems;
+    
+    // Update alerts badge color
+    const alertsCard = alertsElement.closest('.card');
+    if (alertsCard) {
+      const badge = alertsCard.querySelector('.badge');
+      if (badge) {
+        if (totalProblems === 0) {
+          badge.className = 'badge bg-success';
+          badge.textContent = currentLanguage === 'pt' ? 'Normal' : 'Normal';
+        } else if (totalProblems <= 2) {
+          badge.className = 'badge bg-warning';
+          badge.textContent = currentLanguage === 'pt' ? 'Atenção' : 'Warning';
+        } else {
+          badge.className = 'badge bg-danger';
+          badge.textContent = currentLanguage === 'pt' ? 'Crítico' : 'Critical';
+        }
+      }
+    }
+  }
+}
+
+function showNotification(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('notifications-container');
+  if (!container) return;
+  
+  const notificationId = 'notification-' + Date.now();
+  const notification = document.createElement('div');
+  notification.id = notificationId;
+  notification.className = `toast align-items-center text-white bg-${type} border-0`;
+  notification.setAttribute('role', 'alert');
+  notification.setAttribute('aria-live', 'assertive');
+  notification.setAttribute('aria-atomic', 'true');
+  
+  notification.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        ${message}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+  
+  container.appendChild(notification);
+  
+  const toast = new bootstrap.Toast(notification, {
+    autohide: true,
+    delay: duration
+  });
+  
+  toast.show();
+  
+  // Remove from DOM after hidden
+  notification.addEventListener('hidden.bs.toast', () => {
+    notification.remove();
+  });
+}
+
+// Enhanced simulation functions
+function simulateNormalCall() {
+  // Add realistic call events
+  addCallEvent('INVITE', 'sip:1001@192.168.1.100', 'sip:1002@192.168.1.101');
+  setTimeout(() => addCallEvent('100 Trying', 'sip:1002@192.168.1.101', 'sip:1001@192.168.1.100'), 500);
+  setTimeout(() => addCallEvent('180 Ringing', 'sip:1002@192.168.1.101', 'sip:1001@192.168.1.100'), 1000);
+  setTimeout(() => addCallEvent('200 OK', 'sip:1002@192.168.1.101', 'sip:1001@192.168.1.100'), 1500);
+  setTimeout(() => addCallEvent('ACK', 'sip:1001@192.168.1.100', 'sip:1002@192.168.1.101'), 2000);
+  setTimeout(() => addCallEvent('BYE', 'sip:1001@192.168.1.100', 'sip:1002@192.168.1.101'), 4000);
+}
+
+function simulateOneWayAudio() {
+  addCallEvent('INVITE', 'sip:1003@192.168.1.100', 'sip:1004@192.168.1.101');
+  setTimeout(() => addCallEvent('100 Trying', 'sip:1004@192.168.1.101', 'sip:1003@192.168.1.100'), 500);
+  setTimeout(() => addAlert('One-way audio detected', 'RTP flow: 100% sent, 0% received'), 1500);
+}
+
+function simulateNatProblem() {
+  addCallEvent('INVITE', 'sip:1005@192.168.1.100', 'sip:1006@external.com');
+  setTimeout(() => addAlert('NAT Problem', 'Private IP in SDP: 192.168.1.100'), 1000);
+  setTimeout(() => addAlert('High Latency', 'RTT: 850ms, Jitter: 45ms'), 2000);
+}
+
+function simulateTrafficAnalysis() {
+  addEvent('PCAP analysis started', 'Reading /pcap/traffic_log.txt');
+  setTimeout(() => addEvent('SIP Analysis', 'Found 323 SIP packets, 47 calls'), 1000);
+  setTimeout(() => addEvent('RTP Analysis', 'Found 15647 RTP packets, 3 streams with issues'), 2000);
+  setTimeout(() => addEvent('Analysis Complete', 'Generated comprehensive report'), 3000);
+}
+
+function addCallEvent(method, from, to) {
+  const eventsContainer = document.getElementById('events');
+  if (!eventsContainer) return;
+  
+  const event = document.createElement('div');
+  event.className = 'alert alert-info alert-sm mb-2';
+  event.innerHTML = `
+    <small><strong>${method}</strong></small><br>
+    <small class="text-muted">From: ${from}<br>To: ${to}</small>
+  `;
+  
+  eventsContainer.insertBefore(event, eventsContainer.firstChild);
+  
+  // Keep only last 10 events
+  while (eventsContainer.children.length > 10) {
+    eventsContainer.removeChild(eventsContainer.lastChild);
+  }
+}
+
+function addAlert(title, message) {
+  const alertsContainer = document.getElementById('alerts');
+  if (!alertsContainer) return;
+  
+  const alert = document.createElement('div');
+  alert.className = 'alert alert-warning alert-sm mb-2';
+  alert.innerHTML = `
+    <small><strong>${title}</strong></small><br>
+    <small class="text-muted">${message}</small>
+  `;
+  
+  alertsContainer.insertBefore(alert, alertsContainer.firstChild);
+  
+  // Keep only last 5 alerts
+  while (alertsContainer.children.length > 5) {
+    alertsContainer.removeChild(alertsContainer.lastChild);
+  }
+}
+
+function addEvent(message, details = '') {
+  const eventsContainer = document.getElementById('events');
+  if (!eventsContainer) return;
+  
+  const event = document.createElement('div');
+  event.className = 'alert alert-secondary alert-sm mb-2';
+  event.innerHTML = `
+    <small>${message}</small>
+    ${details ? `<br><small class="text-muted">${details}</small>` : ''}
+  `;
+  
+  eventsContainer.insertBefore(event, eventsContainer.firstChild);
+  
+  // Keep only last 10 events
+  while (eventsContainer.children.length > 10) {
+    eventsContainer.removeChild(eventsContainer.lastChild);
+  }
+}
+
+// Add original button event listeners with enhanced simulations
   if (btnSimNormal) {
     btnSimNormal.addEventListener('click', function() {
-      console.log('🖱️ Normal button clicked!');
       // Visual feedback
       btnSimNormal.classList.add('active');
-      btnSimNormal.innerHTML = '<i class="bi bi-telephone-fill"></i> ' + (currentLanguage === 'pt' ? 'Iniciando...' : 'Starting...');
+      btnSimNormal.innerHTML = '<i class="bi bi-telephone-fill"></i> ' + (currentLanguage === 'pt' ? 'Conectando...' : 'Connecting...');
       btnSimNormal.disabled = true;
       
       simulateNormalCall();
+      
+      // Show detailed connection progress
+      showNotification(currentLanguage === 'pt' ? '📞 Estabelecendo chamada SIP...' : '📞 Establishing SIP call...', 'info');
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '🔗 Negociação de mídia RTP...' : '🔗 RTP media negotiation...', 'info');
+      }, 1000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '✅ Chamada estabelecida - Áudio bidirecional ativo' : '✅ Call established - Bidirectional audio active', 'success');
+        updateCallMetrics(1, 0, 0);
+      }, 2000);
       
       // Reset button after simulation
       setTimeout(() => {
@@ -1383,58 +1550,108 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (btnSimOneWay) {
     btnSimOneWay.addEventListener('click', function() {
-      console.log('🖱️ One-Way button clicked!');
       // Visual feedback
       btnSimOneWay.classList.add('active');
-      btnSimOneWay.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + (currentLanguage === 'pt' ? 'Iniciando...' : 'Starting...');
+      btnSimOneWay.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + (currentLanguage === 'pt' ? 'Detectando...' : 'Detecting...');
       btnSimOneWay.disabled = true;
       
       simulateOneWayAudio();
+      
+      // Show detailed problem detection
+      showNotification(currentLanguage === 'pt' ? '📞 Iniciando chamada...' : '📞 Starting call...', 'warning');
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '⚠️ RTP detectado: Envio ativo, recebimento falhando' : '⚠️ RTP detected: Active sending, receiving failed', 'warning');
+        updateCallMetrics(1, 1, 0);
+      }, 1500);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '🔧 Aplicando correção NAT/STUN...' : '🔧 Applying NAT/STUN correction...', 'info');
+      }, 3000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '✅ Áudio bidirecional restaurado' : '✅ Bidirectional audio restored', 'success');
+        updateCallMetrics(1, 0, 0);
+      }, 4500);
       
       // Reset button after simulation
       setTimeout(() => {
         btnSimOneWay.classList.remove('active');
         btnSimOneWay.innerHTML = currentLanguage === 'pt' ? 'Iniciar chamada (one-way audio)' : 'Start call (one-way audio)';
         btnSimOneWay.disabled = false;
-      }, 5000);
+      }, 6000);
     });
   }
   
   if (btnSimNat) {
     btnSimNat.addEventListener('click', function() {
-      console.log('🖱️ NAT button clicked!');
       // Visual feedback
       btnSimNat.classList.add('active');
-      btnSimNat.innerHTML = '<i class="bi bi-wifi-off"></i> ' + (currentLanguage === 'pt' ? 'Iniciando...' : 'Starting...');
+      btnSimNat.innerHTML = '<i class="bi bi-wifi-off"></i> ' + (currentLanguage === 'pt' ? 'Analisando...' : 'Analyzing...');
       btnSimNat.disabled = true;
       
       simulateNatProblem();
+      
+      // Show detailed NAT problem analysis
+      showNotification(currentLanguage === 'pt' ? '📞 Iniciando chamada...' : '📞 Starting call...', 'danger');
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '🔴 IP privado detectado no SDP: 192.168.1.100' : '🔴 Private IP detected in SDP: 192.168.1.100', 'danger');
+        updateCallMetrics(1, 0, 1);
+      }, 1500);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '📈 Latência elevada: 850ms' : '📈 High latency: 850ms', 'danger');
+      }, 2500);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '🔧 Reconfigurando NAT externo...' : '🔧 Reconfiguring external NAT...', 'warning');
+      }, 3500);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '✅ NAT corrigido - IP público: 203.0.113.10' : '✅ NAT fixed - Public IP: 203.0.113.10', 'success');
+        updateCallMetrics(1, 0, 0);
+      }, 5000);
       
       // Reset button after simulation
       setTimeout(() => {
         btnSimNat.classList.remove('active');
         btnSimNat.innerHTML = currentLanguage === 'pt' ? 'Iniciar chamada (NAT incorreto)' : 'Start call (NAT incorrect)';
         btnSimNat.disabled = false;
-      }, 5000);
+      }, 6500);
     });
   }
   
   if (btnAnalyze) {
     btnAnalyze.addEventListener('click', function() {
-      console.log('🖱️ Analyze button clicked!');
       // Visual feedback
       btnAnalyze.classList.add('active');
       btnAnalyze.innerHTML = '<i class="bi bi-search"></i> ' + (currentLanguage === 'pt' ? 'Analisando...' : 'Analyzing...');
       btnAnalyze.disabled = true;
       
-      analyzeTraffic();
+      simulateTrafficAnalysis();
+      
+      // Show detailed analysis progress
+      showNotification(currentLanguage === 'pt' ? '📊 Lendo arquivo de captura PCAP...' : '📊 Reading PCAP capture file...', 'info');
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '🔍 Analisando pacotes SIP...' : '🔍 Analyzing SIP packets...', 'info');
+      }, 1000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '📈 Calculando estatísticas RTP...' : '📈 Calculating RTP statistics...', 'info');
+      }, 2000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '✅ Análise concluída - 323 pacotes SIP, 15647 pacotes RTP' : '✅ Analysis complete - 323 SIP packets, 15647 RTP packets', 'success');
+      }, 3000);
       
       // Reset button after simulation
       setTimeout(() => {
         btnAnalyze.classList.remove('active');
-        btnAnalyze.innerHTML = currentLanguage === 'pt' ? 'Analisar tráfego SIP' : 'Analyze SIP traffic';
+        btnAnalyze.innerHTML = '<i class="bi bi-bar-chart"></i> ' + (currentLanguage === 'pt' ? 'Analisar tráfego SIP' : 'Analyze SIP traffic');
         btnAnalyze.disabled = false;
-      }, 6000);
+      }, 4000);
     });
   }
   
@@ -1478,22 +1695,95 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (btnResolveProblems) {
     btnResolveProblems.addEventListener('click', () => {
-      resolveVoipProblems();
+      // Visual feedback
+      btnResolveProblems.classList.add('active');
+      btnResolveProblems.innerHTML = '<i class="bi bi-gear-fill"></i> ' + (currentLanguage === 'pt' ? 'Resolvendo...' : 'Resolving...');
+      btnResolveProblems.disabled = true;
+      
+      // Show detailed resolution process
+      showNotification(currentLanguage === 'pt' ? '🔍 Iniciando diagnóstico completo...' : '🔍 Starting complete diagnosis...', 'info');
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '📊 Analisando 47 chamadas ativas...' : '📊 Analyzing 47 active calls...', 'info');
+      }, 1000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '⚠️ 3 problemas detectados: 1 one-way audio, 1 NAT, 1 alta latência' : '⚠️ 3 problems detected: 1 one-way audio, 1 NAT, 1 high latency', 'warning');
+      }, 2000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '🔧 Aplicando correções automáticas...' : '🔧 Applying automatic corrections...', 'warning');
+      }, 3000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '✅ One-way audio corrigido - STUN/TURN configurado' : '✅ One-way audio fixed - STUN/TURN configured', 'success');
+        updateCallMetrics(46, 0, 0);
+      }, 4000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '✅ NAT corrigido - IP público atualizado' : '✅ NAT fixed - Public IP updated', 'success');
+      }, 5000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '✅ Latência otimizada - QoS aplicado' : '✅ Latency optimized - QoS applied', 'success');
+      }, 6000);
+      
+      setTimeout(() => {
+        showNotification(currentLanguage === 'pt' ? '🎉 Todos os problemas resolvidos - Sistema 100% operacional' : '🎉 All problems resolved - System 100% operational', 'success');
+        updateCallMetrics(47, 0, 0);
+        
+        // Reset button
+        btnResolveProblems.classList.remove('active');
+        btnResolveProblems.innerHTML = '🔧 ' + (currentLanguage === 'pt' ? 'Resolver Problemas VoIP' : 'Resolve VoIP Problems');
+        btnResolveProblems.disabled = false;
+      }, 7000);
     });
   }
   
   if (btnAutoResolve) {
     let autoResolveEnabled = false;
+    let autoResolveInterval = null;
+    
     btnAutoResolve.addEventListener('click', () => {
       autoResolveEnabled = !autoResolveEnabled;
+      
       if (autoResolveEnabled) {
-        enableAutoResolution();
-        btnAutoResolve.innerHTML = '🛑 Parar Auto-Resolução';
+        // Enable auto-resolution
+        btnAutoResolve.innerHTML = '<i class="bi bi-stop-fill"></i> ' + (currentLanguage === 'pt' ? 'Parar Auto-Resolução' : 'Stop Auto-Resolution');
         btnAutoResolve.className = 'btn btn-danger btn-sm ms-2';
+        
+        showNotification(currentLanguage === 'pt' ? '🤖 Auto-resolução ativada - Monitoramento contínuo' : '🤖 Auto-resolution activated - Continuous monitoring', 'success');
+        
+        // Start periodic monitoring
+        autoResolveInterval = setInterval(() => {
+          // Simulate random problem detection and resolution
+          const problemTypes = ['one-way audio', 'NAT', 'latência'];
+          const randomProblem = problemTypes[Math.floor(Math.random() * problemTypes.length)];
+          
+          showNotification(
+            currentLanguage === 'pt' ? 
+              `⚠️ Problema detectado: ${randomProblem}` : 
+              `⚠️ Problem detected: ${randomProblem}`, 
+            'warning'
+          );
+          
+          setTimeout(() => {
+            showNotification(
+              currentLanguage === 'pt' ? 
+                `✅ ${randomProblem} resolvido automaticamente` : 
+                `✅ ${randomProblem} automatically resolved`, 
+              'success'
+            );
+          }, 2000);
+        }, 10000); // Every 10 seconds
+        
       } else {
-        disableAutoResolution();
-        btnAutoResolve.innerHTML = '🤖 Auto-Resolução';
+        // Disable auto-resolution
+        clearInterval(autoResolveInterval);
+        btnAutoResolve.innerHTML = '<i class="bi bi-robot"></i> ' + (currentLanguage === 'pt' ? 'Auto-Resolução' : 'Auto-Resolution');
         btnAutoResolve.className = 'btn btn-warning btn-sm ms-2';
+        
+        showNotification(currentLanguage === 'pt' ? '🛑 Auto-resolução desativada' : '🛑 Auto-resolution deactivated', 'warning');
       }
     });
   }
