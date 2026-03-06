@@ -1,0 +1,1 @@
+🚀 VoIP Monitoring Platform: Sistema em tempo real que detecta one-way audio, problemas de NAT e alta latência em chamadas VoIP. Reduz perdas em call centers, salva vidas em emergências médicas e economiza milhares em multas para frota. Interface bilíngue (PT/EN) com exemplos práticos de ROI. Deploy em 1 minuto no Railway.
