@@ -86,7 +86,25 @@ const translations = {
     oneWayAudioAlert: 'One-Way Audio',
     oneWayAudioAlertDesc: 'Chamada {id} com áudio em uma direção apenas',
     natProblemAlert: 'Problema NAT',
-    natProblemAlertDesc: 'IP privado {from} detectado na chamada {id}'
+    natProblemAlertDesc: 'IP privado {from} detectado na chamada {id}',
+    // Tooltips
+    normalCallTooltip: 'Simula uma chamada VoIP perfeita sem problemas de áudio, latência baixa e qualidade excelente (MOS 4.0+). Ideal para testar o funcionamento normal do sistema.',
+    oneWayAudioTooltip: 'Simula um problema clássico de VoIP onde o áudio flui apenas em uma direção. Causa alertas e pode ser resolvido automaticamente se a função estiver ativa.',
+    natProblemTooltip: 'Simula problemas de NAT (Network Address Translation) onde um IP privado tenta se comunicar externamente. Gera alertas críticos e afeta drasticamente a qualidade da chamada.',
+    trafficAnalysisTooltip: 'Executa uma análise completa do tráfego SIP/RTP, verificando codecs, largura de banda, jitter e packet loss. Mostra o processo de diagnóstico em tempo real.',
+    autoResolveTooltip: 'Ativa/desativa o sistema de resolução automática de problemas. Quando ativo, o sistema detecta e corrige automaticamente issues como One-Way Audio e problemas de NAT.',
+    clearAllDataTooltip: 'Limpa completamente todos os dados do sistema: chamadas ativas, eventos, alertas e estatísticas. Útil para recomeçar testes ou limpar a interface.',
+    languageTooltip: 'Mude o idioma da interface entre Português e Inglês. A preferência é salva automaticamente.',
+    connectionStatusTooltip: 'Status da conexão com o sistema. Verde indica que está online e funcionando normalmente.',
+    currentTimeTooltip: 'Horário atual do servidor. Atualizado a cada segundo.',
+    userMenuTooltip: 'Menu de usuário com opções de ajuda e reinicialização do sistema.',
+    helpTooltip: 'Exibe informações de ajuda sobre como usar o sistema de monitoramento VoIP.',
+    resetSystemTooltip: 'Reinicia completamente o sistema, recarregando a página e limpando todos os dados temporários.',
+    activeCallsTooltip: 'Número total de chamadas VoIP ativas no momento. Cada chamada simulada aparece aqui com detalhes de origem, destino e qualidade.',
+    alertsTooltip: 'Contagem de alertas ativos no sistema. Alertas são gerados quando problemas como One-Way Audio ou NAT são detectados.',
+    eventsTooltip: 'Total de eventos registrados pelo sistema. Inclui chamadas, problemas, análises e eventos de background.',
+    cpuTooltip: 'Uso simulado da CPU pelo sistema. Varia entre 10-40% para demonstrar monitoramento de recursos.',
+    clearEventsTooltip: 'Limpa o histórico de eventos. Remove todos os eventos registrados mas mantém as chamadas ativas e alertas.'
   },
   en: {
     online: 'Online',
@@ -171,7 +189,25 @@ const translations = {
     oneWayAudioAlert: 'One-Way Audio',
     oneWayAudioAlertDesc: 'Call {id} with audio in one direction only',
     natProblemAlert: 'NAT Problem',
-    natProblemAlertDesc: 'Private IP {from} detected in call {id}'
+    natProblemAlertDesc: 'Private IP {from} detected in call {id}',
+    // Tooltips
+    normalCallTooltip: 'Simulates a perfect VoIP call with no audio issues, low latency and excellent quality (MOS 4.0+). Ideal for testing normal system operation.',
+    oneWayAudioTooltip: 'Simulates a classic VoIP problem where audio flows only in one direction. Causes alerts and can be automatically resolved if the function is active.',
+    natProblemTooltip: 'Simulates NAT (Network Address Translation) problems where a private IP tries to communicate externally. Generates critical alerts and drastically affects call quality.',
+    trafficAnalysisTooltip: 'Performs complete SIP/RTP traffic analysis, checking codecs, bandwidth, jitter and packet loss. Shows the diagnostic process in real time.',
+    autoResolveTooltip: 'Activates/deactivates the automatic problem resolution system. When active, the system detects and automatically fixes issues like One-Way Audio and NAT problems.',
+    clearAllDataTooltip: 'Completely clears all system data: active calls, events, alerts and statistics. Useful for restarting tests or cleaning the interface.',
+    languageTooltip: 'Change the interface language between Portuguese and English. Preference is automatically saved.',
+    connectionStatusTooltip: 'System connection status. Green indicates it is online and functioning normally.',
+    currentTimeTooltip: 'Current server time. Updated every second.',
+    userMenuTooltip: 'User menu with help and system reset options.',
+    helpTooltip: 'Displays help information on how to use the VoIP monitoring system.',
+    resetSystemTooltip: 'Completely restarts the system, reloading the page and clearing all temporary data.',
+    activeCallsTooltip: 'Total number of active VoIP calls at the moment. Each simulated call appears here with origin, destination and quality details.',
+    alertsTooltip: 'Count of active alerts in the system. Alerts are generated when problems like One-Way Audio or NAT are detected.',
+    eventsTooltip: 'Total events registered by the system. Includes calls, problems, analysis and background events.',
+    cpuTooltip: 'Simulated CPU usage by the system. Varies between 10-40% to demonstrate resource monitoring.',
+    clearEventsTooltip: 'Clears the event history. Removes all registered events but keeps active calls and alerts.'
   }
 };
 
@@ -203,6 +239,9 @@ class VoIPMonitor {
     this.updateSystemStats();
     this.startBackgroundSimulation();
     
+    // Inicializar tooltips do Bootstrap
+    this.updateTooltips();
+    
     // Atualizar tempo a cada segundo
     setInterval(() => this.updateTime(), 1000);
     
@@ -231,6 +270,9 @@ class VoIPMonitor {
       }
     });
     
+    // Atualizar tooltips
+    this.updateTooltips();
+    
     // Atualizar texto do botão auto-resolve
     this.updateAutoResolveButtonText();
     
@@ -246,6 +288,67 @@ class VoIPMonitor {
     }
     
     this.showToast('Language', lang === 'pt' ? 'Idioma alterado para Português' : 'Language changed to English', 'info');
+  }
+
+  updateTooltips() {
+    // Mapeamento de elementos para tooltips
+    const tooltipMap = {
+      'simulateNormalCall': 'normalCallTooltip',
+      'simulateOneWayAudio': 'oneWayAudioTooltip', 
+      'simulateNatProblem': 'natProblemTooltip',
+      'simulateTrafficAnalysis': 'trafficAnalysisTooltip',
+      'toggleAutoResolve': 'autoResolveTooltip',
+      'clearAllData': 'clearAllDataTooltip',
+      'changeLanguage': 'languageTooltip',
+      'connectionStatus': 'connectionStatusTooltip',
+      'currentTime': 'currentTimeTooltip',
+      'userMenu': 'userMenuTooltip',
+      'showHelp': 'helpTooltip',
+      'resetSystem': 'resetSystemTooltip',
+      'activeCalls': 'activeCallsTooltip',
+      'alerts': 'alertsTooltip',
+      'events': 'eventsTooltip',
+      'cpu': 'cpuTooltip',
+      'clearEvents': 'clearEventsTooltip'
+    };
+
+    // Atualizar tooltips baseados nos atributos onclick e data-i18n
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => {
+      const onclick = element.getAttribute('onclick');
+      const dataI18n = element.getAttribute('data-i18n');
+      
+      let tooltipKey = null;
+      
+      // Tentar encontrar pelo onclick
+      if (onclick) {
+        Object.keys(tooltipMap).forEach(func => {
+          if (onclick.includes(func)) {
+            tooltipKey = tooltipMap[func];
+          }
+        });
+      }
+      
+      // Tentar encontrar pelo data-i18n
+      if (!tooltipKey && dataI18n) {
+        tooltipKey = tooltipMap[dataI18n];
+      }
+      
+      // Tentar encontrar pelo ID
+      if (!tooltipKey && element.id) {
+        tooltipKey = tooltipMap[element.id];
+      }
+      
+      // Se encontrou a chave, atualizar o tooltip
+      if (tooltipKey && translations[this.currentLang][tooltipKey]) {
+        element.setAttribute('title', translations[this.currentLang][tooltipKey]);
+      }
+    });
+    
+    // Re-inicializar tooltips do Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
   }
 
   t(key, params = {}) {

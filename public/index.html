@@ -46,7 +46,9 @@
       </span>
       <div class="d-flex align-items-center gap-3">
         <div class="dropdown">
-          <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                  data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                  title="Mude o idioma da interface entre Português e Inglês. A preferência é salva automaticamente.">
             <i class="bi bi-globe"></i> <span id="currentLang">PT</span>
           </button>
           <ul class="dropdown-menu">
@@ -58,20 +60,30 @@
             </a></li>
           </ul>
         </div>
-        <span class="badge bg-success" id="connectionStatus">
+        <span class="badge bg-success" id="connectionStatus"
+              data-bs-toggle="tooltip" data-bs-placement="bottom" 
+              title="Status da conexão com o sistema. Verde indica que está online e funcionando normalmente.">
           <i class="bi bi-circle-fill pulse"></i> <span data-i18n="online">Online</span>
         </span>
-        <span class="text-white" id="currentTime">--:--:--</span>
+        <span class="text-white" id="currentTime"
+              data-bs-toggle="tooltip" data-bs-placement="bottom" 
+              title="Horário atual do servidor. Atualizado a cada segundo.">--:--:--</span>
         <div class="dropdown">
-          <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                  data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                  title="Menu de usuário com opções de ajuda e reinicialização do sistema.">
             <i class="bi bi-person-circle"></i> <span data-i18n="demoUser">Demo User</span>
           </button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" onclick="showHelp()">
+            <li><a class="dropdown-item" href="#" onclick="showHelp()"
+                   data-bs-toggle="tooltip" data-bs-placement="left" 
+                   title="Exibe informações de ajuda sobre como usar o sistema de monitoramento VoIP.">
               <i class="bi bi-question-circle"></i> <span data-i18n="help">Ajuda</span>
             </a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" onclick="resetSystem()">
+            <li><a class="dropdown-item" href="#" onclick="resetSystem()"
+                   data-bs-toggle="tooltip" data-bs-placement="left" 
+                   title="Reinicia completamente o sistema, recarregando a página e limpando todos os dados temporários.">
               <i class="bi bi-arrow-clockwise"></i> <span data-i18n="resetSystem">Reiniciar Sistema</span>
             </a></li>
           </ul>
@@ -85,7 +97,9 @@
     <!-- Metrics Row -->
     <div class="row g-3 mb-4">
       <div class="col-md-3">
-        <div class="card metric-card h-100 border-0 shadow-sm">
+        <div class="card metric-card h-100 border-0 shadow-sm"
+             data-bs-toggle="tooltip" data-bs-placement="top" 
+             title="Número total de chamadas VoIP ativas no momento. Cada chamada simulada aparece aqui com detalhes de origem, destino e qualidade.">
           <div class="card-body text-center">
             <i class="bi bi-telephone-fill text-primary fs-2"></i>
             <h3 class="mt-2 mb-0" id="activeCalls">0</h3>
@@ -94,7 +108,9 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card metric-card h-100 border-0 shadow-sm">
+        <div class="card metric-card h-100 border-0 shadow-sm"
+             data-bs-toggle="tooltip" data-bs-placement="top" 
+             title="Contagem de alertas ativos no sistema. Alertas são gerados quando problemas como One-Way Audio ou NAT são detectados.">
           <div class="card-body text-center">
             <i class="bi bi-exclamation-triangle-fill text-warning fs-2"></i>
             <h3 class="mt-2 mb-0" id="alertCount">0</h3>
@@ -103,7 +119,9 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card metric-card h-100 border-0 shadow-sm">
+        <div class="card metric-card h-100 border-0 shadow-sm"
+             data-bs-toggle="tooltip" data-bs-placement="top" 
+             title="Total de eventos registrados pelo sistema. Inclui chamadas, problemas, análises e eventos de background.">
           <div class="card-body text-center">
             <i class="bi bi-activity text-info fs-2"></i>
             <h3 class="mt-2 mb-0" id="eventCount">0</h3>
@@ -112,7 +130,9 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card metric-card h-100 border-0 shadow-sm">
+        <div class="card metric-card h-100 border-0 shadow-sm"
+             data-bs-toggle="tooltip" data-bs-placement="top" 
+             title="Uso simulado da CPU pelo sistema. Varia entre 10-40% para demonstrar monitoramento de recursos.">
           <div class="card-body text-center">
             <i class="bi bi-cpu text-secondary fs-2"></i>
             <h3 class="mt-2 mb-0" id="cpuUsage">0%</h3>
@@ -133,28 +153,36 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6 col-lg-3">
-            <button class="btn btn-success w-100" onclick="simulateNormalCall()">
+            <button class="btn btn-success w-100" onclick="simulateNormalCall()" 
+                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                    title="Simula uma chamada VoIP perfeita sem problemas de áudio, latência baixa e qualidade excelente (MOS 4.0+). Ideal para testar o funcionamento normal do sistema.">
               <i class="bi bi-telephone-fill"></i>
               <div data-i18n="normalCall">Chamada Normal</div>
               <small data-i18n="normalCallDesc">Simular chamada sem problemas</small>
             </button>
           </div>
           <div class="col-md-6 col-lg-3">
-            <button class="btn btn-warning w-100" onclick="simulateOneWayAudio()">
+            <button class="btn btn-warning w-100" onclick="simulateOneWayAudio()" 
+                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                    title="Simula um problema clássico de VoIP onde o áudio flui apenas em uma direção. Causa alertas e pode ser resolvido automaticamente se a função estiver ativa.">
               <i class="bi bi-exclamation-triangle-fill"></i>
               <div data-i18n="oneWayAudio">One-Way Audio</div>
               <small data-i18n="oneWayAudioDesc">Áudio só em uma direção</small>
             </button>
           </div>
           <div class="col-md-6 col-lg-3">
-            <button class="btn btn-danger w-100" onclick="simulateNatProblem()">
+            <button class="btn btn-danger w-100" onclick="simulateNatProblem()" 
+                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                    title="Simula problemas de NAT (Network Address Translation) onde um IP privado tenta se comunicar externamente. Gera alertas críticos e afeta drasticamente a qualidade da chamada.">
               <i class="bi bi-wifi-off"></i>
               <div data-i18n="natProblem">Problema NAT</div>
               <small data-i18n="natProblemDesc">IP privado detectado</small>
             </button>
           </div>
           <div class="col-md-6 col-lg-3">
-            <button class="btn btn-info w-100" onclick="simulateTrafficAnalysis()">
+            <button class="btn btn-info w-100" onclick="simulateTrafficAnalysis()" 
+                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                    title="Executa uma análise completa do tráfego SIP/RTP, verificando codecs, largura de banda, jitter e packet loss. Mostra o processo de diagnóstico em tempo real.">
               <i class="bi bi-bar-chart-fill"></i>
               <div data-i18n="trafficAnalysis">Analisar Tráfego</div>
               <small data-i18n="trafficAnalysisDesc">Análise SIP/RTP</small>
@@ -163,13 +191,17 @@
         </div>
         <div class="row g-3 mt-3">
           <div class="col-md-6">
-            <button class="btn btn-outline-primary w-100" onclick="toggleAutoResolve()">
+            <button class="btn btn-outline-primary w-100" onclick="toggleAutoResolve()" 
+                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                    title="Ativa/desativa o sistema de resolução automática de problemas. Quando ativo, o sistema detecta e corrige automaticamente issues como One-Way Audio e problemas de NAT.">
               <i class="bi bi-robot"></i>
               <span id="autoResolveText" data-i18n="activateAutoResolve">Ativar Auto-Resolução</span>
             </button>
           </div>
           <div class="col-md-6">
-            <button class="btn btn-outline-secondary w-100" onclick="clearAllData()">
+            <button class="btn btn-outline-secondary w-100" onclick="clearAllData()" 
+                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                    title="Limpa completamente todos os dados do sistema: chamadas ativas, eventos, alertas e estatísticas. Útil para recomeçar testes ou limpar a interface.">
               <i class="bi bi-trash"></i>
               <span data-i18n="clearAllData">Limpar Todos os Dados</span>
             </button>
@@ -221,7 +253,9 @@
               <i class="bi bi-activity me-2"></i>
               <span data-i18n="realTimeEvents">Eventos em Tempo Real</span>
             </h6>
-            <button class="btn btn-sm btn-outline-secondary" onclick="clearEvents()">
+            <button class="btn btn-sm btn-outline-secondary" onclick="clearEvents()"
+                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                    title="Limpa o histórico de eventos. Remove todos os eventos registrados mas mantém as chamadas ativas e alertas.">
               <i class="bi bi-arrow-clockwise"></i>
             </button>
           </div>
