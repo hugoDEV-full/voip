@@ -66,6 +66,10 @@ const translations = {
     systemAutoResolveActivated: 'Auto-resolução ativada',
     systemAutoResolveDeactivated: 'Auto-resolução desativada',
     systemClearedByUser: 'Todos os dados limpos pelo usuário',
+    backgroundSipRegister: 'SIP: Registrando usuário',
+    backgroundRtpPacket: 'RTP: Pacote recebido',
+    backgroundSystemCheck: 'SYSTEM: Verificando conexões',
+    backgroundMonitorAnalysis: 'MONITOR: Análise de qualidade em andamento',
     // Status
     active: 'Ativa',
     problem: 'Problema',
@@ -147,6 +151,10 @@ const translations = {
     systemAutoResolveActivated: 'Auto-resolve activated',
     systemAutoResolveDeactivated: 'Auto-resolve deactivated',
     systemClearedByUser: 'All data cleared by user',
+    backgroundSipRegister: 'SIP: Registering user',
+    backgroundRtpPacket: 'RTP: Packet received',
+    backgroundSystemCheck: 'SYSTEM: Checking connections',
+    backgroundMonitorAnalysis: 'MONITOR: Quality analysis in progress',
     // Status
     active: 'Active',
     problem: 'Problem',
@@ -228,6 +236,14 @@ class VoIPMonitor {
     
     // Atualizar tabelas se houver chamadas ativas
     this.updateCallsTable();
+    
+    // Atualizar alertas para refletir novo idioma
+    this.updateAlerts();
+    
+    // Atualizar feed de eventos se não houver eventos
+    if (this.events.length === 0) {
+      this.updateEventsFeed();
+    }
     
     this.showToast('Language', lang === 'pt' ? 'Idioma alterado para Português' : 'Language changed to English', 'info');
   }
@@ -693,10 +709,10 @@ class VoIPMonitor {
     setInterval(() => {
       if (Math.random() < 0.3) {
         const events = [
-          'SIP: Registrando usuário',
-          'RTP: Pacote recebido',
-          'SYSTEM: Verificando conexões',
-          'MONITOR: Análise de qualidade em andamento'
+          this.t('backgroundSipRegister'),
+          this.t('backgroundRtpPacket'),
+          this.t('backgroundSystemCheck'),
+          this.t('backgroundMonitorAnalysis')
         ];
         
         const randomEvent = events[Math.floor(Math.random() * events.length)];
