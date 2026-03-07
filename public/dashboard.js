@@ -1,5 +1,171 @@
-// VoIP Monitor Dashboard - Sistema de Simulação Completo
+// VoIP Monitor Dashboard - Sistema de Simulação Completo com Tradução
 // Todas as funcionalidades são simuladas para demonstração
+
+// Dicionário de Traduções
+const translations = {
+  pt: {
+    online: 'Online',
+    demoUser: 'Demo User',
+    help: 'Ajuda',
+    resetSystem: 'Reiniciar Sistema',
+    activeCalls: 'Chamadas Ativas',
+    alerts: 'Alertas',
+    events: 'Eventos',
+    cpu: 'CPU',
+    controlPanel: 'Painel de Controle - Simulações',
+    normalCall: 'Chamada Normal',
+    normalCallDesc: 'Simular chamada sem problemas',
+    oneWayAudio: 'One-Way Audio',
+    oneWayAudioDesc: 'Áudio só em uma direção',
+    natProblem: 'Problema NAT',
+    natProblemDesc: 'IP privado detectado',
+    trafficAnalysis: 'Analisar Tráfego',
+    trafficAnalysisDesc: 'Análise SIP/RTP',
+    activateAutoResolve: 'Ativar Auto-Resolução',
+    deactivateAutoResolve: 'Desativar Auto-Resolução',
+    clearAllData: 'Limpar Todos os Dados',
+    activeCallsTitle: 'Chamadas Ativas',
+    realTimeEvents: 'Eventos em Tempo Real',
+    systemAlerts: 'Alertas do Sistema',
+    tableId: 'ID',
+    tableFrom: 'De',
+    tableTo: 'Para',
+    tableStatus: 'Status',
+    tableQuality: 'Qualidade',
+    noActiveCalls: 'Nenhuma chamada ativa',
+    waitingEvents: 'Aguardando eventos...',
+    systemNormal: 'Sistema funcionando normalmente. Nenhum alerta no momento.',
+    // Toasts e mensagens
+    normalCallToast: 'Chamada Normal',
+    normalCallStarted: 'Chamada {id} iniciada com sucesso',
+    oneWayAudioToast: 'One-Way Audio',
+    oneWayAudioDetected: 'Problema detectado na chamada {id}',
+    natProblemToast: 'Problema NAT',
+    natProblemDetected: 'IP privado detectado na chamada {id}',
+    trafficAnalysisToast: 'Análise de Tráfego',
+    analysisStarted: 'Análise iniciada',
+    analysisCompleted: 'Análise Concluída',
+    trafficNormal: 'Tráfego normal, sem problemas detectados',
+    autoResolveActivated: 'Auto-resolução ATIVADA',
+    autoResolveDeactivated: 'Auto-resolução DESATIVADA',
+    oneWayAudioResolved: 'Problema de áudio resolvido na chamada {id}',
+    natProblemResolved: 'Problema NAT resolvido na chamada {id}',
+    systemCleared: 'Todos os dados foram limpos',
+    eventsCleared: 'Eventos limpos',
+    helpToast: 'Ajuda',
+    helpMessage: 'Clique nos botões de simulação para testar o sistema',
+    // Eventos
+    callStart: 'Chamada {id}: {from} -> {to} iniciada',
+    callEnd: 'Chamada {id} finalizada - Duração: {duration}s',
+    audioProblem: 'One-Way Audio detectado na chamada {id}',
+    natDetected: 'IP privado detectado: {from} na chamada {id}',
+    analysisStart: 'Iniciando análise de tráfego SIP/RTP...',
+    analysisComplete: 'Análise de tráfego concluída - Sistema normal',
+    autoResolve: 'One-Way Audio resolvido automaticamente na chamada {id}',
+    natConfigured: 'NAT configurado automaticamente para chamada {id}',
+    systemAutoResolveActivated: 'Auto-resolução ativada',
+    systemAutoResolveDeactivated: 'Auto-resolução desativada',
+    systemClearedByUser: 'Todos os dados limpos pelo usuário',
+    // Status
+    active: 'Ativa',
+    problem: 'Problema',
+    nat: 'NAT',
+    recovered: 'Recuperada',
+    excellent: 'Excelente',
+    good: 'Bom',
+    regular: 'Regular',
+    bad: 'Ruim',
+    terrible: 'Péssima',
+    resolved: 'Resolvido',
+    natConfigured: 'NAT Configurado',
+    // Alertas
+    oneWayAudioAlert: 'One-Way Audio',
+    oneWayAudioAlertDesc: 'Chamada {id} com áudio em uma direção apenas',
+    natProblemAlert: 'Problema NAT',
+    natProblemAlertDesc: 'IP privado {from} detectado na chamada {id}'
+  },
+  en: {
+    online: 'Online',
+    demoUser: 'Demo User',
+    help: 'Help',
+    resetSystem: 'Reset System',
+    activeCalls: 'Active Calls',
+    alerts: 'Alerts',
+    events: 'Events',
+    cpu: 'CPU',
+    controlPanel: 'Control Panel - Simulations',
+    normalCall: 'Normal Call',
+    normalCallDesc: 'Simulate call without problems',
+    oneWayAudio: 'One-Way Audio',
+    oneWayAudioDesc: 'Audio in one direction only',
+    natProblem: 'NAT Problem',
+    natProblemDesc: 'Private IP detected',
+    trafficAnalysis: 'Analyze Traffic',
+    trafficAnalysisDesc: 'SIP/RTP Analysis',
+    activateAutoResolve: 'Activate Auto-Resolve',
+    deactivateAutoResolve: 'Deactivate Auto-Resolve',
+    clearAllData: 'Clear All Data',
+    activeCallsTitle: 'Active Calls',
+    realTimeEvents: 'Real-time Events',
+    systemAlerts: 'System Alerts',
+    tableId: 'ID',
+    tableFrom: 'From',
+    tableTo: 'To',
+    tableStatus: 'Status',
+    tableQuality: 'Quality',
+    noActiveCalls: 'No active calls',
+    waitingEvents: 'Waiting for events...',
+    systemNormal: 'System operating normally. No alerts at the moment.',
+    // Toasts e mensagens
+    normalCallToast: 'Normal Call',
+    normalCallStarted: 'Call {id} started successfully',
+    oneWayAudioToast: 'One-Way Audio',
+    oneWayAudioDetected: 'Problem detected in call {id}',
+    natProblemToast: 'NAT Problem',
+    natProblemDetected: 'Private IP detected in call {id}',
+    trafficAnalysisToast: 'Traffic Analysis',
+    analysisStarted: 'Analysis started',
+    analysisCompleted: 'Analysis Completed',
+    trafficNormal: 'Normal traffic, no problems detected',
+    autoResolveActivated: 'Auto-resolve ACTIVATED',
+    autoResolveDeactivated: 'Auto-resolve DEACTIVATED',
+    oneWayAudioResolved: 'Audio problem resolved in call {id}',
+    natProblemResolved: 'NAT problem resolved in call {id}',
+    systemCleared: 'All data has been cleared',
+    eventsCleared: 'Events cleared',
+    helpToast: 'Help',
+    helpMessage: 'Click simulation buttons to test the system',
+    // Eventos
+    callStart: 'Call {id}: {from} -> {to} started',
+    callEnd: 'Call {id} ended - Duration: {duration}s',
+    audioProblem: 'One-Way Audio detected in call {id}',
+    natDetected: 'Private IP detected: {from} in call {id}',
+    analysisStart: 'Starting SIP/RTP traffic analysis...',
+    analysisComplete: 'Traffic analysis completed - System normal',
+    autoResolve: 'One-Way Audio automatically resolved in call {id}',
+    natConfigured: 'NAT automatically configured for call {id}',
+    systemAutoResolveActivated: 'Auto-resolve activated',
+    systemAutoResolveDeactivated: 'Auto-resolve deactivated',
+    systemClearedByUser: 'All data cleared by user',
+    // Status
+    active: 'Active',
+    problem: 'Problem',
+    nat: 'NAT',
+    recovered: 'Recovered',
+    excellent: 'Excellent',
+    good: 'Good',
+    regular: 'Regular',
+    bad: 'Bad',
+    terrible: 'Terrible',
+    resolved: 'Resolved',
+    natConfigured: 'NAT Configured',
+    // Alertas
+    oneWayAudioAlert: 'One-Way Audio',
+    oneWayAudioAlertDesc: 'Call {id} with audio in one direction only',
+    natProblemAlert: 'NAT Problem',
+    natProblemAlertDesc: 'Private IP {from} detected in call {id}'
+  }
+};
 
 class VoIPMonitor {
   constructor() {
@@ -15,11 +181,16 @@ class VoIPMonitor {
     this.autoResolveEnabled = false;
     this.callIdCounter = 1000;
     this.eventIdCounter = 1;
+    this.currentLang = 'pt'; // Idioma padrão
     
     this.init();
   }
 
   init() {
+    // Carregar idioma salvo ou usar padrão
+    const savedLang = localStorage.getItem('voipMonitorLang') || 'pt';
+    this.changeLanguage(savedLang);
+    
     this.updateTime();
     this.updateSystemStats();
     this.startBackgroundSimulation();
@@ -31,6 +202,49 @@ class VoIPMonitor {
     setInterval(() => this.updateSystemStats(), 3000);
     
     console.log('VoIP Monitor Dashboard iniciado');
+  }
+
+  // Sistema de Tradução
+  changeLanguage(lang) {
+    this.currentLang = lang;
+    localStorage.setItem('voipMonitorLang', lang);
+    
+    // Atualizar botão de idioma
+    const langButton = document.getElementById('currentLang');
+    if (langButton) {
+      langButton.textContent = lang.toUpperCase();
+    }
+    
+    // Traduzir todos os elementos com data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (translations[lang] && translations[lang][key]) {
+        element.textContent = translations[lang][key];
+      }
+    });
+    
+    // Atualizar texto do botão auto-resolve
+    this.updateAutoResolveButtonText();
+    
+    // Atualizar tabelas se houver chamadas ativas
+    this.updateCallsTable();
+    
+    this.showToast('Language', lang === 'pt' ? 'Idioma alterado para Português' : 'Language changed to English', 'info');
+  }
+
+  t(key, params = {}) {
+    if (!translations[this.currentLang] || !translations[this.currentLang][key]) {
+      return key;
+    }
+    
+    let text = translations[this.currentLang][key];
+    
+    // Substituir parâmetros {param}
+    Object.keys(params).forEach(param => {
+      text = text.replace(new RegExp(`{${param}}`, 'g'), params[param]);
+    });
+    
+    return text;
   }
 
   updateTime() {
@@ -69,8 +283,8 @@ class VoIPMonitor {
       id: callId,
       from: from,
       to: to,
-      status: 'Ativa',
-      quality: 'Excelente',
+      status: this.t('active'),
+      quality: this.t('excellent'),
       startTime: new Date(),
       duration: 0,
       latency: Math.floor(Math.random() * 50) + 10,
@@ -81,8 +295,8 @@ class VoIPMonitor {
     this.calls.set(callId, call);
     this.stats.activeCalls++;
     
-    this.addEvent(`CALL_START`, `Chamada ${callId}: ${from} -> ${to} iniciada`);
-    this.showToast('Chamada Normal', `Chamada ${callId} iniciada com sucesso`, 'success');
+    this.addEvent(`CALL_START`, this.t('callStart', {id: callId, from: from, to: to}));
+    this.showToast(this.t('normalCallToast'), this.t('normalCallStarted', {id: callId}), 'success');
     
     this.updateCallsTable();
     this.updateMetrics();
@@ -102,8 +316,8 @@ class VoIPMonitor {
       id: callId,
       from: from,
       to: to,
-      status: 'Problema',
-      quality: 'Ruim',
+      status: this.t('problem'),
+      quality: this.t('bad'),
       startTime: new Date(),
       duration: 0,
       latency: Math.floor(Math.random() * 100) + 50,
@@ -116,9 +330,9 @@ class VoIPMonitor {
     this.stats.activeCalls++;
     this.stats.alertCount++;
     
-    this.addEvent('AUDIO_PROBLEM', `One-Way Audio detectado na chamada ${callId}`);
-    this.addAlert('warning', `One-Way Audio`, `Chamada ${callId} com áudio em uma direção apenas`);
-    this.showToast('One-Way Audio', `Problema detectado na chamada ${callId}`, 'warning');
+    this.addEvent('AUDIO_PROBLEM', this.t('audioProblem', {id: callId}));
+    this.addAlert('warning', this.t('oneWayAudioAlert'), this.t('oneWayAudioAlertDesc', {id: callId}));
+    this.showToast(this.t('oneWayAudioToast'), this.t('oneWayAudioDetected', {id: callId}), 'warning');
     
     this.updateCallsTable();
     this.updateMetrics();
@@ -144,8 +358,8 @@ class VoIPMonitor {
       id: callId,
       from: from,
       to: to,
-      status: 'NAT',
-      quality: 'Péssima',
+      status: this.t('nat'),
+      quality: this.t('terrible'),
       startTime: new Date(),
       duration: 0,
       latency: Math.floor(Math.random() * 200) + 100,
@@ -158,9 +372,9 @@ class VoIPMonitor {
     this.stats.activeCalls++;
     this.stats.alertCount++;
     
-    this.addEvent('NAT_DETECTED', `IP privado detectado: ${from} na chamada ${callId}`);
-    this.addAlert('danger', `Problema NAT`, `IP privado ${from} detectado na chamada ${callId}`);
-    this.showToast('Problema NAT', `IP privado detectado na chamada ${callId}`, 'danger');
+    this.addEvent('NAT_DETECTED', this.t('natDetected', {from: from, id: callId}));
+    this.addAlert('danger', this.t('natProblemAlert'), this.t('natProblemAlertDesc', {from: from, id: callId}));
+    this.showToast(this.t('natProblemToast'), this.t('natProblemDetected', {id: callId}), 'danger');
     
     this.updateCallsTable();
     this.updateMetrics();
@@ -178,8 +392,8 @@ class VoIPMonitor {
   }
 
   simulateTrafficAnalysis() {
-    this.addEvent('ANALYSIS_START', 'Iniciando análise de tráfego SIP/RTP...');
-    this.showToast('Análise de Tráfego', 'Análise iniciada', 'info');
+    this.addEvent('ANALYSIS_START', this.t('analysisStart'));
+    this.showToast(this.t('trafficAnalysisToast'), this.t('analysisStarted'), 'info');
     
     // Simular múltiplos eventos de análise
     const analysisEvents = [
@@ -198,8 +412,8 @@ class VoIPMonitor {
     });
     
     setTimeout(() => {
-      this.addEvent('ANALYSIS_COMPLETE', 'Análise de tráfego concluída - Sistema normal');
-      this.showToast('Análise Concluída', 'Tráfego normal, sem problemas detectados', 'success');
+      this.addEvent('ANALYSIS_COMPLETE', this.t('analysisComplete'));
+      this.showToast(this.t('analysisCompleted'), this.t('trafficNormal'), 'success');
     }, analysisEvents.length * 800 + 1000);
   }
 
@@ -207,13 +421,13 @@ class VoIPMonitor {
   resolveOneWayAudio(callId) {
     const call = this.calls.get(callId);
     if (call && call.issue === 'One-Way Audio') {
-      call.issue = 'Resolvido';
-      call.quality = 'Bom';
-      call.status = 'Recuperada';
+      call.issue = this.t('resolved');
+      call.quality = this.t('good');
+      call.status = this.t('recovered');
       this.stats.alertCount--;
       
-      this.addEvent('AUTO_RESOLVE', `One-Way Audio resolvido automaticamente na chamada ${callId}`);
-      this.showToast('Auto-Resolução', `Problema de áudio resolvido na chamada ${callId}`, 'success');
+      this.addEvent('AUTO_RESOLVE', this.t('oneWayAudioResolved', {id: callId}));
+      this.showToast('Auto-Resolução', this.t('oneWayAudioResolved', {id: callId}), 'success');
       
       this.updateCallsTable();
       this.updateMetrics();
@@ -224,13 +438,13 @@ class VoIPMonitor {
   resolveNatProblem(callId) {
     const call = this.calls.get(callId);
     if (call && call.issue === 'NAT Problem') {
-      call.issue = 'NAT Configurado';
-      call.quality = 'Regular';
-      call.status = 'Recuperada';
+      call.issue = this.t('natConfigured');
+      call.quality = this.t('regular');
+      call.status = this.t('recovered');
       this.stats.alertCount--;
       
-      this.addEvent('AUTO_RESOLVE', `NAT configurado automaticamente para chamada ${callId}`);
-      this.showToast('Auto-Resolução', `Problema NAT resolvido na chamada ${callId}`, 'success');
+      this.addEvent('AUTO_RESOLVE', this.t('natProblemResolved', {id: callId}));
+      this.showToast('Auto-Resolução', this.t('natProblemResolved', {id: callId}), 'success');
       
       this.updateCallsTable();
       this.updateMetrics();
@@ -244,7 +458,7 @@ class VoIPMonitor {
     if (!tbody) return;
     
     if (this.calls.size === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Nenhuma chamada ativa</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">${this.t('noActiveCalls')}</td></tr>`;
       return;
     }
     
@@ -254,16 +468,16 @@ class VoIPMonitor {
       const row = document.createElement('tr');
       
       let statusClass = 'text-success';
-      if (call.status === 'Problema' || call.status === 'NAT') {
+      if (call.status === this.t('problem') || call.status === this.t('nat')) {
         statusClass = 'text-danger';
-      } else if (call.status === 'Recuperada') {
+      } else if (call.status === this.t('recovered')) {
         statusClass = 'text-warning';
       }
       
       let qualityClass = 'text-success';
-      if (call.quality === 'Ruim' || call.quality === 'Péssima') {
+      if (call.quality === this.t('bad') || call.quality === this.t('terrible')) {
         qualityClass = 'text-danger';
-      } else if (call.quality === 'Regular' || call.quality === 'Bom') {
+      } else if (call.quality === this.t('regular') || call.quality === this.t('good')) {
         qualityClass = 'text-warning';
       }
       
@@ -303,7 +517,7 @@ class VoIPMonitor {
     if (!feed) return;
     
     if (this.events.length === 0) {
-      feed.innerHTML = '<div class="text-muted text-center">Aguardando eventos...</div>';
+      feed.innerHTML = `<div class="text-muted text-center">${this.t('waitingEvents')}</div>`;
       return;
     }
     
@@ -351,7 +565,7 @@ class VoIPMonitor {
       container.innerHTML = `
         <div class="alert alert-info mb-0">
           <i class="bi bi-info-circle me-2"></i>
-          Sistema funcionando normalmente. Nenhum alerta no momento.
+          ${this.t('systemNormal')}
         </div>
       `;
       return;
@@ -410,7 +624,7 @@ class VoIPMonitor {
       this.stats.activeCalls--;
       
       const duration = Math.floor((new Date() - call.startTime) / 1000);
-      this.addEvent('CALL_END', `Chamada ${callId} finalizada - Duração: ${duration}s`);
+      this.addEvent('CALL_END', this.t('callEnd', {id: callId, duration: duration}));
       
       this.updateCallsTable();
       this.updateMetrics();
@@ -418,18 +632,23 @@ class VoIPMonitor {
   }
 
   // Funções de Controle
+  updateAutoResolveButtonText() {
+    const button = document.getElementById('autoResolveText');
+    if (button) {
+      button.textContent = this.autoResolveEnabled ? this.t('deactivateAutoResolve') : this.t('activateAutoResolve');
+    }
+  }
+
   toggleAutoResolve() {
     this.autoResolveEnabled = !this.autoResolveEnabled;
-    const button = document.getElementById('autoResolveText');
+    this.updateAutoResolveButtonText();
     
     if (this.autoResolveEnabled) {
-      button.textContent = 'Desativar Auto-Resolução';
-      this.showToast('Auto-Resolução', 'Auto-resolução ATIVADA', 'success');
-      this.addEvent('SYSTEM', 'Auto-resolução ativada');
+      this.showToast('Auto-Resolução', this.t('autoResolveActivated'), 'success');
+      this.addEvent('SYSTEM', this.t('systemAutoResolveActivated'));
     } else {
-      button.textContent = 'Ativar Auto-Resolução';
-      this.showToast('Auto-Resolução', 'Auto-resolução DESATIVADA', 'info');
-      this.addEvent('SYSTEM', 'Auto-resolução desativada');
+      this.showToast('Auto-Resolução', this.t('autoResolveDeactivated'), 'info');
+      this.addEvent('SYSTEM', this.t('systemAutoResolveDeactivated'));
     }
   }
 
@@ -446,8 +665,8 @@ class VoIPMonitor {
     this.updateAlerts();
     this.updateMetrics();
     
-    this.showToast('Sistema', 'Todos os dados foram limpos', 'info');
-    this.addEvent('SYSTEM', 'Todos os dados limpos pelo usuário');
+    this.showToast('Sistema', this.t('systemCleared'), 'info');
+    this.addEvent('SYSTEM', this.t('systemClearedByUser'));
   }
 
   clearEvents() {
@@ -455,15 +674,15 @@ class VoIPMonitor {
     this.stats.eventCount = 0;
     this.updateEventsFeed();
     this.updateMetrics();
-    this.showToast('Eventos', 'Eventos limpos', 'info');
+    this.showToast('Eventos', this.t('eventsCleared'), 'info');
   }
 
   showHelp() {
-    this.showToast('Ajuda', 'Clique nos botões de simulação para testar o sistema', 'info');
+    this.showToast(this.t('helpToast'), this.t('helpMessage'), 'info');
   }
 
   resetSystem() {
-    if (confirm('Tem certeza que deseja reiniciar o sistema?')) {
+    if (confirm(this.currentLang === 'pt' ? 'Tem certeza que deseja reiniciar o sistema?' : 'Are you sure you want to reset the system?')) {
       location.reload();
     }
   }
@@ -524,6 +743,10 @@ function showHelp() {
 
 function resetSystem() {
   monitor.resetSystem();
+}
+
+function changeLanguage(lang) {
+  monitor.changeLanguage(lang);
 }
 
 // Inicializar quando o DOM estiver pronto
